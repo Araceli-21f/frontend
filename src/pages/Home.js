@@ -1,15 +1,12 @@
 import React from "react";
-import Sidebar from "../layouts/Siderbar";
+import Layout from "../layouts/pages/layout";
 
 const Home = () => {
   return (
-    <div style={{ display: "flex" }}>
-      <Sidebar />
-      <main style={{ flex: 1, padding: "20px" }}>
-        <h1>Bienvenido a Home</h1>
-        <p>Contenido de la página principal</p>
-      </main>
-    </div>
+    <Layout>
+        {/*Este sera para el inicio del dashboard */}
+      <h1>Bienvenido a mi página ERP</h1>
+    </Layout>
   );
 };
 
