@@ -1,5 +1,4 @@
 import React from "react";
-import "../assets/css/app.min.css";
 
 const TopBar = () => {
   return (
@@ -266,11 +265,8 @@ const TopBar = () => {
 
           <div className="dropdown d-inline-block">
             <button
-              type="button"
-              className="btn header-item waves-effect"
-              id="page-header-user-dropdown"
-              data-bs-toggle="dropdown"
-              aria-haspopup="true"
+              type="button" className="btn header-item waves-effect"
+              id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
               aria-expanded="false"
             >
               <img

@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "../assets/css/app.min.css";
-import "../assets/css/bootstrap.min.css";
 
 const Sidebar = () => {
   return (
@@ -76,10 +75,10 @@ const Sidebar = () => {
             </li>
 
             <li>
-            <a href="javascript: void(0);" className="has-arrow waves-effect">
+            <Link href="javascript: void(0);" className="has-arrow waves-effect">
             <i className="uil-list-ul"></i>
                 <span>Clientes</span>
-              </a>
+              </Link>
               <ul className="sub-menu">
                 <li><Link to="/Lista_clientes">Lista de Clientes</Link></li>
                 <li><Link to="/Estados_factura">Estados de Factura</Link></li>
@@ -90,10 +89,10 @@ const Sidebar = () => {
             </li>
 
             <li>
-              <a href="#" className="has-arrow waves-effect">
+              <Link href="#" className="has-arrow waves-effect mm-activate" >
                 <i className="uil-envelope"></i>
                 <span>Usuarios</span>
-              </a>
+              </Link>
               <ul className="sub-menu">
                 <li><Link to="/Lista_usuarios">Lista de Usuarios</Link></li>
                 <li><Link to="/Lista_nomina">Lista de Nomina</Link></li>

@@ -1,7 +1,7 @@
 // src/components/LayoutsIconSidebar.js
 import React from "react";
-import Sidebar from "../Sidebar";  // Asegúrate de tener este componente Sidebar
-import RightSidebar from "../RightSidebar";
+import Sidebar from "../Siderbar";  // Asegúrate de tener este componente Sidebar
+import RightSidebar from "../Right-siderbar";
 import Footer from "../Footer";
 import TopBar from "../TopBar";
 
