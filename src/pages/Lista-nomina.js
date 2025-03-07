@@ -21,6 +21,11 @@ const Lista_nomina = () => {
   return (
     <Layout>
       <div className="row mb-3">
+      <div className="col-md-3">
+          <button type="button" className="input-daterange input-group btn btn-success waves-effect waves-light">
+            <i className="mdi mdi-plus me-1"></i> Agregar Nómina
+          </button>
+        </div> 
         <div className="col-md-8 position-relative">
           <i
             className="fas fa-search position-absolute top-50 translate-middle-y end-0 me-3"
@@ -34,11 +39,7 @@ const Lista_nomina = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="col-md-4">
-          <button type="button" className="btn btn-success waves-effect waves-light">
-            <i className="mdi mdi-plus me-1"></i> Agregar Nómina
-          </button>
-        </div>
+      
       </div>
 
       <div className="row">

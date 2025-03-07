@@ -39,14 +39,19 @@ const ListaFacturas = () => {
   return (
     <Layout>
       <div className="row mb-3">
-        <div className="col-md-4">
-          <button type="button" className="btn btn-success waves-effect waves-light">
-            <i className="mdi mdi-plus me-1"></i> Agregar Factura
-          </button>
-        </div>
-        <div className="col-md-8">
-          <div className="row">
-            <div className="col-md-4 position-relative">
+      {/* Columna para el botón Agregar Factura */}
+      <div className="col-md-3">
+        <button type="button" className="input-daterange input-group btn btn-soft-success waves-effect waves-light">
+          <i className="mdi mdi-plus me-1"></i> Agregar Factura
+        </button>
+      </div>
+
+      {/* Columna para los inputs de búsqueda y fechas */}
+      <div className="col-md-8">
+        <div className="row">
+          {/* Columna para el input de búsqueda */}
+          <div className="col-md-5 mb-2">
+            <div className="input-daterange input-group">
               <input
                 type="text"
                 className="form-control pe-5"
@@ -54,30 +59,39 @@ const ListaFacturas = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <i
-                className="fas fa-search position-absolute top-50 translate-middle-y end-0 me-3"
-                style={{ pointerEvents: "none" }}
-              />
+              {/* Botón de filtro */}
+              <button type="button" className="btn btn-primary" style={{ marginLeft: '2px' }}>
+                <i className="uil-search "></i>
+              </button>
             </div>
-            <div className="col-md-4">
+          </div>
+
+          {/* Columna para los inputs de fechas */}
+          <div className="col-md-7 mb-2">
+            <div className="input-daterange input-group">
+              {/* Input de Fecha de inicio */}
               <input
                 type="date"
                 className="form-control"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-              />
-            </div>
-            <div className="col-md-4">
+               />
+              {/* Input de Fecha de fin */}
               <input
                 type="date"
                 className="form-control"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-              />
+               />
+              {/* Botón de filtro */}
+              <button type="button" className="btn btn-primary" style={{ marginLeft: '2px' }}>
+                <i className="mdi mdi-filter-variant"></i>
+              </button>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
       <div className="row">
         <div className="col-lg-12">

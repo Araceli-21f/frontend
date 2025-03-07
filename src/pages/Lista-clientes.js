@@ -18,9 +18,14 @@ const ListaClientes = () => {
 
   return (
     <Layout>
+      <div className="col-lg-12">
+          <div className="card">
+            <div className="card-body">
+            <h2 className="mb-3"><i className="fa fa-fw fa-bars"/> Lista de Usuarios</h2>
+
       <div className="row mb-3">
         
-        <div className="col-md-8">
+        <div className="col-md-3 ">
         <i
             className="fas fa-search position-absolute top-50 translate-middle-y end-0 me-3" // Añade el icono
             style={{ pointerEvents: "none" }} // Evita que el icono capture eventos de clic
@@ -34,7 +39,7 @@ const ListaClientes = () => {
           />
 
         </div>
-        <div className="col-md-4">
+        <div className="col-md-3">
           <button type="button" className="btn btn-success waves-effect waves-light">
             <i className="mdi mdi-plus me-1"></i> Agregar Cliente
           </button>
@@ -85,7 +90,7 @@ const ListaClientes = () => {
           </div>
         </div>
       </div>
-
+      </div></div></div>
       {/* Inclusión de JavaScript específico para el Footer */}
       {/* Required datatable js */}
       <script src="/assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
