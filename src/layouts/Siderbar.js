@@ -1,14 +1,23 @@
-import React from "react";
+import React, { useState}from "react";
 import { Link } from "react-router-dom";
-import "../assets/css/app.min.css";
 
-const Sidebar = () => {
+const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
+    //Funcion del menu y sub menu
+  const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
+  const toggleSubMenu = () => {
+    setIsSubMenuOpen(!isSubMenuOpen);
+  };
+  const [isSubMenuOpen2, setIsSubMenuOpen2] = useState(false);
+  const toggleSubMenu2 = () => {
+    setIsSubMenuOpen2(!isSubMenuOpen2);
+  };
+
   return (
-    <div className="vertical-menu">
-          {/* Menu*/}
-
+    
+    <div className={`vertical-menu ${!isSidebarOpen ? "menu-vertical collapsed-menu " : "expanded-menu"}`}>
+      
       <div className="navbar-brand-box">
-        {/*Logos con tamaño y color*/}
+
         <Link to="/" className="logo logo-dark">
           <span className="logo-sm">
             <img src="/assets/images/logo-sm.png" alt="Logo pequeño" height="22" />
@@ -28,80 +37,92 @@ const Sidebar = () => {
         </Link>
       </div>
 
-      <button type="button" className="btn btn-sm px-3 font-size-16 header-item waves-effect vertical-menu-btn">
-        <i className="fa fa-fw fa-bars"></i>
-      </button>
-
-      <div className="sidebar-menu-scroll">
+      <button 
+        type="button" 
+        className={`btn btn-sm px-3 font-size-16 header-item waves-effect vertical-menu-btn ${!isSidebarOpen ? 'collapsed' : ''}`}
+        onClick={toggleSidebar} >
+       <i className="fa fa-fw fa-bars"></i>
+       </button>
+      
+      <div data-simplebar className="sidebar-menu-scroll">
         <div id="sidebar-menu">
           <ul className="metismenu list-unstyled" id="side-menu">
-            <li className="menu-title">Menú</li>
+            <li className="menu-title"> Menu </li>
 
             <li>
-              <Link to="/">
-                <i className="uil-home-alt"></i><span className="badge rounded-pill bg-primary float-end">01</span>
-                <span>Inicio</span>
+              <Link to="/" className="waves-effect">
+                <i className="uil-home-alt"></i>
+                <span> Home </span>
               </Link>
             </li>
+
             <li>
               <Link to="/Tablero" className="waves-effect">
                 <i className="uil-comments-alt"></i>
-                <span>Tablero</span>
+                <span> Dashboard </span>
               </Link>
             </li>
+
             <li>
               <Link to="/Calendario" className="waves-effect">
                 <i className="uil-comments-alt"></i>
-                <span>Calendario</span>
+                <span> Calendario </span>
               </Link>
             </li>
+
             <li>
               <Link to="/Cronograma" className="waves-effect">
                 <i className="uil-comments-alt"></i>
-                <span>Gronograma</span>
+                <span> Cronograma </span>
               </Link>
             </li>
+
             <li>
               <Link to="/Cotizacion" className="waves-effect">
                 <i className="uil-comments-alt"></i>
-                <span>Cotizacion</span>
+                <span> Cotizacion </span>
               </Link>
             </li>
+
             <li>
               <Link to="/Reporte" className="waves-effect">
                 <i className="uil-comments-alt"></i>
-                <span>Reporte</span>
+                <span> Reporte </span>
               </Link>
             </li>
 
             <li>
-            <Link href="javascript: void(0);" className="has-arrow waves-effect">
-            <i className="uil-list-ul"></i>
-                <span>Clientes</span>
+              <Link className="has-arrow waves-effect" onClick={toggleSubMenu}>
+                <i className="uil-list-ul"></i>
+                <span> Clientes </span>
               </Link>
+              {isSubMenuOpen && (
               <ul className="sub-menu">
-                <li><Link to="/Lista_clientes">Lista de Clientes</Link></li>
-                <li><Link to="/Estados_factura">Estados de Factura</Link></li>
-                <li><Link to="/Lista_facturas">Lista de facturas</Link></li>
-                <li><Link to="/InvoicesDetail">Detalle Factura</Link></li>
-
+                <li><Link to="/Lista_clientes"> Lista de Clientes </Link></li>
+                <li><Link to="/Estados_factura"> Estados de Factura </Link></li>
+                <li><Link to="/Lista_facturas"> Lista de facturas </Link></li>
+                <li><Link to="/InvoicesDetail"> Detalle Factura </Link></li>
               </ul>
+              )}
             </li>
-
             <li>
-              <Link href="#" className="has-arrow waves-effect mm-activate" >
-                <i className="uil-envelope"></i>
-                <span>Usuarios</span>
+            <Link
+              className={`has-arrow waves-effect mm-activate ${!isSidebarOpen ? 'disabled-link' : ''}`}
+              onClick={isSidebarOpen ? toggleSubMenu2 : null}
+              >
+              <i className="uil-envelope"></i>
+              <span> Usuarios </span>
               </Link>
+                {isSubMenuOpen2 && ( // Corregido: Usar isSubMenuOpen2
               <ul className="sub-menu">
-                <li><Link to="/Lista_usuarios">Lista de Usuarios</Link></li>
-                <li><Link to="/Lista_nomina">Lista de Nomina</Link></li>
+              <li><Link to="/Lista_usuarios"> Lista de Usuarios </Link></li>
+              <li><Link to="/Lista_nomina">Lista de Nomina</Link></li>
               </ul>
-            </li>
-
+              )}
+          </li> 
           </ul>
         </div>
-      </div>
+      </div> 
     </div>
   );
 };
