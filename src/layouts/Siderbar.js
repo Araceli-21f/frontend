@@ -14,7 +14,7 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
 
   return (
     
-    <div className={`vertical-menu ${!isSidebarOpen ? "menu-vertical collapsed-menu " : "expanded-menu"}`}>
+    <div className={`vertical-menu ${!isSidebarOpen ? "vertical-menu mm-active collapsed " : "expanded-menu"}`}>
       
       <div className="navbar-brand-box">
 
@@ -52,48 +52,48 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
             <li>
               <Link to="/" className="waves-effect">
                 <i className="uil-home-alt"></i>
-                <span> Home </span>
+                <span> Inicio </span>
               </Link>
             </li>
 
             <li>
               <Link to="/Tablero" className="waves-effect">
-                <i className="uil-comments-alt"></i>
-                <span> Dashboard </span>
+                <i className="uil-invoice"></i>
+                <span> Tablero</span>
               </Link>
             </li>
 
             <li>
               <Link to="/Calendario" className="waves-effect">
-                <i className="uil-comments-alt"></i>
+                <i className="uil-calender"></i>
                 <span> Calendario </span>
               </Link>
             </li>
 
             <li>
               <Link to="/Cronograma" className="waves-effect">
-                <i className="uil-comments-alt"></i>
+                <i className="uil-chart-growth-alt "></i>
                 <span> Cronograma </span>
               </Link>
             </li>
 
             <li>
               <Link to="/Cotizacion" className="waves-effect">
-                <i className="uil-comments-alt"></i>
+                <i className="uil-moneybag"></i>
                 <span> Cotizacion </span>
               </Link>
             </li>
 
             <li>
               <Link to="/Reporte" className="waves-effect">
-                <i className="uil-comments-alt"></i>
+                <i className="uil-folder "></i>
                 <span> Reporte </span>
               </Link>
             </li>
 
             <li>
               <Link className="has-arrow waves-effect" onClick={toggleSubMenu}>
-                <i className="uil-list-ul"></i>
+                <i className="uil-window-section"></i>
                 <span> Clientes </span>
               </Link>
               {isSubMenuOpen && (
@@ -107,13 +107,11 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
             </li>
             <li>
             <Link
-              className={`has-arrow waves-effect mm-activate ${!isSidebarOpen ? 'disabled-link' : ''}`}
-              onClick={isSidebarOpen ? toggleSubMenu2 : null}
-              >
-              <i className="uil-envelope"></i>
+              className={"has-arrow waves-effect"} onClick={toggleSubMenu2 }>
+              <i className="uil-users-alt"></i>
               <span> Usuarios </span>
               </Link>
-                {isSubMenuOpen2 && ( // Corregido: Usar isSubMenuOpen2
+                {isSubMenuOpen2 && ( 
               <ul className="sub-menu">
               <li><Link to="/Lista_usuarios"> Lista de Usuarios </Link></li>
               <li><Link to="/Lista_nomina">Lista de Nomina</Link></li>
