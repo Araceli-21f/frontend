@@ -98,10 +98,10 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
               </Link>
               {isSubMenuOpen && (
               <ul className="sub-menu">
-                <li><Link to="/Lista_clientes"> Lista de Clientes </Link></li>
-                <li><Link to="/Estados_factura"> Estados de Factura </Link></li>
-                <li><Link to="/Lista_facturas"> Lista de facturas </Link></li>
-                <li><Link to="/InvoicesDetail"> Detalle Factura </Link></li>
+                <li><Link to="/Lista_clientes">Lista de Clientes</Link></li>
+                <li><Link to="/Estados_factura">Estados de Factura </Link></li>
+                <li><Link to="/Lista_facturas">Lista de facturas</Link></li>
+                <li><Link to="/InvoicesDetail">Detalle Factura</Link></li>
               </ul>
               )}
             </li>
@@ -113,7 +113,7 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
               </Link>
                 {isSubMenuOpen2 && ( 
               <ul className="sub-menu">
-              <li><Link to="/Lista_usuarios"> Lista de Usuarios </Link></li>
+              <li><Link to="/Lista_usuarios">Lista de Usuarios</Link></li>
               <li><Link to="/Lista_nomina">Lista de Nomina</Link></li>
               </ul>
               )}

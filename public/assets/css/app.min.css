@@ -20,72 +20,133 @@
 .vertical-menu #sidebar-menu .menu-title,body[data-sidebar-size=sm] 
 .vertical-menu #sidebar-menu .badge,body[data-sidebar-size=sm] 
 
-
-.expanded-menu {
-  width: 250px; /* Ajusta según tu diseño */
-  transition: width 0.3s ease-in-out;
-  display: block;
-}
-
-.expanded-menu .navbar-brand-box .logo-sm {
-  display: none; /* Oculta el logo pequeño cuando el menú está expandido */
-}
-
-.expanded-menu .navbar-brand-box .logo-lg {
-  display: inline-block; /* Muestra el logo grande cuando el menú está expandido */
-}
-
-.expanded-menu #sidebar-menu .waves-effect span {
-  display: inline-block !important;
-  padding-left: 10px;
-}
-
-/* Cuando el menú está colapsado */
-.collapsed {
-  width: 80px; /* Reduce el tamaño del menú */
+/* ===== Estilos generales del sidebar ===== */
+#sidebar-menu {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 80px; /* Menú colapsado */
+  height: 100vh;
+  background: #1e1e2d;
+  padding-top: 20px;
   transition: width 0.3s ease-in-out;
   overflow: hidden;
   white-space: nowrap;
 }
 
-/* El logo pequeño se mantendrá visible cuando el menú esté colapsado */
-.collapsed .navbar-brand-box .logo-sm {
+/* Cuando el menú está expandido */
+.expanded-menu {
+  width: 250px; /* Ajusta según tu diseño */
+  transition: width 0.3s ease-in-out;
+  overflow: visible;
+}
+
+/* Cuando el menú está colapsado */
+.collapsed {
+  width: 80px;
+  transition: width 0.3s ease-in-out;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* ===== Estilos para los logos ===== */
+.navbar-brand-box .logo-sm {
   display: inline-block;
 }
-/* Oculta el logo grande cuando el menú está colapsado */
-.collapsed .navbar-brand-box .logo-lg {
+
+.navbar-brand-box .logo-lg {
   display: none;
 }
 
-/* Mostrar los textos al acercar el cursor en el menú colapsado */
-.collapsed #sidebar-menu .waves-effect:hover span {
-  display: inline-block ; 
-  position: fixed !important;
-  padding-top: 10px;
-  margin-left: 10px;
+/* Cuando el menú está expandido */
+.expanded-menu .navbar-brand-box .logo-sm {
+  display: none;
 }
 
-
-/**/
-.collapsed .sub-menu li {
-  position: relative; /* Establece el contexto de posicionamiento */
+.expanded-menu .navbar-brand-box .logo-lg {
+  display: inline-block;
 }
 
-.collapsed .sub-menu li a {
-  position: relative; /* Asegura que el anchor tenga posicionamiento relativo */
+/* ===== Estilos para los elementos del menú ===== */
+#sidebar-menu ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }
 
-.collapsed .sub-menu li a {
-  margin-left: -10px; /* Ajusta la cantidad que sobresale hacia la izquierda */
-  z-index: 100; /* Asegura que esté por encima de otros elementos */
+#sidebar-menu li {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 12px;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
+#sidebar-menu i {
+  font-size: 18px;
+  margin-right: 10px;
+  color: #251a1a;
+  transition: color 0.3s ease-in-out;
+}
 
+#sidebar-menu li span {
+  color: rgb(0, 0, 0);
+  font-size: 16px;
+  display: none;
+}
 
+/* Expandir texto cuando el menú está expandido */
+.expanded-menu #sidebar-menu .waves-effect span {
+  display: inline-block !important;
+  padding-left: 10px;
+}
 
-/* Oculta los textos del menú cuando está colapsado */
+/* Oculta los textos cuando el menú está colapsado */
 .collapsed #sidebar-menu .waves-effect span {
   display: none;
+}
+
+/* Efecto hover */
+#sidebar-menu li:hover {
+  background-color: #65a3e6;
+  border-radius: 6px;
+}
+
+/* ===== Submenú ===== */
+.collapsed .sub-menu {
+  display: none;
+  position: fixed;
+  left: 80px; /* Ajuste para que aparezca al lado del menú */
+  width: 200px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 200;
+  padding: 5px 0;
+}
+
+/* Mostrar submenú al pasar el cursor */
+#sidebar-menu li:hover .sub-menu {
+  display: block;
+}
+
+/* Diseño de los elementos del submenú */
+.sub-menu li {
+  padding: 10px;
+  font-size: 14px;
+  color: #000000;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  list-style: none;
+}
+
+.sub-menu li:hover {
+  background-color: #68acf5c7;
+  color: rgb(0, 0, 0);
+  border-radius: 4px;
+  padding-left: 18px;
 }
 
 /* Oculta las flechas de submenús en el menú colapsado */
@@ -93,15 +154,12 @@
   display: none;
 }
 
-/* Ajuste del menú activo colapsado */
+/* Ajuste del menú activo cuando está colapsado */
 .vertical-menu.mm-active.collapsed {
   width: 80px;
 }
 
-/* Asegúrate de que el tamaño del menú sea adecuado para pantallas pequeñas */
-body[data-sidebar-size="sm"] .vertical-menu #sidebar-menu .nav.collapsed {
-  height: inherit !important;
-}
+
 
 @media (max-width: 768px) {
   .expanded-menu {
@@ -109,6 +167,8 @@ body[data-sidebar-size="sm"] .vertical-menu #sidebar-menu .nav.collapsed {
   transition: width 0.3s ease-in-out;
   display: block;
 }
+
+
 }
 
 .vertical-menu #sidebar-menu .collapse.in{display:none !important}body[data-sidebar-size=sm] 
