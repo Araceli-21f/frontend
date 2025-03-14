@@ -7,9 +7,13 @@ import Footer from "../Footer";
 
 const Layout = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [showRightSidebar, setShowRightSidebar] = useState(false);
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
+    };
+    const toggleRightSidebar = () => {
+        setShowRightSidebar(!showRightSidebar);
     };
 
     useEffect(() => {
@@ -32,7 +36,13 @@ const Layout = ({ children }) => {
                 </div>
                 <Footer />
             </div>
-            <RightSidebar />
+             {/* Mostrar RightSidebar solo si showRightSidebar es true */}
+                  {showRightSidebar && <RightSidebar />}
+            
+                  {/* Cerrar el sidebar al hacer clic fuera */}
+                  {showRightSidebar && (
+                    <div className="rightbar-overlay" onClick={toggleRightSidebar}></div>
+                  )}
         </div>
     );
 };

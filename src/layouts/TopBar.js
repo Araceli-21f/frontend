@@ -1,6 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
+import RightSidebar from "./Right-siderbar";
 
-const TopBar = ({ toggleSidebar }) => {
+const TopBar = ({ toggleSidebar}) => {
+  const [ showRighSidebar, setShowRighSidebar ] = useState(false);
+
+  //Funcion para alterar el sidebar
+  const handleToggleSidebar = () => {
+    setShowRighSidebar(!showRighSidebar)
+  };
+
   return (
     <header id="page-topbar">
       <div className="navbar-header">
@@ -310,11 +318,14 @@ const TopBar = ({ toggleSidebar }) => {
             <button
               type="button"
               className="btn header-item noti-icon right-bar-toggle waves-effect"
+              onClick={handleToggleSidebar}
             >
               <i className="uil-cog"></i>
             </button>
+    
           </div>
-        </div>
+        
+    </div>
       </div>
     </header>
   );

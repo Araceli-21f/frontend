@@ -1,15 +1,16 @@
 import React from 'react';
 
-function RightSidebar() {
+function RightSidebar({showRightSidebar}) {
   return (
     <>
-      <div className="right-bar">
+      <div className={`right-bar ${showRightSidebar ? "open" : ""}`}>
         <div data-simplebar className="h-100">
           <div className="rightbar-title d-flex align-items-center p-3">
             <h5 className="m-0 me-2">Settings</h5>
             <a href="#" className="right-bar-toggle ms-auto">
               <i className="mdi mdi-close noti-icon"></i>
             </a>
+            
           </div>
 
           <hr className="m-0" />

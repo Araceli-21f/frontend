@@ -61,7 +61,7 @@ body[data-topbar=colored] .header-profile-user{background-color:rgba(255,255,255
 
 /*--- SIDEBAR ---*/
 .vertical-menu{width:200px;z-index:1005;background:var(--bs-sidebar-bg);bottom:0;margin-top:0;position:fixed;top:0;box-shadow:0 2px 4px rgba(15,34,58,.12)}
-.vertical-menu .vertical-menu-btn{position:absolute;right:0;top:0;z-index:2}.main-content{margin-left:250px;overflow:hidden}
+.vertical-menu .vertical-menu-btn{position:absolute;right:0;top:0;z-index:2}.main-content{margin-left:200px;overflow:hidden}
 .main-content .content{padding:0 15px 10px 15px;margin-top:70px}.sidebar-menu-scroll{height:calc(100% - 70px);margin-top:70px}
 #sidebar-menu{padding:10px 0 30px 0}
 #sidebar-menu .mm-active>.has-arrow:after{transform:rotate(-180deg)}
