@@ -1,4 +1,4 @@
-import React, { useState}from "react";
+import React, { useState }from "react";
 import { Link } from "react-router-dom";
 
 const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
@@ -14,7 +14,7 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
 
   return (
     
-    <div className={`vertical-menu ${!isSidebarOpen ? "vertical-menu mm-active collapsed " : "expanded-menu"}`}>
+    <div className={`vertical-menu ${isSidebarOpen ? "" : "collapsed"}`}>
       
       <div className="navbar-brand-box">
 
@@ -39,7 +39,7 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
 
       <button 
         type="button" 
-        className={`btn btn-sm px-3 font-size-16 header-item waves-effect vertical-menu-btn ${!isSidebarOpen ? 'collapsed' : ''}`}
+        className="btn btn-sm px-3 font-size-16 header-item waves-effect menu vertical vertical-menu-btn"
         onClick={toggleSidebar} >
        <i className="fa fa-fw fa-bars"></i>
        </button>
