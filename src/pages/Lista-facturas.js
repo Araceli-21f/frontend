@@ -41,7 +41,7 @@ const ListaFacturas = () => {
       <div className="row mb-3">
       {/* Columna para el botón Agregar Factura */}
       <div className="col-md-3">
-        <button type="button" className="input-daterange input-group btn btn-soft-success waves-effect waves-light">
+        <button type="button" className="input-daterange input-group btn btn-soft-success waves-effect waves-light" href="./facturas/Agregar-factura.js" >
           <i className="mdi mdi-plus me-1"></i> Agregar Factura
         </button>
       </div>

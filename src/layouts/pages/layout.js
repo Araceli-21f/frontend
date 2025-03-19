@@ -24,10 +24,19 @@ const Layout = ({ children }) => {
       }
   }, [isSidebarOpen]);
 
+  useEffect(() => {
+    if (showRightSidebar) {
+      document.body.classList.add("right-bar-enabled");
+    } else {
+      document.body.classList.remove("right-bar-enabled");
+    }
+  }, [showRightSidebar]);
+  
+
     return (
         <div id="layout-wrapper">
             <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-            <TopBar toggleSidebar={toggleSidebar} />
+            <TopBar toggleSidebar={toggleSidebar} toggleRightSidebar={toggleRightSidebar} />
             <div className="main-content">
                 <div className="page-content">
                     <div className="container-fluid">
@@ -36,13 +45,11 @@ const Layout = ({ children }) => {
                 </div>
                 <Footer />
             </div>
-             {/* Mostrar RightSidebar solo si showRightSidebar es true */}
-                  {showRightSidebar && <RightSidebar />}
-            
-                  {/* Cerrar el sidebar al hacer clic fuera */}
-                  {showRightSidebar && (
-                    <div className="rightbar-overlay" onClick={toggleRightSidebar}></div>
-                  )}
+           {/* Mostrar RightSidebar solo si showRightSidebar es true */}
+         {showRightSidebar && <RightSidebar/>}
+            {/* Cerrar el sidebar al hacer clic fuera */}
+            {showRightSidebar && <RightSidebar showRightSidebar={showRightSidebar} toggleRightSidebar={toggleRightSidebar} />}
+
         </div>
     );
 };

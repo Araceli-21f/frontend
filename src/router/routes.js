@@ -11,6 +11,7 @@ import Estados_factura from "../pages/Estados-factura";
 import Lista_facturas from "../pages/Lista-facturas";
 import Lista_usuarios from "../pages/Lista-usuarios";
 import Lista_nomina from "../pages/Lista-nomina";
+import Agregar_factura from "../pages/facturas/Agregar-factura";
 
 
 const AppRoutes = () => {
@@ -29,6 +30,8 @@ const AppRoutes = () => {
             <Route path="/Lista_facturas" element={<Lista_facturas />}/>
             <Route path="/Lista_usuarios" element={<Lista_usuarios />}/>
             <Route path="/Lista_nomina" element={<Lista_nomina />}/>
+            <Route path="/Agregar_factura" element={<Agregar_factura />}/>
+
 
 
 
