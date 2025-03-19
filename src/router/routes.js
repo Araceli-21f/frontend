@@ -12,13 +12,22 @@ import Lista_facturas from "../pages/Lista-facturas";
 import Lista_usuarios from "../pages/Lista-usuarios";
 import Lista_nomina from "../pages/Lista-nomina";
 import Agregar_factura from "../pages/facturas/Agregar-factura";
+import Login from "../layouts/Auth/Login";
+import Register from "../layouts/Auth/Register";
+import ResetPassword from "../layouts/Auth/ResetPassword";
+import RecoverPassword from "../layouts/Auth/RecoverPassword";
 
 
 const AppRoutes = () => {
     return (
         <Router>
             <Routes>
-            <Route path="/" element={<Home/>}/>
+            <Route path="/" element={<Login />} />
+            <Route path="/Login" element={<Login />} />
+            <Route path="/Register" element={<Register />} />   
+            <Route path="/ResetPassword" element={<ResetPassword />}/>
+            <Route path="/RecoverPassword" element={<RecoverPassword />}/>
+            <Route path="/Home" element={<Home/>}/>
             <Route path="/InvoicesDetail" element={<Invoices_detail />}/>
             <Route path="/Tablero" element={<Tablero />}/>
             <Route path="/Calendario" element={<Calendario />}/>
