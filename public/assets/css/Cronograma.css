@@ -1,0 +1,166 @@
+/* 🟢 Título */
+.cronograma-title {
+  font-size: 28px;
+  color: #2c3e50;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+/* 🟢 Botones de control */
+.gantt-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.gantt-controls button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+  box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.gantt-controls button:hover {
+  background-color: #2980b9;
+  transform: scale(1.05);
+}
+
+/* 🟢 Contenedor del Gantt */
+.gantt-container {
+  width: 90%;
+  max-width: 1200px;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.gantt-container:hover {
+  background-color: #f5f5f5;
+  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* 🟢 Estilos de la tabla del Gantt */
+.dhx_gantt_grid_data {
+  background: #f8f9fa;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* 🟢 Estilo de las tareas del Gantt */
+.dhx_gantt_task {
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.5s ease-in-out, transform 0.2s ease-in-out;
+}
+
+/* 🟢 Colores dinámicos según el progreso */
+.dhx_gantt_task.low-progress {
+  background-color: #e74c3c !important; /* Rojo */
+}
+
+.dhx_gantt_task.medium-progress {
+  background-color: #f39c12 !important; /* Naranja */
+}
+
+.dhx_gantt_task.high-progress {
+  background-color: #f1c40f !important; /* Amarillo */
+}
+
+.dhx_gantt_task.completed-progress {
+  background-color: #2ecc71 !important; /* Verde */
+}
+
+/* 🟢 Efecto hover en las tareas */
+.dhx_gantt_task:hover {
+  transform: scale(1.02);
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* 🟢 Contenedor específico para el Gantt */
+.gantt-chart {
+  width: 100%;
+  height: 550px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* 🟢 Responsivo */
+@media (max-width: 768px) {
+  .gantt-controls {
+    flex-direction: column;
+  }
+  .gantt-container {
+    width: 100%;
+    padding: 15px;
+  }
+  .cronograma-title {
+    font-size: 22px;
+  }
+}
+
+/* 🔹 Estilos para el botón dropdown */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-toggle {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
+  box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-toggle:hover {
+  background-color: #2980b9;
+  transform: scale(1.05);
+}
+
+/* 🔹 Estilos del menú desplegable */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  border: 1px solid #ddd;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  list-style: none;
+  padding: 5px 0;
+  margin: 5px 0 0;
+  width: 150px;
+  display: none;
+}
+
+.dropdown-menu.show {
+  display: block; /* Se mostrará cuando esté activo */
+}
+
+.dropdown-menu li {
+  padding: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 14px;
+  text-align: left;
+}
+
+.dropdown-menu li:hover {
+  background: #f5f5f5;
+}
