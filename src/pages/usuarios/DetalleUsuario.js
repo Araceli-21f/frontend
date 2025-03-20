@@ -2,28 +2,27 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Layout from "../../layouts/pages/layout";
 
-const DetalleUsuario = () => {
+const DetalleUsuario = ({entidad, users}) => {
   const { id } = useParams();
-  const [usuario, setUsuario] = useState(null);
+  const [user, setuser] = useState(null);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    // Simulación de carga de datos (reemplazar con llamada a API real)
-    const fetchUsuario = async () => {
+    const fetchUser = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/usuarios/${id}`); // Reemplazar con la API real
-        if (!response.ok) throw new Error("Usuario no encontrado");
-        const data = await response.json();
-        setUsuario(data);
+        // Simulación de la respuesta de la API usando los datos de users
+        const foundUser = users.find((u) => u.id === id);
+        if (!foundUser) throw new Error("Usuario no encontrado");
+        setuser(foundUser);
       } catch (error) {
-        setUsuario(null);
+        setuser(null);
       } finally {
         setLoading(false);
       }
     };
-    fetchUsuario();
-  }, [id]);
+    fetchUser();
+  }, [id, users]);
 
   if (loading) {
     return (
@@ -35,7 +34,7 @@ const DetalleUsuario = () => {
     );
   }
 
-  if (!usuario) {
+  if (!user) {
     return (
       <Layout>
         <div className="container">
@@ -53,7 +52,7 @@ const DetalleUsuario = () => {
             <div className="card">
               <div className="card-body">
                 <div className="invoice-title">
-                  <h4 className="float-end font-size-16">Usuario #{usuario.id}</h4>
+                  <h4 className="float-end font-size-16">Usuario #{user.id}</h4>
                   <div className="mb-4">
                     <h2 className="mb-1">Detalles del Usuario</h2>
                   </div>
@@ -63,16 +62,16 @@ const DetalleUsuario = () => {
                   <div className="col-sm-6">
                     <div className="text-muted">
                       <h5 className="font-size-16 mb-3">Información Personal:</h5>
-                      <p><strong>Nombre:</strong> {usuario.nombre}</p>
-                      <p><strong>Email:</strong> {usuario.email}</p>
-                      <p><strong>Rol:</strong> {usuario.rol}</p>
+                      <p><strong>Nombre:</strong> {user.nombre}</p>
+                      <p><strong>Email:</strong> {user.email}</p>
+                      <p><strong>Rol:</strong> {user.rol}</p>
                     </div>
                   </div>
                   <div className="col-sm-6 text-sm-end">
                     <div className="text-muted">
                       <h5 className="font-size-16 mb-3">Detalles Laborales:</h5>
-                      <p><strong>Área:</strong> {usuario.area}</p>
-                      <p><strong>Acceso a Nómina:</strong> {usuario.accesoNomina}</p>
+                      <p><strong>Área:</strong> {user.area}</p>
+                      <p><strong>Acceso a Nómina:</strong> {user.accesoNomina}</p>
                     </div>
                   </div>
                 </div>

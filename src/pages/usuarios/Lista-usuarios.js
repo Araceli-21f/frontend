@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import Layout from "../../layouts/pages/layout";
-import { Link } from "react-router-dom";
+import { Link} from "react-router-dom";
 import useSearchFilter from "../../hooks/Usuarios/useSearchFilter";
 import usePagination from "../../hooks/Usuarios/usePagination";
 import BotonesAccion from "../../components/BotonesAccion";
@@ -12,7 +12,7 @@ const Lista_usuarios = () => {
   const { searchTerm, filterType, filterValue, handleSearchChange, handleFilterTypeChange, handleFilterValueChange } = useSearchFilter();
   const [alert, setAlert] = useState(null);
   
-  const [User , setUser] = useState([
+  const [users , setuser] = useState([
     { id: "1", nombre: "Admin", email: "admin@example.com", rol: "Administrador", area: "Sistemas", accesoNomina: true },
     { id: "2", nombre: "Usuario 1", email: "usuario1@example.com", rol: "Empleado", area: "Ventas", accesoNomina: false },
     { id: "3", nombre: "Usuario 2", email: "usuario2@example.com", rol: "Recursos Humanos", area: "Recursos Humanos", accesoNomina: true },
@@ -21,19 +21,19 @@ const Lista_usuarios = () => {
   ]);
 
   // Filtra los usuarios según el término de búsqueda y el valor de filtro.
-  const filteredUsers = Usersfilter((User) =>
-    (filterValue === "Todos" || User[filterType] === filterValue) &&
-    (User.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || User.id.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredusers = users.filter((user) =>
+    (filterValue === "Todos" || user[filterType] === filterValue) &&
+    (user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || user.id.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   // Usa el hook de paginación.
-  const { currentUsers, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredUsers, 5);
-  const options = ["Todos", ...new Set(users.map((User) => User[filterType]))];
+  const { currentusers, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredusers, 5);
+  const options = ["Todos", ...new Set(users.map((user) => user[filterType]))];
 
 
   //Eliminar al usuario
   const handleDelete = (id) => {
-    setUsuarios(prevUsers => prevUsers.filter(User => User.id !== id));
+    setuser(prevusers => prevusers.filter(user => user.id !== id));
     setAlert({ type: "success", action: "delete", entity: "usuario" });
     setTimeout(() => setAlert(null), 5000);
   };
@@ -46,6 +46,7 @@ const Lista_usuarios = () => {
   const handleCancelDelete = () => {
     setAlert(null);
   };
+
 
   return (
     <Layout>
@@ -106,16 +107,16 @@ const Lista_usuarios = () => {
             </tr>
           </thead>
           <tbody>
-            {currentUsers.map((User, index) => (
-              <tr key={User.id}>
-                <td>{User.id}</td>
-                <td>{User.nombre}</td>
-                <td>{User.email}</td>
-                <td>{User.rol}</td>
-                <td>{User.area}</td>
-                <td>{User.accesoNomina ? "Sí" : "No"}</td>
+            {currentusers.map((user, index) => (
+              <tr key={user.id}>
+                <td>{user.id}</td>
+                <td>{user.nombre}</td>
+                <td>{user.email}</td>
+                <td>{user.rol}</td>
+                <td>{user.area}</td>
+                <td>{user.accesoNomina ? "Sí" : "No"}</td>
                 <td>
-                <BotonesAccion id={User.id} entidad="usuario" onDelete={handleDelete} setAlert={setAlert} /> {/* Aquí usas el componente BotonesAccion */}
+                <BotonesAccion id={user.id} entidad="usuario" onDelete={handleDelete} setAlert={setAlert} /> {/* Aquí usas el componente BotonesAccion */}
 
                 </td>
               </tr>
