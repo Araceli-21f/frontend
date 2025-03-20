@@ -1,5 +1,5 @@
 import React from 'react';
-import Layout from '../layouts/pages/layout';
+import Layout from '../../layouts/pages/layout';
 
 function InvoiceDetail() {
   return (

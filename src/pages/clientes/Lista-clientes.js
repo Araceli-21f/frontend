@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Layout from "../layouts/pages/layout";
+import Layout from "../../layouts/pages/layout";
 
 const ListaClientes = () => {
   const [searchTerm, setSearchTerm] = useState("");

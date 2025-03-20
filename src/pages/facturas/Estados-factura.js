@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Layout from "../layouts/pages/layout";
+import Layout from "../../layouts/pages/layout";
 
 const Estados_facturas = () => {
   const [searchTerm, setSearchTerm] = useState("");

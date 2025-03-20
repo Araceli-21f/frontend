@@ -1,7 +1,10 @@
 import React, { useState } from "react";
-import Layout from "../layouts/pages/layout";
+import { Link } from "react-router-dom";
+import Layout from "../../layouts/pages/layout";
+
 
 const ListaFacturas = () => {
+
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -41,9 +44,10 @@ const ListaFacturas = () => {
       <div className="row mb-3">
       {/* Columna para el botón Agregar Factura */}
       <div className="col-md-3">
-        <button type="button" className="input-daterange input-group btn btn-soft-success waves-effect waves-light" href="./facturas/Agregar-factura.js" >
-          <i className="mdi mdi-plus me-1"></i> Agregar Factura
-        </button>
+      <Link to="/facturas/Agregar-factura" className="input-daterange input-group btn btn-soft-success waves-effect waves-light">
+        <i className="mdi mdi-plus me-1"></i> Agregar Factura
+      </Link>
+        
       </div>
 
       {/* Columna para los inputs de búsqueda y fechas */}
