@@ -1,35 +1,64 @@
-import React from "react";
+import React, {useState} from "react";
 import Layout from "../../layouts/pages/layout";
 import { Link } from "react-router-dom";
 import useSearchFilter from "../../hooks/Usuarios/useSearchFilter";
 import usePagination from "../../hooks/Usuarios/usePagination";
 import BotonesAccion from "../../components/BotonesAccion";
+import AlertComponent from '../../components/AlertasComponent';
+
 
 
 const Lista_usuarios = () => {
   const { searchTerm, filterType, filterValue, handleSearchChange, handleFilterTypeChange, handleFilterValueChange } = useSearchFilter();
-
-  const usuarios = [
+  const [alert, setAlert] = useState(null);
+  
+  const [User , setUser] = useState([
     { id: "1", nombre: "Admin", email: "admin@example.com", rol: "Administrador", area: "Sistemas", accesoNomina: true },
     { id: "2", nombre: "Usuario 1", email: "usuario1@example.com", rol: "Empleado", area: "Ventas", accesoNomina: false },
     { id: "3", nombre: "Usuario 2", email: "usuario2@example.com", rol: "Recursos Humanos", area: "Recursos Humanos", accesoNomina: true },
     { id: "4", nombre: "Usuario 3", email: "usuario3@example.com", rol: "Empleado", area: "Desarrollo", accesoNomina: false },
     { id: "5", nombre: "Usuario 4", email: "usuario4@example.com", rol: "Administrador", area: "Finanzas", accesoNomina:true },
-  ];
+  ]);
 
   // Filtra los usuarios según el término de búsqueda y el valor de filtro.
-  const filteredUsuarios = usuarios.filter((usuario) =>
-    (filterValue === "Todos" || usuario[filterType] === filterValue) &&
-    (usuario.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || usuario.id.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredUsers = Usersfilter((User) =>
+    (filterValue === "Todos" || User[filterType] === filterValue) &&
+    (User.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || User.id.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   // Usa el hook de paginación.
-  const { currentUsers, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredUsuarios, 5);
+  const { currentUsers, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredUsers, 5);
+  const options = ["Todos", ...new Set(users.map((User) => User[filterType]))];
 
-  const options = ["Todos", ...new Set(usuarios.map((usuario) => usuario[filterType]))];
+
+  //Eliminar al usuario
+  const handleDelete = (id) => {
+    setUsuarios(prevUsers => prevUsers.filter(User => User.id !== id));
+    setAlert({ type: "success", action: "delete", entity: "usuario" });
+    setTimeout(() => setAlert(null), 5000);
+  };
+  //confirmar la eliminacion
+  const handleConfirmDelete = (id) => {
+    handleDelete(id);
+    setAlert(null);
+  };
+  //Cancelar la confirmacion de la eliminacion
+  const handleCancelDelete = () => {
+    setAlert(null);
+  };
 
   return (
     <Layout>
+      {/*Manda la alerta como un modal*/}
+   {alert && (
+        <AlertComponent
+          type={alert.type}
+          action={alert.action}
+          entity={alert.entity}
+          onConfirm={() => handleConfirmDelete(alert.id)}
+          onCancel={handleCancelDelete}
+        />
+      )}
       <div className="bg-white p-3 mb-3 rounded">
         <h2 className="mb-3">Lista de Usuarios</h2>
         <div className="d-flex justify-content-between mb-3">
@@ -77,16 +106,16 @@ const Lista_usuarios = () => {
             </tr>
           </thead>
           <tbody>
-            {currentUsers.map((usuario, index) => (
-              <tr key={usuario.id}>
-                <td>{usuario.id}</td>
-                <td>{usuario.nombre}</td>
-                <td>{usuario.email}</td>
-                <td>{usuario.rol}</td>
-                <td>{usuario.area}</td>
-                <td>{usuario.accesoNomina ? "Sí" : "No"}</td>
+            {currentUsers.map((User, index) => (
+              <tr key={User.id}>
+                <td>{User.id}</td>
+                <td>{User.nombre}</td>
+                <td>{User.email}</td>
+                <td>{User.rol}</td>
+                <td>{User.area}</td>
+                <td>{User.accesoNomina ? "Sí" : "No"}</td>
                 <td>
-                <BotonesAccion id={usuario.id} entidad="usuario"/> {/* Aquí usas el componente BotonesAccion */}
+                <BotonesAccion id={User.id} entidad="usuario" onDelete={handleDelete} setAlert={setAlert} /> {/* Aquí usas el componente BotonesAccion */}
 
                 </td>
               </tr>

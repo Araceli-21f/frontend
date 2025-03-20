@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import Layout from "../../layouts/pages/layout";
+import BotonesAccion from "../../components/BotonesAccion";
+
 
 const Lista_nomina = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -67,12 +69,8 @@ const Lista_nomina = () => {
                         <td>{nomina.salario}</td>
                         <td>{nomina.departamento}</td>
                         <td>
-                          <button className="btn btn-sm btn-primary me-1" title="Editar">
-                            <i className="uil uil-pen"></i>
-                          </button>
-                          <button className="btn btn-sm btn-danger" title="Eliminar">
-                            <i className="uil uil-trash-alt"></i>
-                          </button>
+                        <BotonesAccion id={nomina.id} entidad="nomina"/> {/* Aquí usas el componente BotonesAccion */}
+
                         </td>
                       </tr>
                     ))}
@@ -85,12 +83,7 @@ const Lista_nomina = () => {
         </div>
       </div>
 
-      {/* Inclusión de JavaScript específico para el Footer */}
-      <script src="/assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
-      <script src="/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
-      <script src="/assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
-      <script src="/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
-    </Layout>
+</Layout>
   );
 };
 

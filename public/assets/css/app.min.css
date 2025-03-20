@@ -304,7 +304,7 @@ body[data-layout=horizontal][data-layout-size=boxed] .navbar-header{max-width:13
  .waves-button,.waves-circle{-webkit-transform:translateZ(0);-moz-transform:translateZ(0);-ms-transform:translateZ(0);-o-transform:translateZ(0);transform:translateZ(0);-webkit-mask-image:-webkit-radial-gradient(circle, white 100%, black 100%)}
  .waves-button,.waves-button:hover,.waves-button:visited,.waves-button-input {white-space:nowrap;vertical-align:middle;cursor:pointer; border:none;outline:none;color:inherit;background-color:rgba(0,0,0,0); font-size:1em;line-height:1em;text-align:center;text-decoration:none; z-index:1}
  .waves-button{padding:.85em 1.1em;border-radius:.2em;}
- .waves-btn{padding:.85em 1.1em;border-radius:.2em;}
+ .waves-btn{padding:.85em 1.1em;border-radius:.2em; margin: 2px;}
  .waves-button-input{margin:0;padding:.85em 1.1em}
  .waves-input-wrapper{border-radius:.2em;vertical-align:bottom}
  .waves-input-wrapper.waves-button{padding:0}

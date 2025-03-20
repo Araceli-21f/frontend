@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import Layout from "../../layouts/pages/layout";
+import BotonesAccion from "../../components/BotonesAccion";
+
 
 const ListaClientes = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -74,12 +76,8 @@ const ListaClientes = () => {
                         <td>{cliente.direccion}</td>
                         <td>{cliente.fechaRegistro}</td>
                         <td>
-                          <button className="btn btn-sm btn-primary me-1" title="Editar">
-                            <i className="uil uil-pen"></i>
-                          </button>
-                          <button className="btn btn-sm btn-danger" title="Eliminar">
-                            <i className="uil uil-trash-alt"></i>
-                          </button>
+                        <BotonesAccion id={cliente.id} entidad="clientes"/> {/* Aquí usas el componente BotonesAccion */}
+
                         </td>
                       </tr>
                     ))}
@@ -91,14 +89,7 @@ const ListaClientes = () => {
         </div>
       </div>
       </div></div></div>
-      {/* Inclusión de JavaScript específico para el Footer */}
-      {/* Required datatable js */}
-      <script src="/assets/libs/datatables.net/js/jquery.dataTables.min.js"></script>
-      <script src="/assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js"></script>
-      {/* Responsive examples */}
-      <script src="/assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js"></script>
-      <script src="/assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js"></script>
-    </Layout>
+</Layout>
   );
 };
 
