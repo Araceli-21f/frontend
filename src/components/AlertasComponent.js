@@ -1,7 +1,6 @@
 import React from "react";
 
-const AlertComponent = ({ type, entity, action, onConfirm, onCancel }) => {
-  // Configuración de iconos según la acción
+const AlertComponent = ({ type, entity, action, onConfirm, onCancel, message }) => {
   const icons = {
     view: "uil uil-eye text-primary",
     delete: "uil uil-trash text-danger",
@@ -11,7 +10,6 @@ const AlertComponent = ({ type, entity, action, onConfirm, onCancel }) => {
     confirmDelete: "uil uil-question-circle text-info",
   };
 
-  // Mensaje por defecto según la acción
   const messages = {
     view: `Visualizando ${entity}`,
     delete: `${entity} eliminado correctamente`,
@@ -21,7 +19,6 @@ const AlertComponent = ({ type, entity, action, onConfirm, onCancel }) => {
     confirmDelete: `¿Estás seguro de que deseas eliminar este ${entity}?`,
   };
 
-  // Colores de alerta según el tipo
   const modalClasses = {
     success: "text-success",
     danger: "text-danger",
@@ -30,16 +27,14 @@ const AlertComponent = ({ type, entity, action, onConfirm, onCancel }) => {
   };
 
   return (
-    
     <div
-      className="modal fade bs-example-modal-center show" // "show" para mostrar el modal
+      className="modal fade bs-example-modal-center show"
       tabIndex="-1"
       role="dialog"
       aria-labelledby="mySmallModalLabel"
       aria-hidden="true"
-      style={{ display: "block", backgroundColor: "rgba(0, 0, 0, 0.5)" }} // Estilo para el modal y fondo oscuro
+      style={{ display: "block", backgroundColor: "rgba(0, 0, 0, 0.5)" }}
     >
-            {/* Crea que la alerta sea un modal*/}
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content">
           <div className="modal-header">
@@ -59,7 +54,7 @@ const AlertComponent = ({ type, entity, action, onConfirm, onCancel }) => {
             <h5 className={modalClasses[type]}>
               {action.charAt(0).toUpperCase() + action.slice(1)}
             </h5>
-            <p>{messages[action]}</p>
+            <p>{message || messages[action]}</p>
 
             {action === "confirmDelete" && (
               <div className="d-flex justify-content-center">

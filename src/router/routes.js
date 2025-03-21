@@ -15,9 +15,12 @@ import Estados_factura from "../pages/facturas/Estados-factura";
 import Lista_facturas from "../pages/facturas/Lista-facturas";
 import Agregar_factura from "../pages/facturas/Agregar-factura";
 import Invoices_detail from "../pages/facturas/InvoicesDetail";
+
 import Lista_usuarios from "../pages/usuarios/Lista-usuarios";
-import AgregarEditarUsuario from "../pages/usuarios/Agregar-usuarios";
+import CrearUsuario from "../pages/usuarios/CrearUsuario";
+import EditarUsuario from "../pages/usuarios/EditarUsuario";
 import DetalleUsuario from "../pages/usuarios/DetalleUsuario";
+
 import Lista_nomina from "../pages/nomina/Lista-nomina";
 
 
@@ -55,9 +58,9 @@ const AppRoutes = () => {
 
             {/*Usuarios*/}
             <Route path="/Lista_usuarios" element={<Lista_usuarios />}/>
-            <Route path="/usuarios/Agregar-usuarios" element={<AgregarEditarUsuario />} />
+            <Route path="/usuarios/CrearUsuario" element={<CrearUsuario />} />
+            <Route path="/usuario/editar/:id" element={<EditarUsuario />} />
             <Route path="/usuario/ver/:id" element={<DetalleUsuario />} />
-            <Route path="/usuario/editar/:id" element={<AgregarEditarUsuario />} />
 
             {/*Nomina*/}
             <Route path="/Lista_nomina" element={<Lista_nomina />}/>

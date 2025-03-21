@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import Layout from "../../layouts/pages/layout";
-import { Link} from "react-router-dom";
+import { Link, useNavigate} from "react-router-dom";
 import useSearchFilter from "../../hooks/Usuarios/useSearchFilter";
 import usePagination from "../../hooks/Usuarios/usePagination";
 import BotonesAccion from "../../components/BotonesAccion";
@@ -11,6 +11,8 @@ import AlertComponent from '../../components/AlertasComponent';
 const Lista_usuarios = () => {
   const { searchTerm, filterType, filterValue, handleSearchChange, handleFilterTypeChange, handleFilterValueChange } = useSearchFilter();
   const [alert, setAlert] = useState(null);
+  const navigate = useNavigate();
+
   
   const [users , setuser] = useState([
     { id: "1", nombre: "Admin", email: "admin@example.com", rol: "Administrador", area: "Sistemas", accesoNomina: true },
@@ -45,6 +47,16 @@ const Lista_usuarios = () => {
   //Cancelar la confirmacion de la eliminacion
   const handleCancelDelete = () => {
     setAlert(null);
+  };
+
+  //vista
+  const handleView = (id) => {
+    const user = users.find((u) => u.id === id);
+    if (user) {
+      navigate(`/usuario/ver/${id}`);
+    } else {
+      console.error('Usuario no encontrado');
+    }
   };
 
 
@@ -87,7 +99,7 @@ const Lista_usuarios = () => {
               </select>
             </div>
           </div>
-          <Link to="/usuarios/Agregar-usuarios" className="btn btn-success align-self-center">
+          <Link to="/usuarios/CrearUsuario" className="btn btn-success align-self-center">
             <i className="mdi mdi-plus me-1"></i> Crear Usuario
           </Link>
         </div>
@@ -116,8 +128,9 @@ const Lista_usuarios = () => {
                 <td>{user.area}</td>
                 <td>{user.accesoNomina ? "Sí" : "No"}</td>
                 <td>
-                <BotonesAccion id={user.id} entidad="usuario" onDelete={handleDelete} setAlert={setAlert} /> {/* Aquí usas el componente BotonesAccion */}
-
+                <BotonesAccion id={user.id} entidad="usuario" 
+                onDelete={handleDelete} setAlert={setAlert}
+                onView={() => handleView(user.id)} /> 
                 </td>
               </tr>
             ))}
