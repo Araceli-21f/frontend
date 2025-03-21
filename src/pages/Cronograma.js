@@ -7,14 +7,16 @@ const Cronograma = () => {
   const ganttContainer = useRef(null);
   const [scale, setScale] = useState("mes");
 
+  // Este useEffect se ejecuta solo una vez para inicializar el cronograma
   useEffect(() => {
     if (!ganttContainer.current) return;
 
     gantt.init(ganttContainer.current);
+
     gantt.config.columns = [
       { name: "text", label: "Tarea", width: "*", tree: true },
       { name: "start_date", label: "Inicio", align: "center" },
-      { name: "duration", label: "Duración", align: "center" },
+      { name: "duration", label: "Duraci�n", align: "center" },
       { name: "progress", label: "Progreso", align: "center" },
     ];
 
@@ -25,27 +27,28 @@ const Cronograma = () => {
       return "completed-progress";
     };
 
+    // Configuraci�n de los datos para el cronograma
     gantt.clearAll();
     gantt.parse({
       data: [
-        { id: 1, text: "Diseño UI", start_date: "2024-03-01", duration: 5, progress: 0.6 },
+        { id: 1, text: "Dise�o UI", start_date: "2024-03-01", duration: 5, progress: 0.6 },
         { id: 2, text: "Desarrollo Backend", start_date: "2024-03-06", duration: 7, progress: 0.4 },
-        { id: 3, text: "Integración API", start_date: "2024-03-10", duration: 4, progress: 0.8 },
+        { id: 3, text: "Integraci�n API", start_date: "2024-03-10", duration: 4, progress: 0.8 },
         { id: 4, text: "Pruebas y Correcciones", start_date: "2024-03-15", duration: 5, progress: 0.3 },
         { id: 5, text: "Entrega Final", start_date: "2024-03-20", duration: 2, progress: 1 },
       ],
     });
 
-    setGanttScale(scale);
-
+    // Limpiar el cronograma al desmontar el componente
     return () => {
       gantt.clearAll();
     };
-  }, []);
+  }, []); // Se ejecuta solo una vez cuando el componente se monta
 
+  // Este useEffect se ejecuta cuando cambia la escala
   useEffect(() => {
     setGanttScale(scale);
-  }, [scale]);
+  }, [scale]); // Solo se ejecuta cuando la escala cambia
 
   const setGanttScale = (scale) => {
     gantt.config.scales = [];
@@ -56,11 +59,18 @@ const Cronograma = () => {
       gantt.config.scales = [{ unit: "week", step: 1, format: "Semana %W" }, { unit: "day", step: 1, format: "%d %M" }];
     } else if (scale === "mes") {
       gantt.config.scales = [{ unit: "month", step: 1, format: "%F %Y" }, { unit: "week", step: 1, format: "Semana %W" }];
-    } else if (scale === "año") {
+    } else if (scale === "a�o") {
       gantt.config.scales = [{ unit: "year", step: 1, format: "%Y" }, { unit: "month", step: 1, format: "%M" }];
     }
 
-    gantt.render();
+    gantt.render(); // Solo se llama cuando la escala cambia
+  };
+
+  // Funci�n para manejar el cambio de escala y evitar actualizaciones innecesarias
+  const handleScaleChange = (newScale) => {
+    if (newScale !== scale) {
+      setScale(newScale);
+    }
   };
 
   return (
@@ -71,15 +81,15 @@ const Cronograma = () => {
             <div className="card-body">
               <h5 className="card-title">Cronograma de Proyecto</h5>
 
-              {/* Nueva barra de opciones */}
+              {/* Barra de opciones para cambiar la escala */}
               <div className="btn-group mb-3" role="group">
-                <button className={`btn ${scale === "mes" ? "btn-primary" : "btn-light"}`} onClick={() => setScale("mes")}>Month</button>
-                <button className={`btn ${scale === "semana" ? "btn-primary" : "btn-light"}`} onClick={() => setScale("semana")}>Week</button>
-                <button className={`btn ${scale === "dia" ? "btn-primary" : "btn-light"}`} onClick={() => setScale("dia")}>Day</button>
-                <button className={`btn ${scale === "año" ? "btn-primary" : "btn-light"}`} onClick={() => setScale("año")}>Year</button>
+                <button className={`btn ${scale === "mes" ? "btn-primary" : "btn-light"}`} onClick={() => handleScaleChange("mes")}>Month</button>
+                <button className={`btn ${scale === "semana" ? "btn-primary" : "btn-light"}`} onClick={() => handleScaleChange("semana")}>Week</button>
+                <button className={`btn ${scale === "dia" ? "btn-primary" : "btn-light"}`} onClick={() => handleScaleChange("dia")}>Day</button>
+                <button className={`btn ${scale === "a�o" ? "btn-primary" : "btn-light"}`} onClick={() => handleScaleChange("a�o")}>Year</button>
               </div>
 
-              {/* Contenedor del Gantt */}
+              {/* Contenedor para el cronograma Gantt */}
               <div ref={ganttContainer} className="gantt-chart" style={{ height: "500px" }} />
             </div>
           </div>
