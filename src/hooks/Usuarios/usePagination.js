@@ -8,7 +8,7 @@ const usePagination = (filteredUsuarios, usersPerPage) => {
   const indexOfLastuser = currentPage * usersPerPage;
   const indexOfFirstuser = indexOfLastuser - usersPerPage;
   // Obtiene los usuarios para la página actual.
-  const currentusers = filteredUsuarios.slice(indexOfFirstuser, indexOfLastuser);
+  const current = filteredUsuarios.slice(indexOfFirstuser, indexOfLastuser);
   // Calcula el total de páginas.
   const totalPages = Math.ceil(filteredUsuarios.length / usersPerPage);
 
@@ -24,7 +24,7 @@ const usePagination = (filteredUsuarios, usersPerPage) => {
 
   // Retorna los datos y funciones para la paginación.
   return {
-    currentusers,
+    current,
     currentPage,
     totalPages,
     setNextPage,

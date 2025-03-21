@@ -1,10 +1,10 @@
 // useSearchFilter.js
 import { useState } from 'react';
 
-const useSearchFilter = () => {
+const useSearchFilter = (defaultFilterType = '', defaultFilterValue = "Todos") => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('rol');
-  const [filterValue, setFilterValue] = useState('Todos');
+  const [filterType, setFilterType] = useState(defaultFilterType);
+  const [filterValue, setFilterValue] = useState(defaultFilterValue);
   
   const handleSearchChange = (e) => setSearchTerm(e.target.value);
   const handleFilterTypeChange = (e) => {

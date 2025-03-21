@@ -9,11 +9,10 @@ import AlertComponent from '../../components/AlertasComponent';
 
 
 const Lista_usuarios = () => {
-  const { searchTerm, filterType, filterValue, handleSearchChange, handleFilterTypeChange, handleFilterValueChange } = useSearchFilter();
   const [alert, setAlert] = useState(null);
   const navigate = useNavigate();
 
-  
+  //ejemplo de los datos
   const [users , setuser] = useState([
     { id: "1", nombre: "Admin", email: "admin@example.com", rol: "Administrador", area: "Sistemas", accesoNomina: true },
     { id: "2", nombre: "Usuario 1", email: "usuario1@example.com", rol: "Empleado", area: "Ventas", accesoNomina: false },
@@ -22,34 +21,42 @@ const Lista_usuarios = () => {
     { id: "5", nombre: "Usuario 4", email: "usuario4@example.com", rol: "Administrador", area: "Finanzas", accesoNomina:true },
   ]);
 
-  // Filtra los usuarios según el término de búsqueda y el valor de filtro.
-  const filteredusers = users.filter((user) =>
-    (filterValue === "Todos" || user[filterType] === filterValue) &&
-    (user.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || user.id.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // --- Usa un hook --- Filtra los usuarios según el término de búsqueda y el valor de filtro.
+  const {
+    searchTerm, filterType, filterValue,
+    handleSearchChange, handleFilterTypeChange, handleFilterValueChange
+  } = useSearchFilter("id");
 
-  // Usa el hook de paginación.
-  const { currentusers, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredusers, 5);
-  const options = ["Todos", ...new Set(users.map((user) => user[filterType]))];
+  const filteredUsuarios = users.filter((user) => {
+    const matchesSearch = user.nombre.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterValue === "Todos" || user[filterType] === filterValue;
+    return matchesSearch && matchesFilter;
+  });
+    
+    //generamos opciones dinamicamente sin repetir
+    const filterOptions = ["Todos", ...new Set(users.map((user) => user[filterType]))];
 
 
-  //Eliminar al usuario
+  // --- Usa el hook de paginación.
+  const { current:currentusers, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredUsuarios, 5);
+
+  // --- Eliminar al usuario
   const handleDelete = (id) => {
     setuser(prevusers => prevusers.filter(user => user.id !== id));
     setAlert({ type: "success", action: "delete", entity: "usuario" });
     setTimeout(() => setAlert(null), 5000);
   };
-  //confirmar la eliminacion
+    //confirmar la eliminacion
   const handleConfirmDelete = (id) => {
     handleDelete(id);
     setAlert(null);
   };
-  //Cancelar la confirmacion de la eliminacion
+   //Cancelar la confirmacion de la eliminacion
   const handleCancelDelete = () => {
     setAlert(null);
   };
 
-  //vista
+  // --- Vista
   const handleView = (id) => {
     const user = users.find((u) => u.id === id);
     if (user) {
@@ -72,41 +79,60 @@ const Lista_usuarios = () => {
           onCancel={handleCancelDelete}
         />
       )}
-      <div className="bg-white p-3 mb-3 rounded">
-        <h2 className="mb-3">Lista de Usuarios</h2>
-        <div className="d-flex justify-content-between mb-3">
-          <div className="row w-75">
-            <div className="col-md-6">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Buscar usuario..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-              />
-            </div>
-            <div className="col-md-3">
+      <div className="card p-3">
+      <h2 className="mb-3">Lista de Usuarios</h2>
+
+        <div className="col-md-10">
+      <div className="row">
+        {/* Barra de búsqueda (4 columnas) */}
+        <div className="col-md-4 mb-2">
+         <div className="input-group">
+           <input
+             type="text"
+             className="form-control pe-5"
+             placeholder="Buscar Cliente ..."
+             value={searchTerm}
+             onChange={handleSearchChange}
+           />
+           <button type="button" className="btn btn-primary" style={{ marginLeft: '2px' }}>
+             <i className="uil-search"></i>
+           </button>
+         </div>
+        </div>
+            {/* Filtro por tipo */}
+          <div className="col-md-2 mb-2">
+            <div className="input-group">
               <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
                 <option value="rol">Filtrar por Rol</option>
                 <option value="area">Filtrar por Área</option>
               </select>
-            </div>
-            <div className="col-md-3">
-              <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
-                {options.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
+            </div>   
+          </div>        
+            {/* Filtro dinámico por valor */}
+          <div className="col-md-2 mb-2">
+            <div className="input-group">
+             <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
+             {filterOptions.map(option => (
+             <option key={option} value={option}>{option}</option>
+           ))}
+            </select>
+           </div>
+          </div>
+          
+        <div className="col-md-4 mb-2">
+               <div className="input-group">
+                <Link to="/usuarios/CrearUsuario" className="input-daterange input-group btn btn-soft-success waves-effect waves-light">
+                 <i className="mdi mdi-plus me-1"></i> Crear Cliente
+               </Link>
+              </div>
             </div>
           </div>
-          <Link to="/usuarios/CrearUsuario" className="btn btn-success align-self-center">
-            <i className="mdi mdi-plus me-1"></i> Crear Usuario
-          </Link>
         </div>
-      </div>
+      
 
-      <div className="table-responsive">
-        <table className="table table-hover">
+        <div className="col-lg-12">
+         <div className="table-responsive">
+          <table className="table table-centered table-striped table-bordered">
           <thead>
             <tr>
               <th>ID</th>
@@ -119,7 +145,7 @@ const Lista_usuarios = () => {
             </tr>
           </thead>
           <tbody>
-            {currentusers.map((user, index) => (
+            {currentusers.map((user) => (
               <tr key={user.id}>
                 <td>{user.id}</td>
                 <td>{user.nombre}</td>
@@ -134,10 +160,12 @@ const Lista_usuarios = () => {
                 </td>
               </tr>
             ))}
+          
           </tbody>
         </table>
       </div>
-
+      </div>
+      {/* Paginacion */}
       <div className="d-flex justify-content-between align-items-center mt-3">
         <button
           className="btn btn-secondary"
@@ -155,6 +183,8 @@ const Lista_usuarios = () => {
           Siguiente
         </button>
       </div>
+      </div>
+      <br/>
     </Layout>
   );
 };
