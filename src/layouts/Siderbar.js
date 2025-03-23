@@ -90,6 +90,12 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
                 <span> Reporte </span>
               </Link>
             </li>
+            <li>
+              <Link to="/Campañas" className="waves-effect">
+                <i className="uil-folder "></i>
+                <span> Campañas </span>
+              </Link>
+            </li>
 
             <li>
               <Link className="has-arrow waves-effect" onClick={toggleSubMenu}>

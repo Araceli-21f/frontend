@@ -1,8 +1,8 @@
 import React, {useState} from "react";
 import Layout from "../../layouts/pages/layout";
 import { Link, useNavigate} from "react-router-dom";
-import useSearchFilter from "../../hooks/Usuarios/useSearchFilter";
-import usePagination from "../../hooks/Usuarios/usePagination";
+import useSearchFilter from "../../hooks/useSearchFilter";
+import usePagination from "../../hooks/usePagination";
 import BotonesAccion from "../../components/BotonesAccion";
 import AlertComponent from '../../components/AlertasComponent';
 

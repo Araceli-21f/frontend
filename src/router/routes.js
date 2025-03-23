@@ -10,6 +10,9 @@ import Cronograma from "../pages/Cronograma";
 import Calendario from "../pages/Calendario";
 import Cotizacion from "../pages/cotizacion/Cotizacion";
 import Reporte from "../pages/Reporte";
+import Campana from "../pages/campanas/ListaCampana";
+import DetalleCampana from "../pages/campanas/DetalleCampana";
+
 import Lista_clientes from "../pages/clientes/Lista-clientes";
 import Estados_factura from "../pages/facturas/Estados-factura";
 import Lista_facturas from "../pages/facturas/Lista-facturas";
@@ -46,6 +49,11 @@ const AppRoutes = () => {
 
             {/*Reportes*/}
             <Route path="/Reporte" element={<Reporte />}/>
+
+            {/*Campañas*/}
+            <Route path="/Campana" element={<Campana />}/>
+            <Route path="/usuario/ver/:id" element={<DetalleCampana />} />
+
 
             {/*Clientes*/}
             <Route path="/Lista_clientes" element={<Lista_clientes />}/>
