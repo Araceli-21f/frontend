@@ -53,7 +53,7 @@
 --bs-highlight-bg: #fcf0db;
 --bs-border-width: 1px;
 --bs-border-style: solid;
---bs-border-color: #f6f6f6;
+--bs-border-color: #b8b8b8;
 --bs-border-color-translucent: rgba(0, 0, 0, 0.175);
 --bs-border-radius: 0.25rem;--bs-border-radius-sm: 0.2rem;--bs-border-radius-lg: 0.4rem;
 --bs-border-radius-xl: 1rem;--bs-border-radius-xxl: 2rem;--bs-border-radius-2xl: var(--bs-border-radius-xxl);
@@ -124,8 +124,7 @@ border-color:var(--bs-table-border-color)}
  .col-form-label-lg{padding-top:calc(0.5rem + var(--bs-border-width));padding-bottom:calc(0.5rem + var(--bs-border-width));font-size:1.125rem}
  .col-form-label-sm{padding-top:calc(0.25rem + var(--bs-border-width));padding-bottom:calc(0.25rem + var(--bs-border-width));font-size:0.7875rem}
  .form-text{margin-top:.25rem;font-size:87.5%;color:var(--bs-secondary-color)}
- .form-control{display:block;width:100%;padding:.47rem .75rem;font-size:0.9rem;font-weight:400;line-height:1.5;color:var(--bs-body-color);appearance:none;background-color:var(--bs-input-bg);background-clip:padding-box;border:var(--bs-border-width) solid var(--bs-border-color);
- border-radius:var(--bs-border-radius);transition:border-color .15s ease-in-out,box-shadow .15s ease-in-out}
+ .form-control{display:block;width:100%;padding:.47rem .75rem;font-size:0.9rem;font-weight:400;line-height:1.5;color:var(--bs-body-color);appearance:none;background-color:var(--bs-input-bg);background-clip:padding-box; border:var(--bs-border-width) solid var(--bs-border-color); border-radius:var(--bs-border-radius);transition:border-color .15s ease-in-out,box-shadow .15s ease-in-out}
  @media(prefers-reduced-motion: reduce){
  .form-control{transition:none}}
  .form-control[type=file]{overflow:hidden}

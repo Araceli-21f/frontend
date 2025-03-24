@@ -65,7 +65,7 @@ const CrearCampana = () => {
                   <label className="form-label">Nombre</label>
                   <input
                     type="text"
-                    className="form-check "
+                    className="form-control"
                     value={nombre}
                     onChange={(e) => setNombre(e.target.value)}
                     required

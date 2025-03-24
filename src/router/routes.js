@@ -13,6 +13,7 @@ import Reporte from "../pages/Reporte";
 import Campana from "../pages/campanas/ListaCampana";
 import CrearCampana from "../pages/campanas/CrearCampana";
 import DetalleCampana from "../pages/campanas/DetalleCampana";
+import EditarCampana from "../pages/campanas/EditarCampana";
 
 import Lista_clientes from "../pages/clientes/Lista-clientes";
 import Estados_factura from "../pages/facturas/Estados-factura";
@@ -55,6 +56,8 @@ const AppRoutes = () => {
             <Route path="/Campañas" element={<Campana />}/>
             <Route path="/Campaña/CrearCampana" element={<CrearCampana />} />
             <Route path="/Campaña/ver/:id" element={<DetalleCampana />} />
+            <Route path="/Campaña/editar/:id" element={<EditarCampana />} />
+
 
 
             {/*Clientes*/}
