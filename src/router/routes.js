@@ -11,6 +11,7 @@ import Calendario from "../pages/Calendario";
 import Cotizacion from "../pages/cotizacion/Cotizacion";
 import Reporte from "../pages/Reporte";
 import Campana from "../pages/campanas/ListaCampana";
+import CrearCampana from "../pages/campanas/CrearCampana";
 import DetalleCampana from "../pages/campanas/DetalleCampana";
 
 import Lista_clientes from "../pages/clientes/Lista-clientes";
@@ -51,8 +52,9 @@ const AppRoutes = () => {
             <Route path="/Reporte" element={<Reporte />}/>
 
             {/*Campañas*/}
-            <Route path="/Campana" element={<Campana />}/>
-            <Route path="/usuario/ver/:id" element={<DetalleCampana />} />
+            <Route path="/Campañas" element={<Campana />}/>
+            <Route path="/Campaña/CrearCampana" element={<CrearCampana />} />
+            <Route path="/Campaña/ver/:id" element={<DetalleCampana />} />
 
 
             {/*Clientes*/}
