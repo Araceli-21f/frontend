@@ -148,7 +148,7 @@ const Campana = () => {
             {/* Crear campaña Button (4 columnas) */}
             <div className="col-md-4 mb-2">
               <div className="input-group">
-                <Link to="/campanas/Crearcampana" className="input-daterange input-group btn btn-soft-success waves-effect waves-light">
+                <Link to="/Campaña/CrearCampana" className="input-daterange input-group btn btn-soft-success waves-effect waves-light">
                   <i className="mdi mdi-plus me-1"></i> Crear campana
                 </Link>
               </div>
