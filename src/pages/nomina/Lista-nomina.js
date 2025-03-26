@@ -3,7 +3,7 @@ import Layout from "../../layouts/pages/layout";
 import BotonesAccion from "../../components/BotonesAccion";
 
 
-const Lista_nomina = () => {
+const ListaNomina = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   // Datos de ejemplo de nómina (reemplaza con tu lógica de obtención de datos)
@@ -87,4 +87,4 @@ const Lista_nomina = () => {
   );
 };
 
-export default Lista_nomina;
+export default ListaNomina;

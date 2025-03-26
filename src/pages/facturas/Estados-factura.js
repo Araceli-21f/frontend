@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Layout from "../../layouts/pages/layout";
 
-const Estados_facturas = () => {
+const EstadosFacturas = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -130,4 +130,4 @@ const Estados_facturas = () => {
   );
 };
 
-export default Estados_facturas;
+export default EstadosFacturas;

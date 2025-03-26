@@ -1,7 +1,7 @@
 import React from 'react';
 import Layout from '../../layouts/pages/layout';
 
-function InvoiceDetail() {
+function DetalleFactura() {
   return (
     <Layout>
       {/* Detalles de factura*/}
@@ -168,4 +168,4 @@ function InvoiceDetail() {
   );
 };
 
-export default InvoiceDetail;
+export default DetalleFactura;

@@ -78,7 +78,7 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
             </li>
 
             <li>
-              <Link to="/Cotizacion" className="waves-effect">
+              <Link to="/Lista_cotizacion" className="waves-effect">
                 <i className="uil-moneybag"></i>
                 <span> Cotizacion </span>
               </Link>

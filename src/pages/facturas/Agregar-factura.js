@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Layout from '../../layouts/pages/layout';
 
 
-const Agregar_factura = () => {
+const CrearFactura = () => {
   const [newFactura, setNewFactura] = useState({
     numeroFactura: "",
     fecha: "",
@@ -137,4 +137,4 @@ const Agregar_factura = () => {
   );
 };
 
-export default Agregar_factura;
+export default CrearFactura;

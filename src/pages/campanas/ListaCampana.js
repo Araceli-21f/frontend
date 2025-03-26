@@ -7,7 +7,7 @@ import BotonesAccion from "../../components/BotonesAccion";
 import AlertComponent from "../../components/AlertasComponent";
 import useDateRange from "../../hooks/useDateRange";
 
-const Campana = () => {
+const ListaCampana = () => {
   const [alert, setAlert] = useState(null);
   const navigate = useNavigate();
 
@@ -15,7 +15,7 @@ const Campana = () => {
   const [campanas, setcampana] = useState([
     { id: "1", nombre: "Campaña de Diseño Web", descripcion: "Campaña para promocionar servicios de diseño web.", fecha_inicio: "2024-03-01", fecha_fin: "2024-03-31", estado: "completada", clientes: ["cliente1", "cliente2"] },
     { id: "2", nombre: "Campaña de Publicidad Digital", descripcion: "Campaña para servicios de publicidad en línea.", fecha_inicio: "2024-04-01", fecha_fin: "2024-04-30", estado: "inactiva", clientes: ["cliente3", "cliente4", "cliente1"] },
-    { id: "3", nombre: "Campaña de SEO", descripcion: "Campaña para servicios de optimización de motores de búsqueda.", fecha_inicio: "2024-06-01", fecha_fin: "2024-06-30", estado: "activa", clientes: ["cliente4"] },
+    { id: "3", nombre: "Campaña de SEO", descripcion: "Campaña para servicios de optimización de motores de búsqueda.", fecha_inicio: "2024-06-01", fecha_fin: "2024-06-30", estado: "activa", clientes: ["cliente4"] }
   ]);
 
   // --- Usa un hook --- Filtra los usuarios según el término de búsqueda y el valor de filtro.
@@ -225,4 +225,4 @@ const Campana = () => {
   );
 };
 
-export default Campana;
+export default ListaCampana;

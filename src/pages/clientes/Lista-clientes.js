@@ -1,69 +1,84 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "../../layouts/pages/layout";
-import { Link, useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useSearchFilter from "../../hooks/useSearchFilter";
 import usePagination from "../../hooks/usePagination";
 import BotonesAccion from "../../components/BotonesAccion";
-import AlertComponent from "../../components/AlertasComponent";
-
-
+import AlertComponent from '../../components/AlertasComponent';
+import ClienteService from "../../services/ClienteService";
 
 const ListaClientes = () => {
-  const [alert, setAlert] = useState(null);
+    const [alert, setAlert] = useState(null);
     const navigate = useNavigate();
+    const [clientes, setClientes] = useState([]);
+    const { loading, error, obtenerClientes, eliminarCliente } = ClienteService();
 
-  // Datos de ejemplo de clientes (reemplaza con tu lógica de obtención de datos)
-  const [clientes, setcliente] = useState([
-    { id: "1", nombre: "Juan Pérez", email: "juan.perez@example.com", telefono: "1234567890", direccion: "Calle 1, Ciudad", fecha_registro: "2023-01-15",estado_cliente: "Inactivo", tipo_cliente: "Individual" },
-    { id: "2", nombre: "María García", email: "maria.garcia@example.com", telefono: "9876543210", direccion: "Avenida 2, Ciudad", fecha_registro: "2023-02-20", estado_cliente: "Activo", tipo_cliente: "Empresa" },
-    { id: "4", nombre: "García Perez", email: "garcia@example.com", telefono: "1236543210", direccion: "Avenida 2, Madrid", fecha_registro: "2024-12-20", estado_cliente: "Inactivo", tipo_cliente: "Empresa" },
-    { id: "5", nombre: "Maríana García", email: "maria@example.com", telefono: "3676543210", direccion: " Ciudad Londre", fecha_registro: "2025-02-10", estado_cliente: "Activo", tipo_cliente: "Individual" },
+    //Manda un hook de busqueda y filtrar
+    const {
+        searchTerm, filterType, filterValue,
+        handleSearchChange, handleFilterTypeChange, handleFilterValueChange
+    } = useSearchFilter("");
 
-  ]);
-
-   // --- Usa un hook --- Filtra los usuarios según el término de búsqueda y el valor de filtro.
-   const {
-    searchTerm, filterType, filterValue,
-    handleSearchChange, handleFilterTypeChange, handleFilterValueChange
-  } = useSearchFilter("id");
-
-  const filteredCliente = clientes.filter((cliente) => {
-    const matchesSearch = cliente.nombre.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterValue === "Todos" || cliente[filterType] === filterValue;
-    return matchesSearch && matchesFilter;
-  });
-    
-    //generamos opciones dinamicamente sin repetir
+    const filteredClientes = clientes.filter((cliente) => {
+        const nombre = cliente.nombre || ''; 
+        const matchesSearch = nombre.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesFilter = filterValue === "Todos" || cliente[filterType] === filterValue;
+        return matchesSearch && matchesFilter;
+    });
     const filterOptions = ["Todos", ...new Set(clientes.map((cliente) => cliente[filterType]))];
 
+    //Manda un hook de busqueda y filtrar
+    const { current: currentClientes, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredClientes, 5);
 
-  // --- Usa el hook de paginación.
-  const { current:currentclientes, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredCliente, 5);  
+    useEffect(() => {
+        const fetchClientes = async () => {
+            try {
+                const fetchedClientes = await obtenerClientes();
+                setClientes(fetchedClientes);
+            } catch (err) {
+                console.error("Error al obtener Clientes:", err);
+            }
+        };
+        fetchClientes();
+    }, [obtenerClientes]); 
+    
 
-  // --- Eliminar al cliente
-  const handleDelete = (id) => {
-    setcliente(prevusers => prevusers.filter(cliente => cliente.id !== id));
-    setAlert({ type: "success", action: "delete", entity: "cliente" });
-    setTimeout(() => setAlert(null), 5000);
-  };
-    //confirmar la eliminacion
-  const handleConfirmDelete = (id) => {
-    handleDelete(id);
-    setAlert(null);
-  };
-   //Cancelar la confirmacion de la eliminacion
-  const handleCancelDelete = () => {
-    setAlert(null);
-  };
-  //Función para iniciar el borrado con confirmación.
-    const iniciarBorrado = (id) => {
-        setAlert({
-            type: "confirm",
-            action: "delete",
-            entity: "cliente",
-            id: id,
-        });
-      }
+    const handleDelete = async (id) => {
+        try {
+            await eliminarCliente(id);
+            setClientes(clientes.filter(cliente => cliente._id !== id));
+            setAlert({ type: "success", action: "delete", entity: "Cliente" });
+            setTimeout(() => setAlert(null), 5000);
+        } catch (err) {
+            console.error("Error al eliminar Cliente:", err);
+        }
+    };
+
+    const handleConfirmDelete = (id) => {
+        handleDelete(id);
+        setAlert(null);
+    };
+
+    const handleCancelDelete = () => {
+        setAlert(null);
+    };
+
+    if (loading) {
+        return <p>Cargando Clientes...</p>;
+    }
+
+    if (error) {
+        return <p>Error al cargar Clientes: {error.message}</p>;
+    }
+
+    const handleView = (id) => {
+        const cliente = clientes.find((c) => c._id === id); // Corregido: usa _id
+        if (cliente) {
+            navigate(`/cliente/ver/${id}`);
+        } else {
+            console.error('Cliente no encontrado');
+        }
+    };
 
   return (
     <Layout>
@@ -135,8 +150,6 @@ const ListaClientes = () => {
                       <th>ID</th>
                       <th>Nombre</th>
                       <th>Email</th>
-                      <th>Teléfono</th>
-                      <th>Dirección</th>
                       <th>Fecha de Registro</th>
                       <th>Estado Cliente</th>
                       <th>Tipo Cliente</th>
@@ -144,22 +157,27 @@ const ListaClientes = () => {
                     </tr>
                   </thead>
                   <tbody>
-                  {currentclientes.map((cliente) => (                      
-                    <tr key={cliente.id}>
-                        <td>{cliente.id}</td>
+                  {currentClientes.map((cliente) => (                      
+                    <tr key={cliente._id}>
+                        <td>{cliente._id}</td>
                         <td>{cliente.nombre}</td>
-                        <td>{cliente.email}</td>
-                        <td>{cliente.telefono}</td>
-                        <td>{cliente.direccion}</td>
+                        <td>{cliente.correo}</td>
                         <td>{cliente.fecha_registro}</td>
-                        <td>{cliente.estado_cliente}</td>
+                        <td>
+                        <div className={`badge ${cliente.estado_cliente === "Activo" ? "bg-success-subtle text-success" : 
+                          cliente.estado_cliente === "Inactivo" ? "bg-secondary-subtle text-secondary" : "bg-warning-subtle text-warning" } font-size-12`}>
+                        {cliente.estado_cliente}
+                      </div>
+
+                        </td>
                         <td>{cliente.tipo_cliente}</td>
                         <td>
                           {/* Aquí usas el componente BotonesAccion */}
-                        <BotonesAccion id={cliente.id} 
-                        entidad="clientes"
-                        onDelete={() => iniciarBorrado(cliente.id)}
+                        <BotonesAccion id={cliente._id} 
+                        entidad="cliente"
+                        onDelete={handleDelete}
                         setAlert={setAlert}
+                        onView={() => handleView(cliente._id)}
                          />
 
                         </td>

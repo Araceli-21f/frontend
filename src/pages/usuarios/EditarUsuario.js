@@ -1,174 +1,159 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import Layout from "../../layouts/pages/layout";
-import AlertComponent from "../../components/AlertasComponent";
+import UserService from "../../services/UserService";
 
-const EditarUsuario = ({ user, onUsuarioActualizado, onCancelarEdicion }) => {
-  const [formData, setFormData] = useState({
-    id: "",
-    nombre: "",
+const EditarUsuario = ({ entidad }) => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { obtenerUsuarioPorId, actualizarUsuario } = UserService(); // Agregamos actualizarUsuario
+  const [user, setUser] = useState({
+    name: "",
+    apellidos: "",
     email: "",
-    rol: "",
     area: "",
-    accesoNomina: "No",
+    rol_user: "",
+    bloqueo: "",
+    foto_user: "",
   });
-  const [errors, setErrors] = useState({
-    id: "",
-    nombre: "",
-    email: "",
-    rol: "",
-    area: "",
-  });
-
-  //Alertas
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertType, setAlertType] = useState("");
-  const [alertMessage, setAlertMessage] = useState("");
-
-    //roles
-  const roles = ["Empleado", "Admin"];
-  const areas = ["Sistemas", "Finanzas"];
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (user) {
-      setFormData(user);
-    }
-  }, [user]);
+    const fetchUser = async () => {
+      setLoading(true);
+      try {
+        const foundUser = await obtenerUsuarioPorId(id);
+        if (!foundUser) throw new Error("Usuario no encontrado");
+        setUser(foundUser);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, [id]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setUser({ ...user, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    let formErrors = {};
-    let hasErrors = false;
-
-    
-    if (!formData.nombre) {
-      formErrors.nombre = "El nombre es requerido.";
-      hasErrors = true;
+    setLoading(true);
+    try {
+      await actualizarUsuario(id, user);
+      navigate(`/Lista_usuarios`);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-    if (!formData.email) {
-      formErrors.email = "El email es requerido.";
-      hasErrors = true;
-    }
-    if (!formData.rol) {
-      formErrors.rol = "El rol es requerido.";
-      hasErrors = true;
-    }
-    if (!formData.area) {
-      formErrors.area = "El área es requerida.";
-      hasErrors = true;
-    }
-
-    if (hasErrors) {
-      setErrors(formErrors);
-      return;
-    }
-
-    onUsuarioActualizado(formData);
-    setAlertType("success");
-    setAlertMessage("Usuario creado exitosamente.");
-    setShowAlert(true);
-    setFormData({ nombre: "", email: "", rol: "", area: "", accesoNomina: "No" });
-    setErrors({ nombre: "", email: "", rol: "", area: "" }); // Limpia los errores después de crear el usuario
   };
 
-  const handleAlertClose = () => {
-    setShowAlert(false);
-  };
+  if (loading) {
+    return (
+      <Layout>
+        <div className="container">
+          <h2>Cargando...</h2>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="container">
+          <h2>Error: {error}</h2>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
       <div className="row">
-        <div className="col">
-          <div className="card p-4">
-      <div className="invoice-title">
-              
-                <div className="mb-4">
-                  <img
-                    src="/assets/images/logo-dark.png"
-                    alt="logo"
-                    height="20"
-                    className="logo-dark"
-                  />
-                  <img
-                    src="/assets/images/logo-light.png"
-                    alt="logo"
-                    height="20"
-                    className="logo-light"
+        <div className="col-lg-12">
+          <div className="card">
+            <div className="card-body">
+              <h4 className="card-title">Editar Usuario</h4>
+              <form onSubmit={handleSubmit}>
+                <div className="mb-3">
+                  <label htmlFor="name" className="form-label">Nombre</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="name"
+                    name="name"
+                    value={user.name}
+                    onChange={handleChange}
                   />
                 </div>
-               
-              </div>        <h2>Editar Usuario</h2>
-        <form onSubmit={handleSubmit}>
-
-          <div className="mb-3">
-            <label className="form-label">Nombre:</label>
-            <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} className="form-control" />
-            {errors.nombre && <div className="text-danger">{errors.nombre}</div>}
-
-          </div>
-          <div className="mb-3">
-            <label className="form-label">Email:</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} className="form-control" />
-            {errors.email && <div className="text-danger">{errors.email}</div>}
-
-          </div>
-          <div class="mb-2 row">
-          <label class="col col-form-label">Rol</label>
-          <div class="col-md-10">
-              <select
-                  className="form-select"
-                  name="rol"
-                  value={formData.rol}
-                  onChange={handleChange}
-                >
-                  <option value="">Selecciona un rol</option>
-                  {roles.map((rol) => (
-                    <option key={rol} value={rol}>
-                      {rol}
-                    </option>
-                  ))}
-                </select>
-            {errors.rol && <div className="text-danger">{errors.rol}</div>}
-
+                <div className="mb-3">
+                  <label htmlFor="apellidos" className="form-label">Apellidos</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="apellidos"
+                    name="apellidos"
+                    value={user.apellidos}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="email" className="form-label">Email</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    id="email"
+                    name="email"
+                    value={user.email}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="area" className="form-label">Área</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="area"
+                    name="area"
+                    value={user.area}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="rol_user" className="form-label">Rol</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="rol_user"
+                    name="rol_user"
+                    value={user.rol_user}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="bloqueo" className="form-label">Bloqueo</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="bloqueo"
+                    name="bloqueo"
+                    value={user.bloqueo}
+                    onChange={handleChange}
+                  />
+                </div>
+                
+                <button type="submit" className="btn btn-primary">Guardar Cambios</button>
+                <Link to={`/Lista_usuarios`} className="btn btn-secondary ms-2">Cancelar</Link>
+              </form>
+            </div>
           </div>
         </div>
-        <div class="mb-2 row">
-          <label class="col col-form-label">Area</label>
-          <div class="col-md-10">
-          <select
-                  className="form-select"
-                  name="area"
-                  value={formData.area}
-                  onChange={handleChange}
-                >
-                  <option value="">Selecciona un área</option>
-                  {areas.map((area) => (
-                    <option key={area} value={area}>
-                      {area}
-                    </option>
-                  ))}
-                </select>
-            {errors.area && <div className="text-danger">{errors.area}</div>}
-
-          </div>
-        </div>
-          <div className="mb-3">
-            <label className="form-label">Acceso a Nómina:</label>
-            <select name="accesoNomina" value={formData.accesoNomina} onChange={handleChange} className="form-select ">
-              <option value="No">No</option>
-              <option value="Sí">Sí</option>
-            </select>
-          </div>
-          <button type="submit" className="btn btn-primary">Guardar Cambios</button>
-          <button type="button" onClick={onCancelarEdicion} className="btn btn-secondary ms-2">Cancelar</button>
-        </form>
-        {showAlert && <AlertComponent type="success" entity="Usuario" action="save" onClose={handleAlertClose} />}
       </div>
-      </div></div>
     </Layout>
   );
 };
