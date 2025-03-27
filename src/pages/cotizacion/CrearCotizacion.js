@@ -17,11 +17,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
     filial: "",
     cliente_id: "",
     detalles: [{
-      descripcion: "",
-      costo_materiales: "",
-      costo_mano_obra: "",
-      inversion: "",
-      utilidad_esperada: "",
+      descripcion: "",  costo_materiales: "",  costo_mano_obra: "",  inversion: "",  utilidad_esperada: "",
     }],
   });
   const [clientes, setClientes] = useState([]);
@@ -98,7 +94,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
     let hasErrors = false;
 
     if (!formData.forma_pago) {
-      formErrors.forma_pago = "La forma de pago es requerida.";
+      formErrors.forma_pago = "La forma de pago es requerida."; 
       hasErrors = true;
     }
     if (!formData.precio_venta) {
@@ -151,11 +147,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
         filial: "",
         cliente_id: "",
         detalles: [{
-          descripcion: "",
-          costo_materiales: "",
-          costo_mano_obra: "",
-          inversion: "",
-          utilidad_esperada: "",
+          descripcion: "", costo_materiales: "",  costo_mano_obra: "",  inversion: "",  utilidad_esperada: "",
         }],
       });
       setErrors({

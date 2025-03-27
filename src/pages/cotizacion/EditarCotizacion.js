@@ -1,203 +1,267 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "../../layouts/pages/layout";
-import CotizacionService from "../../services/CotizacionService";
+import useCotizacionService from "../../services/CotizacionService";
+import ClienteService from "../../services/ClienteService"; 
 
 const EditarCotizacion = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { obtenerCotizacionPorId, actualizarCotizacion, loading, error } = CotizacionService();
-  const [cotizacion, setCotizacion] = useState(null);
-  const [formData, setFormData] = useState(null);
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const { obtenerCotizacionPorId, actualizarCotizacion } = useCotizacionService();
+    const [cotizacion, setCotizacion] = useState({
+        fecha_cotizacion: new Date(),
+        forma_pago: "Contado",
+        precio_venta: 0,
+        anticipo_solicitado: 0,
+        filial: "",
+        cliente_id: null,
+        detalles: [],
+    });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const { obtenerClientes } = ClienteService(); 
+    const [clientes, setClientes] = useState([]);
+    const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
+    const [mostrarSelectClientes, setMostrarSelectClientes] = useState(false);
+    const [nuevoDetalle, setNuevoDetalle] = useState({
+        descripcion: "", costo_materiales: 0, costo_mano_obra: 0, inversion: 0, utilidad_esperada: 0,
+    });
 
-  useEffect(() => {
-    const fetchCotizacion = async () => {
-      try {
-        const fetchedCotizacion = await obtenerCotizacionPorId(id);
-        setCotizacion(fetchedCotizacion);
-        setFormData(fetchedCotizacion);
-      } catch (err) {
-        console.error("Error al obtener cotización:", err);
-      }
-    };
-    fetchCotizacion();
+    useEffect(() => {
+      const fetchCotizacion = async () => {
+          setLoading(true);
+          try {
+              const foundCotizacion = await obtenerCotizacionPorId(id);
+              if (!foundCotizacion) throw new Error("Cotización no encontrada");
+              setCotizacion(foundCotizacion);
+              const cliente = clientes.find((c) => 
+              c._id === foundCotizacion.cliente_id);
+              setClienteSeleccionado(cliente || null);
+          } catch (err) {
+              setError(err.message);
+          } finally {
+              setLoading(false);
+          }
+      };
+      fetchCotizacion();
   }, [id]);
 
-  if (loading) {
-    return <p>Cargando cotización...</p>;
-  }
+    useEffect(() => {
+      const cargarClientes = async () => {
+          try {
+              const listaClientes = await obtenerClientes();
+              setClientes(listaClientes);
+          } catch (error) {
+              console.error("Error al cargar clientes:", error);
+          }
+      };
+      cargarClientes();
+  }, [obtenerClientes]);
 
-  if (error) {
-    return <p>Error al cargar cotización: {error.message}</p>;
-  }
-
-  if (!formData) {
-    return <p>Cotización no encontrada.</p>;
-  }
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    const handleChange = (e) => { setCotizacion({ ...cotizacion, [e.target.name]: e.target.value });};
+    const handleClienteSeleccionado = (cliente) => {
+      setClienteSeleccionado(cliente);
+      setCotizacion({ ...cotizacion, cliente_id: cliente._id });
+      setMostrarSelectClientes(false);
   };
+  const handleSeleccionarCliente = () => {  setMostrarSelectClientes(true); };
 
-  const handleDetalleChange = (e, index) => {
-    const { name, value } = e.target;
-    const detalles = formData.detalles.map((detalle, i) =>
-      i === index ? { ...detalle, [name]: value } : detalle
-    );
-    setFormData({
-      ...formData,
-      detalles: detalles,
-    });
-  };
+  const handleClienteSeleccionadoChange = (e) => {
+      const clienteIdSeleccionado = e.target.value;
+      const clienteEncontrado = clientes.find(cliente => cliente._id === clienteIdSeleccionado);
+      if (clienteEncontrado) {
+          handleClienteSeleccionado(clienteEncontrado);
+      }
+    };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await actualizarCotizacion(id, formData);
-      navigate(`/cotizacion/ver/${id}`);
-    } catch (err) {
-      console.error("Error al actualizar cotización:", err);
+    const handleNuevoDetalleChange = (e) => {setNuevoDetalle({ ...nuevoDetalle, [e.target.name]: e.target.value }); };
+    const handleAgregarDetalle = () => {
+        setCotizacion({ ...cotizacion, detalles: [...cotizacion.detalles, nuevoDetalle], });
+        setNuevoDetalle({ descripcion: "", costo_materiales: 0, costo_mano_obra: 0, inversion: 0, utilidad_esperada: 0, });
+    };
+    const handleEliminarDetalle = (index) => { 
+      const nuevosDetalles = [...cotizacion.detalles]; 
+      nuevosDetalles.splice(index, 1);
+      setCotizacion({ ...cotizacion, detalles: nuevosDetalles });
+    };
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      setLoading(true);
+      try {
+          // Validación de datos aquí
+          if (!cotizacion.cliente_id) {
+              setError("Debes seleccionar un cliente.");
+              return;
+          }
+          await actualizarCotizacion(id, cotizacion);
+          navigate("/Lista_cotizacion");
+      } catch (err) {
+          setError(err.message);
+      } finally {
+          setLoading(false);
+      }
+    };
+
+    if (loading) {
+        return (
+            <Layout>
+                <div className="container">
+                    <h2>Cargando...</h2>
+                </div>
+            </Layout>
+        );
     }
-  };
+
+    if (error) {
+        return (
+            <Layout>
+                <div className="container">
+                    <h2>Error: {error}</h2>
+                </div>
+            </Layout>
+        );
+    }
 
   return (
-    <Layout>
-      <div className="row">
-        <div className="col-lg-12">
-          <div className="card">
-            <div className="card-body">
-              <form onSubmit={handleSubmit}>
-                <h4 className="card-title mb-4">Editar Cotización #{formData._id}</h4>
-
-                <div className="mb-3">
-                  <label className="form-label">Filial:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="filial"
-                    value={formData.filial}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className="row mb-3">
-                  <div className="col-md-6">
-                    <label className="form-label">Cotizado a:</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      name="cliente_id"
-                      value={formData.cliente_id?.nombre || ""}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label">Fecha de Cotización:</label>
-                    <input
-                      type="date"
-                      className="form-control"
-                      name="fecha_cotizacion"
-                      value={formData.fecha_cotizacion.split("T")[0]}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="form-label">Método de Pago:</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    name="forma_pago"
-                    value={formData.forma_pago}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <h5 className="mt-4 mb-3">Resumen de la Cotización</h5>
-
-                <div className="table-responsive">
-                  <table className="table table-bordered">
-                    <thead>
-                      <tr>
-                        <th>No.</th>
-                        <th>Artículo</th>
-                        <th>Precio</th>
-                        <th className="text-end">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {formData.detalles.map((detalle, index) => (
-                        <tr key={index}>
-                          <td>{index + 1}</td>
-                          <td>
-                            <input
-                              type="text"
-                              className="form-control mb-2"
-                              name="descripcion"
-                              value={detalle.descripcion}
-                              onChange={(e) => handleDetalleChange(e, index)}
-                            />
-                            <div className="d-flex">
-                              <div className="me-2">
-                                <label className="form-label">Costo Materiales:</label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  name="costo_materiales"
-                                  value={detalle.costo_materiales}
-                                  onChange={(e) => handleDetalleChange(e, index)}
-                                />
-                              </div>
-                              <div>
-                                <label className="form-label">Costo Mano de Obra:</label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  name="costo_mano_obra"
-                                  value={detalle.costo_mano_obra}
-                                  onChange={(e) => handleDetalleChange(e, index)}
-                                />
-                              </div>
-                            </div>
-                          </td>
-                          <td>${detalle.inversion}</td>
-                          <td className="text-end">${detalle.utilidad_esperada}</td>
-                        </tr>
-                      ))}
-                      <tr>
-                        <td colSpan="3" className="text-end">
-                          <strong>Total</strong>
-                        </td>
-                        <td className="text-end">
-                          <input
-                            type="number"
-                            className="form-control"
-                            name="precio_venta"
-                            value={formData.precio_venta}
-                            onChange={handleChange}
-                          />
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="mt-4 text-end">
-                  <button type="submit" className="btn btn-primary">
-                    Guardar Cambios
-                  </button>
-                </div>
-              </form>
+<Layout>
+  <div className="row">
+    <div className="col-lg-12">
+      <div className="card">
+        <div className="card-body">
+           <h2 className="mb-4">Editar Cotización</h2>
+           <form onSubmit={handleSubmit}>
+             {/* Campos de la cotización */}
+          <div className="row mb-3">
+              {/* Cliente (50% del ancho) */}
+            <div className="col-md-6 d-flex align-items-center p-2">
+              <label className="form-label me-2 font-size-17">Cliente: </label>
+              <div className="flex-grow-1 border p-2 rounded bg-light">
+               {clienteSeleccionado ? (
+                <strong>{clienteSeleccionado.nombre}</strong>
+                ) : ( "Ninguno seleccionado" )}
+              </div>
+            <button type="button" onClick={handleSeleccionarCliente} className="btn btn-primary btn-md ms-2" >
+              {clienteSeleccionado ? "Cambiar" : "Seleccionar"}
+            </button>
+            </div>
+            {/* Filial (50% del ancho) */}
+            <div className="col-md-6 d-flex align-items-center p-2">
+              <label className="form-label me-2 font-size-17">Filial: </label>
+              <input type="text" name="filial"  value={cotizacion.filial}  onChange={handleChange} className="form-control bg-light"/>
             </div>
           </div>
+          {/* Dropdown para seleccionar cliente */}
+          {mostrarSelectClientes && (
+            <div className="mb-3">
+              <select className="form-select" value={clienteSeleccionado ? clienteSeleccionado._id : ''} onChange={handleClienteSeleccionadoChange} >
+                <option value="">Selecciona un cliente</option>
+                {clientes.map((cliente) => (
+                <option key={cliente._id} value={cliente._id}> {cliente.nombre} </option>
+                 ))}
+              </select>
+            </div>
+          )}
+        <div className="row mb-3">
+         {/* Forma de Pago */}
+        <div className="col-md-4">
+          <label className="form-label fw-bold">Forma de Pago:</label>
+          <select name="forma_pago" value={cotizacion.forma_pago} onChange={handleChange} className="form-select bg-light">
+            <option value="Contado">Contado</option>
+            <option value="Financiado">Financiado</option>
+          </select>
+        </div>
+        {/* Precio de Venta */}
+        <div className="col-md-4">
+          <label className="form-label fw-bold">Precio de Venta:</label>
+          <input type="number" name="precio_venta" value={cotizacion.precio_venta} onChange={handleChange} className="form-control bg-light" />
+        </div>
+        {/* Anticipo Solicitado */}
+        <div className="col-md-4">
+          <label className="form-label fw-bold">Anticipo Solicitado:</label>
+          <input type="number" name="anticipo_solicitado" value={cotizacion.anticipo_solicitado} onChange={handleChange} className="form-control bg-light" />
+        </div>
+     </div>
+        {/* Detalles de la Factura */}
+        <div className="py-2">
+          <h5 className="font-size-15">Detalles de la Factura</h5>
+          <div className="table-responsive">
+            <table className="table table-bordered table-centered mb-0">
+              <thead>
+                <tr>
+                  <th className="bg-light">Descripción</th>
+                  <th className="bg-light">Costo Materiales</th>
+                  <th className="bg-light">Costo Mano de Obra</th>
+                  <th className="bg-light">Inversión</th>
+                  <th className="bg-light">Utilidad Esperada</th>
+                  <th className="bg-light">Acciones</th>
+                </tr>
+              </thead>
+            <tbody>
+              {/* Mostrar detalles existentes */}
+                {cotizacion.detalles.map((item, index) => (
+                <tr key={index}>
+                  <td>
+                    <input type="text" className="form-control" name={`items[${index}].descripcion`} 
+                    value={item.descripcion} onChange={(e) => handleChange(e, index)} />
+                  </td>
+                  <td>
+                    <input type="number" className="form-control" name={`items[${index}].costo_materiales`} 
+                    value={item.costo_materiales} onChange={(e) => handleChange(e, index)} />
+                  </td>
+                  <td>
+                    <input type="number" className="form-control" name={`items[${index}].costo_mano_obra`} 
+                    value={item.costo_mano_obra} onChange={(e) => handleChange(e, index)} />
+                  </td>
+                  <td>
+                    <input type="number" className="form-control" name={`items[${index}].inversion`}
+                    value={item.inversion} onChange={(e) => handleChange(e, index)} />
+                  </td>
+                  <td>
+                    <input type="number" className="form-control" name={`items[${index}].utilidad_esperada`} 
+                    value={item.utilidad_esperada} onChange={(e) => handleChange(e, index)} />
+                  </td>
+                  <td>
+                    <button type="button" className="btn btn-danger btn-sm" onClick={() => handleEliminarDetalle(index)}> Eliminar </button>
+                  </td>
+                </tr>
+              ))}
+              {/* Nuevo detalle en la factura */}
+                <tr>
+                 <td>
+                  <input type="text" className="form-control" name="descripcion" value={nuevoDetalle.descripcion} onChange={handleNuevoDetalleChange} placeholder="Descripción"/>
+                 </td>
+                 <td>
+                  <input type="number" className="form-control" name="costo_materiales" value={nuevoDetalle.costo_materiales} onChange={handleNuevoDetalleChange} placeholder="Costo Materiales" />
+                 </td>
+                 <td>
+                  <input type="number" className="form-control" name="costo_mano_obra" value={nuevoDetalle.costo_mano_obra} onChange={handleNuevoDetalleChange} placeholder="Costo Mano de Obra" />
+                 </td>
+                 <td>
+                  <input type="number" className="form-control" name="inversion" value={nuevoDetalle.inversion} onChange={handleNuevoDetalleChange} placeholder="Inversión" />
+                 </td>
+                 <td>
+                   <input type="number" className="form-control" name="utilidad_esperada"  value={nuevoDetalle.utilidad_esperada} onChange={handleNuevoDetalleChange} placeholder="Utilidad Esperada" />
+                 </td>
+                 <td>
+                   <button type="button" className="btn btn-success btn-sm" onClick={handleAgregarDetalle} > Agregar Detalle </button>
+                 </td>
+               </tr>
+             </tbody>
+            </table>
+          </div>
+            <button type="button" className="btn btn-primary mt-2" onClick={handleAgregarDetalle} > Agregar </button>
+          </div>
+          {/* Botón de Guardar */}
+          <div className="text-end">
+            <button type="submit" className="btn btn-primary"> Guardar </button>
+          </div>
+        </form>
         </div>
       </div>
-    </Layout>
+    </div>
+  </div>
+  </Layout>
   );
 };
 

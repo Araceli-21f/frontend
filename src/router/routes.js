@@ -20,10 +20,14 @@ import CrearCampana from "../pages/campanas/CrearCampana";
 import DetalleCampana from "../pages/campanas/DetalleCampana";
 import EditarCampana from "../pages/campanas/EditarCampana";
 
+import ListaServiciosFinanciados from "../pages/servicios_financiados/Lista_ServicioFinanciado";
+
 import ListaClientes from "../pages/clientes/Lista-clientes";
 import CrearCliente from "../pages/clientes/CrearCliente";
 import DetalleCliente from "../pages/clientes/DetalleCliente";
 import EditarCliente from "../pages/clientes/EditarCliente";
+
+import ListaEstadoCuenta from "../pages/estados_cuenta/Lista_EstadoCuenta";
 
 import EstadosFactura from "../pages/facturas/Estados-factura";
 import ListaFacturas from "../pages/facturas/Lista-facturas";
@@ -70,11 +74,19 @@ const AppRoutes = () => {
             <Route path="/Campaña/ver/:id" element={<DetalleCampana />} />
             <Route path="/Campaña/editar/:id" element={<EditarCampana />} />
 
+            {/*Servicios Financiados */}
+            <Route path="/ServicioFinanciado" element={<ListaServiciosFinanciados />}/>
+            
+
             {/*Clientes*/}
             <Route path="/Lista_clientes" element={<ListaClientes />}/>
             <Route path="/clientes/CrearCliente" element={<CrearCliente />} />
             <Route path="/cliente/editar/:id" element={<EditarCliente/>} />
             <Route path="/cliente/ver/:id" element={<DetalleCliente />} />
+
+            {/*Estados Cuenta */}
+            <Route path="/Estados_Cuenta" element={<ListaEstadoCuenta />}/>
+
 
             {/*Facturas*/}
             <Route path="/Estados_factura" element={<EstadosFactura />}/>

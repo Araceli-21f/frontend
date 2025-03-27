@@ -58,14 +58,14 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
 
             <li>
               <Link to="/Tablero" className="waves-effect">
-                <i className="uil-invoice"></i>
+                <i className="fas fa-tasks"></i>
                 <span> Tablero</span>
               </Link>
             </li>
 
             <li>
               <Link to="/Calendario" className="waves-effect">
-                <i className="uil-calender"></i>
+                <i className="far fa-calendar-alt"></i>
                 <span> Calendario </span>
               </Link>
             </li>
@@ -79,32 +79,39 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
 
             <li>
               <Link to="/Lista_cotizacion" className="waves-effect">
-                <i className="uil-moneybag"></i>
-                <span> Cotizacion </span>
+                <i className="fas fa-file-invoice-dollar"></i>
+                <span> Cotizaciones </span>
               </Link>
             </li>
 
             <li>
               <Link to="/Reporte" className="waves-effect">
-                <i className="uil-folder "></i>
-                <span> Reporte </span>
+                <i className="bx bx-folder-open"></i>
+                <span> Reportes </span>
               </Link>
             </li>
             <li>
               <Link to="/Campañas" className="waves-effect">
-                <i className="uil-folder "></i>
-                <span> Campañas </span>
+                <i className="uil-megaphone"></i>
+                <span> Campañas</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/ServicioFinanciado" className="waves-effect">
+                <i className="uil-chart-line"></i>
+                <span> Servicios</span>
               </Link>
             </li>
 
             <li>
               <Link className="has-arrow waves-effect" onClick={toggleSubMenu}>
-                <i className="uil-window-section"></i>
-                <span> Clientes </span>
+                <i className="fas fa-users"></i>
+                <span> Clientes</span>
               </Link>
               {isSubMenuOpen && (
               <ul className="sub-menu">
                 <li><Link to="/Lista_clientes">Lista de Clientes</Link></li>
+                <li><Link to="/Estados_Cuenta">Estados Cuenta</Link></li>
                 <li><Link to="/Estados_factura">Estados de Factura </Link></li>
                 <li><Link to="/Lista_facturas">Lista de facturas</Link></li>
                 <li><Link to="/InvoicesDetail">Detalle Factura</Link></li>
@@ -114,7 +121,7 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
             <li>
             <Link
               className={"has-arrow waves-effect"} onClick={toggleSubMenu2 }>
-              <i className="uil-users-alt"></i>
+              <i className="fas fa-users"></i>
               <span> Usuarios </span>
               </Link>
                 {isSubMenuOpen2 && ( 
