@@ -79,6 +79,16 @@ const ListaCotizaciones = () => {
     }
   };
 
+   // Función para formatear la fecha a DD-MM-YYYY
+   const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+};
+
   return (
     <Layout>
       {alert && (
@@ -159,7 +169,7 @@ const ListaCotizaciones = () => {
                   <tr key={cotizacion._id}>
                     <td>{cotizacion._id}</td>
                     <td>{cotizacion.cliente_id?.nombre}</td>
-                    <td>{cotizacion.fecha_cotizacion}</td>
+                    <td>{formatDate(cotizacion.fecha_cotizacion)}</td>
                     <td>{cotizacion.forma_pago}</td>
                     <td>{cotizacion.precio_venta}</td>
                     <td>{cotizacion.filial}</td>

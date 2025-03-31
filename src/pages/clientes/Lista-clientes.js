@@ -94,7 +94,7 @@ const ListaClientes = () => {
       <div className="card p-3">
         <h2 className="mb-3">Lista de Clientes</h2>
         
-        <div className="col-md-10">
+        <div className="col-md">
       <div className="row">
         {/* Barra de búsqueda (4 columnas) */}
         <div className="col-md-4 mb-2">
@@ -112,7 +112,7 @@ const ListaClientes = () => {
          </div>
         </div>
        {/* Filtro por tipo (2 columnas) */}
-       <div className="col-md-5 mb-2 d-flex align-items-center">
+       <div className="col-md-4 mb-2 d-flex align-items-center">
        <div className="input-group w-100 shadow-sm">
        {/* Ícono de filtro fuera del grupo, con fondo redondeado */}
         <span className="me-0 p-2 text-white bg-primary rounded-1 d-flex justify-content-center align-items-center">
@@ -131,7 +131,7 @@ const ListaClientes = () => {
         </div>
         </div>
        {/* Crear Cliente Button (4 columnas) */}
-       <div className="col-md-3 mb-2">
+       <div className="col-md-4 mb-2">
          <div className="input-group shadow-sm">
            <Link to="/clientes/CrearCliente" className="input-daterange input-group btn btn-outline-success waves-effect waves-light">
             <i className="mdi mdi-plus me-1"/> Crear Cliente
