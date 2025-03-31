@@ -48,7 +48,7 @@ const CrearFactura = () => {
         <div className="col-lg-12">
           <div className="card">
             <div className="card-body">
-            <h2 className="float-left font-size-24">Nueva Factura</h2>
+            <h2 className="float-left font-size-h4">Nueva Factura</h2>
               <div className="invoice-title d-flex flex-column align-items-center">
                 <img src="/assets/images/logo-dark.png" alt="logo" height="20" className="logo-dark ms-auto" />
                  <h2 className="font-size-20 text-center w-100">Factura</h2>

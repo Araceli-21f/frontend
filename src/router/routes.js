@@ -20,7 +20,10 @@ import CrearCampana from "../pages/campanas/CrearCampana";
 import DetalleCampana from "../pages/campanas/DetalleCampana";
 import EditarCampana from "../pages/campanas/EditarCampana";
 
-import ListaServiciosFinanciados from "../pages/servicios_financiados/Lista_ServicioFinanciado";
+import ListaServiciosFinancieros from "../pages/servicios_financiados/Lista_ServicioFinanciado";
+import CrearServicioFinanciado from "../pages/servicios_financiados/CrearServicioFinanciado";
+
+import ListaFiliales from "../pages/Filial/Lista-filial";
 
 import ListaClientes from "../pages/clientes/Lista-clientes";
 import CrearCliente from "../pages/clientes/CrearCliente";
@@ -68,6 +71,9 @@ const AppRoutes = () => {
             {/*Reportes*/}
             <Route path="/Reporte" element={<Reporte />}/>
 
+            {/*Filials*/}
+            <Route path="/Filial" element={<ListaFiliales />}/>
+
             {/*Campañas*/}
             <Route path="/Campañas" element={<Campana />}/>
             <Route path="/Campaña/CrearCampana" element={<CrearCampana />} />
@@ -75,8 +81,8 @@ const AppRoutes = () => {
             <Route path="/Campaña/editar/:id" element={<EditarCampana />} />
 
             {/*Servicios Financiados */}
-            <Route path="/ServicioFinanciado" element={<ListaServiciosFinanciados />}/>
-            
+            <Route path="/Lista_Servicios" element={<ListaServiciosFinancieros/>}/>
+            <Route path="/servicios-financieros/CrearServicioFinanciero" element={<CrearServicioFinanciado />} />
 
             {/*Clientes*/}
             <Route path="/Lista_clientes" element={<ListaClientes />}/>

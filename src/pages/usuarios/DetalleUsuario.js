@@ -73,7 +73,7 @@ const DetalleUsuario = ({ entidad }) => {
                   />
                 </div>
                 <div className="text-muted">
-                  <h3 className="mb-1">Detalles del Usuario</h3>
+                  <h3 className="font-size-h4 mb-1">Detalles del Usuario</h3>
                 </div>
               </div>
 

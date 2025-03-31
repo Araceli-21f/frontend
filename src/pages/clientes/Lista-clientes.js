@@ -92,13 +92,13 @@ const ListaClientes = () => {
         />
       )}
       <div className="card p-3">
-        <h2 className="mb-3"><i className="fa fa-fw fa-bars"/> Lista de Clientes</h2>
+        <h2 className="mb-3">Lista de Clientes</h2>
         
         <div className="col-md-10">
       <div className="row">
         {/* Barra de búsqueda (4 columnas) */}
         <div className="col-md-4 mb-2">
-         <div className="input-group">
+         <div className="input-group shadow-sm">
            <input
              type="text"
              className="form-control pe-5"
@@ -112,29 +112,29 @@ const ListaClientes = () => {
          </div>
         </div>
        {/* Filtro por tipo (2 columnas) */}
-      <div className="col-md-2 mb-2">
-       <div className="input-group">
-         <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
+       <div className="col-md-5 mb-2 d-flex align-items-center">
+       <div className="input-group w-100 shadow-sm">
+       {/* Ícono de filtro fuera del grupo, con fondo redondeado */}
+        <span className="me-0 p-2 text-white bg-primary rounded-1 d-flex justify-content-center align-items-center">
+         <i className="uil-filter fs-6"></i>
+        </span>
+        {/* Select de tipo de filtro */}
+       <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
            <option value="estado_cliente">Filtrar Estado</option>
            <option value="tipo_cliente">Filtrar Tipo</option>
          </select>
-       </div>
-     </div>
-      {/* Filtro por valor (2 columnas) */}
-      <div className="col-md-2 mb-2">
-        <div className="input-group">
           <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
             {filterOptions.map(option => (
             <option key={option} value={option}>{option}</option>
            ))}
           </select>
         </div>
-      </div>
+        </div>
        {/* Crear Cliente Button (4 columnas) */}
-       <div className="col-md-4 mb-2">
-         <div className="input-group">
-           <Link to="/clientes/CrearCliente" className="input-daterange input-group btn btn-soft-success waves-effect waves-light">
-            <i className="mdi mdi-plus me-1"></i> Crear Cliente
+       <div className="col-md-3 mb-2">
+         <div className="input-group shadow-sm">
+           <Link to="/clientes/CrearCliente" className="input-daterange input-group btn btn-outline-success waves-effect waves-light">
+            <i className="mdi mdi-plus me-1"/> Crear Cliente
            </Link>
          </div>
         </div>

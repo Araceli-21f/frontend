@@ -1,6 +1,17 @@
 import React from "react";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
 
-const AlertComponent = ({ type, entity, action, onConfirm, onCancel, message }) => {
+const AlertComponent = ({
+  type,
+  entity,
+  action,
+  onConfirm,
+  onCancel,
+  message,
+  swalOptions: customSwalOptions, // Permite pasar opciones personalizadas
+  ...rest
+}) => {
   const icons = {
     view: "uil uil-eye text-primary",
     delete: "uil uil-trash text-danger",
@@ -26,51 +37,45 @@ const AlertComponent = ({ type, entity, action, onConfirm, onCancel, message }) 
     info: "text-info",
   };
 
-  return (
-    <div
-      className="modal fade bs-example-modal-center show"
-      tabIndex="-1"
-      role="dialog"
-      aria-labelledby="mySmallModalLabel"
-      aria-hidden="true"
-      style={{ display: "block", backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-    >
-      <div className="modal-dialog modal-dialog-centered">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h5 className="modal-title" id="alertModalLabel">
-              {action.charAt(0).toUpperCase() + action.slice(1)} {entity}
-            </h5>
-            <button
-              type="button"
-              className="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Cerrar"
-              onClick={onCancel}
-            ></button>
-          </div>
-          <div className="modal-body text-center">
-            <i className={`${icons[action]} display-4 mt-2 mb-3`}></i>
-            <h5 className={modalClasses[type]}>
-              {action.charAt(0).toUpperCase() + action.slice(1)}
-            </h5>
-            <p>{message || messages[action]}</p>
+  const showAlert = () => {
+    let swalOptions = {
+      title: `${action.charAt(0).toUpperCase() + action.slice(1)} ${entity}`,
+      text: message || messages[action],
+      icon: type,
+      showCancelButton: action === "confirmDelete",
+      confirmButtonText: action === "confirmDelete" ? "Confirmar" : "Aceptar",
+      cancelButtonText: "Cancelar",
+      showCloseButton: true,
+      customClass: {
+        confirmButton: "btn btn-primary me-2",
+        cancelButton: "btn btn-secondary",
+      },
+      ...customSwalOptions, // Aplica las opciones personalizadas
+      ...rest, // Aplica otras opciones adicionales
+    };
 
-            {action === "confirmDelete" && (
-              <div className="d-flex justify-content-center">
-                <button className="btn btn-danger me-2" onClick={onConfirm}>
-                  Confirmar
-                </button>
-                <button className="btn btn-secondary" onClick={onCancel}>
-                  Cancelar
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    if (action === "confirmDelete") {
+      Swal.fire(swalOptions).then((result) => {
+        if (result.isConfirmed) {
+          onConfirm();
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          onCancel();
+        }
+      });
+    } else {
+      Swal.fire(swalOptions).then(() => {
+        if (onCancel) {
+          onCancel();
+        }
+      });
+    }
+  };
+
+  React.useEffect(() => {
+    showAlert();
+  }, [type, entity, action, onConfirm, onCancel, message, customSwalOptions, rest]);
+
+  return <></>;
 };
 
 export default AlertComponent;

@@ -129,7 +129,7 @@ const EditarCotizacion = () => {
     <div className="col-lg-12">
       <div className="card">
         <div className="card-body">
-           <h2 className="mb-4">Editar Cotización</h2>
+           <h2 className="font-size-h4 mb-4">Editar Cotización</h2>
            <form onSubmit={handleSubmit}>
              {/* Campos de la cotización */}
           <div className="row mb-3">

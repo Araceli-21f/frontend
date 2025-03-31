@@ -11,6 +11,10 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
   const toggleSubMenu2 = () => {
     setIsSubMenuOpen2(!isSubMenuOpen2);
   };
+  const [isSubMenuOpen3, setIsSubMenuOpen3] = useState(false);
+  const toggleSubMenu3 = () => {
+    setIsSubMenuOpen3(!isSubMenuOpen3);
+  };
 
   return (
     
@@ -91,40 +95,49 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
               </Link>
             </li>
             <li>
-              <Link to="/Campañas" className="waves-effect">
-                <i className="uil-megaphone"></i>
-                <span> Campañas</span>
+              <Link to="/Filial" className="waves-effect">
+                <i className="bx bx-folder-open"></i>
+                <span> Filial </span>
               </Link>
             </li>
+            
             <li>
-              <Link to="/ServicioFinanciado" className="waves-effect">
-                <i className="uil-chart-line"></i>
-                <span> Servicios</span>
+              <Link className="has-arrow waves-effect" onClick={toggleSubMenu}>
+                <i className="uil-chart-line"></i><span> Servicios</span>
               </Link>
+              {isSubMenuOpen && (
+              <ul className="sub-menu">
+                <li>
+              <Link to="/Campañas" className="waves-effect"><i className="uil-megaphone"></i><span> Campañas</span></Link>
+            </li>
+            <li>
+              <Link to="/Lista_Servicios" className="waves-effect"><i className="uil-chart-line"></i><span> Servicios Financiados</span></Link>
+            </li>
+              </ul>
+              )}
             </li>
 
             <li>
-              <Link className="has-arrow waves-effect" onClick={toggleSubMenu}>
+              <Link className="has-arrow waves-effect" onClick={toggleSubMenu2}>
                 <i className="fas fa-users"></i>
                 <span> Clientes</span>
               </Link>
-              {isSubMenuOpen && (
+              {isSubMenuOpen2 && (
               <ul className="sub-menu">
                 <li><Link to="/Lista_clientes">Lista de Clientes</Link></li>
                 <li><Link to="/Estados_Cuenta">Estados Cuenta</Link></li>
                 <li><Link to="/Estados_factura">Estados de Factura </Link></li>
-                <li><Link to="/Lista_facturas">Lista de facturas</Link></li>
                 <li><Link to="/InvoicesDetail">Detalle Factura</Link></li>
               </ul>
               )}
             </li>
             <li>
             <Link
-              className={"has-arrow waves-effect"} onClick={toggleSubMenu2 }>
+              className={"has-arrow waves-effect"} onClick={toggleSubMenu3}>
               <i className="fas fa-users"></i>
               <span> Usuarios </span>
               </Link>
-                {isSubMenuOpen2 && ( 
+                {isSubMenuOpen3 && ( 
               <ul className="sub-menu">
               <li><Link to="/Lista_usuarios">Lista de Usuarios</Link></li>
               <li><Link to="/Lista_nomina">Lista de Nomina</Link></li>

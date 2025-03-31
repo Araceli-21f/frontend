@@ -76,6 +76,8 @@ const CrearCliente = ({ onClienteCreado }) => {
       setErrors({ nombre: "", telefono: "", correo: "", direccion: "", tipo_cliente: "" });
       if (onClienteCreado) {
         onClienteCreado(formData);
+        navigate(`/Lista_Clientes`);
+
       }
       navigate(`/Lista_Clientes`);
 
@@ -96,26 +98,28 @@ const CrearCliente = ({ onClienteCreado }) => {
       <div className="row">
         <div className="col">
           <div className="card p-4">
-            <div className="invoice-title">
-              <div className="mb-4">
-                <img src="/assets/images/logo-dark.png" alt="logo" height="20" className="logo-dark" />
-                <img src="/assets/images/logo-light.png" alt="logo" height="20" className="logo-light" />
+          <div className="invoice-title d-flex justify-content-between align-items-center">
+            <h3><i className="font-size-h4"/>Agregar Cliente</h3>
+            <div className="mb-4">
+               <img src="/assets/images/logo-dark.png" alt="logo" height="20" className="logo-dark" />
+               <img src="/assets/images/logo-light.png" alt="logo" height="20" className="logo-light" />
               </div>
-            </div>
-            <h3>Agregar Cliente</h3>
+             </div>
+            <hr className="my-3"/>
+
             <form onSubmit={handleSubmit}>
               <div className="row">
                 <div className="col-md-6">
                   <div className="mb-2">
                     <label className="form-label">Nombre:</label>
-                    <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} className="form-control" />
+                    <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} className="form-control shadow-sm" />
                     {errors.nombre && <div className="text-danger">{errors.nombre}</div>}
                   </div>
                 </div>
                 <div className="col-md-6">
                   <div className="mb-2">
                     <label className="form-label">Teléfono:</label>
-                    <input type="text" name="telefono" value={formData.telefono} onChange={handleChange} className="form-control" />
+                    <input type="text" name="telefono" value={formData.telefono} onChange={handleChange} className="form-control shadow-sm" />
                     {errors.telefono && <div className="text-danger">{errors.telefono}</div>}
                   </div>
                 </div>
@@ -124,22 +128,22 @@ const CrearCliente = ({ onClienteCreado }) => {
                 <div className="col-md-6">
                   <div className="mb-2">
                     <label className="form-label">Correo:</label>
-                    <input type="email" name="correo" value={formData.correo} onChange={handleChange} className="form-control" />
+                    <input type="email" name="correo" value={formData.correo} onChange={handleChange} className="form-control shadow-sm" />
                     {errors.correo && <div className="text-danger">{errors.correo}</div>}
                   </div>
                 </div>
                 <div className="col-md-6">
                   <div className="mb-2">
                     <label className="form-label">Dirección:</label>
-                    <input type="text" name="direccion" value={formData.direccion} onChange={handleChange} className="form-control" />
+                    <input type="text" name="direccion" value={formData.direccion} onChange={handleChange} className="form-control shadow-sm" />
                     {errors.direccion && <div className="text-danger">{errors.direccion}</div>}
                   </div>
                 </div>
               </div>
-              <div className="mb-2 row">
+              <div className="col-md-4">
+                <div className="mb-2">
                 <label className="col col-form-label">Tipo de Cliente</label>
-                <div className="col-md-10">
-                  <select className="form-select" name="tipo_cliente" value={formData.tipo_cliente} onChange={handleChange}>
+                  <select className="form-select shadow-sm" name="tipo_cliente" value={formData.tipo_cliente} onChange={handleChange}>
                     <option value="">Selecciona un tipo</option>
                     {tiposCliente.map((tipo) => (
                       <option key={tipo} value={tipo}>
@@ -150,8 +154,10 @@ const CrearCliente = ({ onClienteCreado }) => {
                   {errors.tipo_cliente && <div className="text-danger">{errors.tipo_cliente}</div>}
                 </div>
               </div>
-              <button type="submit" className="btn btn-md btn-primary m-3 p-2 ">Agregar Cliente</button>
-            </form>
+              <div className="text-center">
+                <button type="submit" className="btn w-lg btn-outline-success ml-3"><i className="uil-user-plus fs-6"/> Agregar Cliente </button>
+              </div>
+              </form>
             {showAlert && (
               <AlertComponent
                 type={alertType}

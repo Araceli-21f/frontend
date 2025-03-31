@@ -78,38 +78,40 @@ const EditarCliente = ({ entidad }) => {
   return (
     <Layout>
       <div className="row">
-        <div className="col-lg-12">
-          <div className="card">
+        <div className="col">
+          <div className="card p-4">
             <div className="card-body">
-              <h4 className="card-title">Editar Cliente</h4>
+            <div className="invoice-title d-flex justify-content-between align-items-center">
+            <h4 className="font-size-h4">Editar Usuario</h4>
+            <div className="mb-4">
+               <img src="/assets/images/logo-dark.png" alt="logo" height="20" className="logo-dark" />
+               <img src="/assets/images/logo-light.png" alt="logo" height="20" className="logo-light" />
+              </div>
+             </div>
+            
               <form onSubmit={handleSubmit}>
-                <div className="mb-3">
+              <div className="row">
+              <div className="col-md-6 ">
+                <div className="mb-2">
                   <label htmlFor="nombre" className="form-label">Nombre</label>
                   <input type="text" className="form-control" id="nombre" name="nombre" value={cliente.nombre} onChange={handleChange} />
                 </div>
-                <div className="mb-3">
+                </div>
+                <div className="col-md-6">
+                <div className="mb-2">
                   <label htmlFor="telefono" className="form-label">Teléfono</label>
                   <input type="text" className="form-control" id="telefono" name="telefono" value={cliente.telefono} onChange={handleChange} />
                 </div>
-                <div className="mb-3">
+               </div>
+              </div>
+              <div className="row">
+              <div className="col-md-7 ">
+                <div className="mb-2">
                   <label htmlFor="correo" className="form-label">Correo</label>
                   <input type="email" className="form-control" id="correo" name="correo" value={cliente.correo} onChange={handleChange} />
                 </div>
-                <div className="mb-3">
-                  <label htmlFor="direccion" className="form-label">Dirección</label>
-                  <input type="text" className="form-control" id="direccion" name="direccion" value={cliente.direccion} onChange={handleChange} />
                 </div>
-                <div className="mb-3">
-                  <label htmlFor="estado_cliente" className="form-label">Estado del Cliente</label>
-                  <select className="form-select" name="estado_cliente" value={cliente.estado_cliente} onChange={handleChange}>
-                    <option value="">Selecciona un estado</option>
-                    {estadosCliente.map((estado) => (
-                      <option key={estado} value={estado}>
-                        {estado}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <div className="col-md-5 ">
                 <div className="mb-3">
                   <label htmlFor="tipo_cliente" className="form-label">Tipo de Cliente</label>
                   <select className="form-select" name="tipo_cliente" value={cliente.tipo_cliente} onChange={handleChange}>
@@ -120,9 +122,31 @@ const EditarCliente = ({ entidad }) => {
                       </option>
                     ))}
                   </select>
+                 </div>
                 </div>
+              </div>
+              <div className="row">
+              <div className="col-md-7 ">
+                <div className="mb-2">
+                  <label htmlFor="direccion" className="form-label">Dirección</label>
+                  <input type="text" className="form-control" id="direccion" name="direccion" value={cliente.direccion} onChange={handleChange} />
+                </div></div>
+                <div className="col-md-5">
+                <div className="mb-5">
+                  <label htmlFor="estado_cliente" className="form-label">Estado del Cliente</label>
+                  <select className="form-select" name="estado_cliente" value={cliente.estado_cliente} onChange={handleChange}>
+                    <option value="">Selecciona un estado</option>
+                    {estadosCliente.map((estado) => (
+                      <option key={estado} value={estado}>
+                        {estado}
+                      </option>
+                    ))}
+                  </select>
+                </div></div>
+                </div>
+                
                 <button type="submit" className="btn btn-primary">Guardar Cambios</button>
-                <Link to={`/Lista_Clientes`} className="btn btn-secondary ms-2">Cancelar</Link>
+                <Link to={`/Lista_Clientes`} className="btn btn-danger ms-2">Cancelar</Link>
               </form>
             </div>
           </div>

@@ -5,51 +5,51 @@ import useSearchFilter from "../../hooks/useSearchFilter";
 import usePagination from "../../hooks/usePagination";
 import BotonesAccion from "../../components/BotonesAccion";
 import AlertComponent from '../../components/AlertasComponent';
-import ServicioFinanciadoService from "../../services/ServicioFinanciadoService";
+import FilialService from "../../services/FilialService";
 
-const ListaServiciosFinancieros = () => {
+const ListaFiliales = () => {
     const [alert, setAlert] = useState(null);
-    const [servicios, setServicios] = useState([]);
-    const { loading, error, obtenerServicioFinanciados, eliminarServicioFinanciado } = ServicioFinanciadoService();
+    const [filiales, setFiliales] = useState([]);
+    const { loading, error, obtenerFiliales, eliminarFilial } = FilialService();
 
+    //Manda un hook de busqueda y filtrar
     const {
         searchTerm, filterType, filterValue,
         handleSearchChange, handleFilterTypeChange, handleFilterValueChange
-    } = useSearchFilter("cliente_id"); // Ajusta según tus necesidades
+    } = useSearchFilter("nombre_filial"); // Adjust filterType as needed
 
-    const filteredServicios = servicios.filter((servicio) => {
-        const descripcion = servicio.descripcion || '';
-        const matchesSearch = descripcion.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesFilter = filterValue === "Todos" || servicio[filterType] === filterValue;
+    const filteredFiliales = filiales.filter((filial) => {
+        const nombre = filial.nombre_filial || '';
+        const matchesSearch = nombre.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesFilter = filterValue === "Todos" || filial[filterType] === filterValue;
         return matchesSearch && matchesFilter;
     });
 
-    const filterOptions = ["Todos", ...new Set(servicios.map((servicio) => servicio[filterType]))];
+    const filterOptions = ["Todos", ...new Set(filiales.map((filial) => filial[filterType]))];
 
-    const { current: currentServicios, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredServicios, 5);
+    //Manda un hook de paginación
+    const { current: currentFiliales, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredFiliales, 5);
 
     useEffect(() => {
-        const fetchServicios = async () => {
+        const fetchFiliales = async () => {
             try {
-                const fetchedServicios = await obtenerServicioFinanciados();
-                console.log("Servicios obtenidos:", fetchedServicios); // Agregado para depuración
-                setServicios(fetchedServicios);
+                const fetchedFiliales = await obtenerFiliales();
+                setFiliales(fetchedFiliales);
             } catch (err) {
-                console.error("Error al obtener servicios financiados:", err);
+                console.error("Error al obtener filiales:", err);
             }
         };
-        fetchServicios();
-    }, [obtenerServicioFinanciados]);
-    
+        fetchFiliales();
+    }, [obtenerFiliales]);
 
     const handleDelete = async (id) => {
         try {
-            await eliminarServicioFinanciado(id);
-            setServicios(servicios.filter(servicio => servicio._id !== id));
-            setAlert({ type: "warning", action: "delete", entity: "servicio financiero" });
+            await eliminarFilial(id);
+            setFiliales(filiales.filter(filial => filial._id !== id));
+            setAlert({ type: "warning", action: "delete", entity: "filial" });
             setTimeout(() => setAlert(null), 5000);
         } catch (err) {
-            console.error("Error al eliminar servicio financiero:", err);
+            console.error("Error al eliminar filial:", err);
         }
     };
 
@@ -63,11 +63,11 @@ const ListaServiciosFinancieros = () => {
     };
 
     if (loading) {
-        return <p>Cargando servicios financieros...</p>;
+        return <p>Cargando filiales...</p>;
     }
 
     if (error) {
-        return <p>Error al cargar servicios financieros: {error.message}</p>;
+        return <p>Error al cargar filiales: {error.message}</p>;
     }
 
     return (
@@ -82,7 +82,7 @@ const ListaServiciosFinancieros = () => {
                 />
             )}
             <div className="card p-3">
-                <h2 className="mb-3 ">Lista de Servicios Financieros</h2>
+                <h2 className="mb-3 ">Lista de Filiales</h2>
 
                 <div className="col-md-10">
                     <div className="row">
@@ -91,7 +91,7 @@ const ListaServiciosFinancieros = () => {
                                 <input
                                     type="text"
                                     className="form-control pe-5"
-                                    placeholder="Buscar Servicio ..."
+                                    placeholder="Buscar Filial..."
                                     value={searchTerm}
                                     onChange={handleSearchChange}
                                 />
@@ -106,8 +106,8 @@ const ListaServiciosFinancieros = () => {
                                     <i className="uil-filter fs-6"></i>
                                 </span>
                                 <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
-                                    <option value="cliente_id">Filtrar por Cliente</option>
-                                    {/* Agrega más opciones de filtro si es necesario */}
+                                    <option value="nombre_filial">Filtrar por Nombre</option>
+                                    <option value="cotizaciones">Filtrar por Cotizaciones</option>
                                 </select>
                                 <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
                                     {filterOptions.map(option => (
@@ -118,8 +118,8 @@ const ListaServiciosFinancieros = () => {
                         </div>
                         <div className="col-md-3 mb-2">
                             <div className="input-group">
-                                <Link to="/servicios-financieros/CrearServicioFinanciero" className="input-daterange input-group btn btn-outline-success waves-effect waves-light">
-                                    <i className="uil-plus fs-6" /> Crear Servicio
+                                <Link to="/filiales/CrearFilial" className="input-daterange input-group btn btn-outline-success waves-effect waves-light">
+                                    <i className="uil-plus fs-6" /> Crear Filial
                                 </Link>
                             </div>
                         </div>
@@ -132,31 +132,21 @@ const ListaServiciosFinancieros = () => {
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Cliente ID</th>
-                                    <th>Descripción</th>
-                                    <th>Monto Servicio</th>
-                                    <th>Fecha Inicio</th>
-                                    <th>Fecha Término</th>
-                                    <th>Pago Semanal</th>
-                                    <th>Saldo Restante</th>
+                                    <th>Nombre Filial</th>
+                                    <th>Cotizaciones</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentServicios.map((servicio) => (
-                                    <tr key={servicio._id}>
-                                        <td>{servicio._id}</td>
-                                        <td>{servicio.cliente_id}</td>
-                                        <td>{servicio.descripcion}</td>
-                                        <td>{servicio.monto_servicio}</td>
-                                        <td>{servicio.fecha_inicio}</td>
-                                        <td>{servicio.fecha_termino}</td>
-                                        <td>{servicio.pago_semanal}</td>
-                                        <td>{servicio.saldo_restante}</td>
+                                {currentFiliales.map((filial) => (
+                                    <tr key={filial._id}>
+                                        <td>{filial._id}</td>
+                                        <td>{filial.nombre_filial}</td>
+                                        <td>{filial.cotizaciones}</td>
                                         <td>
                                             <BotonesAccion
-                                                id={servicio._id}
-                                                entidad="servicio financiero"
+                                                id={filial._id}
+                                                entidad="filial"
                                                 onDelete={handleDelete}
                                                 setAlert={setAlert}
                                             />
@@ -190,4 +180,4 @@ const ListaServiciosFinancieros = () => {
     );
 };
 
-export default ListaServiciosFinancieros;
+export default ListaFiliales;

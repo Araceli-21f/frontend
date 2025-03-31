@@ -47,7 +47,7 @@ const Lista_usuarios = () => {
         try {
             await eliminarUsuario(id);
             setUsers(users.filter(user => user._id !== id));
-            setAlert({ type: "success", action: "delete", entity: "usuario" });
+            setAlert({ type: "warning", action: "delete", entity: "usuario" });
             setTimeout(() => setAlert(null), 5000);
         } catch (err) {
             console.error("Error al eliminar usuario:", err);
@@ -93,13 +93,13 @@ const Lista_usuarios = () => {
                 />
             )}
             <div className="card p-3">
-                <h2 className="mb-3">Lista de Usuarios</h2>
+                <h2 className="mb-3 ">Lista de Usuarios</h2>
 
                 <div className="col-md-10">
                     <div className="row">
                         {/* Barra de búsqueda (4 columnas) */}
                         <div className="col-md-4 mb-2">
-                            <div className="input-group">
+                            <div className="input-group shadow-sm">
                                 <input
                                     type="text"
                                     className="form-control pe-5"
@@ -112,30 +112,29 @@ const Lista_usuarios = () => {
                                 </button>
                             </div>
                         </div>
-                        {/* Filtro por tipo */}
-                        <div className="col-md-2 mb-2">
-                            <div className="input-group">
-                                <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
-                                    <option value="rol">Filtrar por Rol</option>
-                                    <option value="area">Filtrar por Área</option>
+                        <div className="col-md-5 mb-2 d-flex align-items-center">
+                        <div className="input-group w-100 shadow-sm">
+                            {/* Ícono de filtro fuera del grupo, con fondo redondeado */}
+                            <span className="me-0 p-2 text-white bg-primary rounded-1 d-flex justify-content-center align-items-center">
+                                <i className="uil-filter fs-6"></i>
+                            </span>
+                             {/* Select de tipo de filtro */}
+                             <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
+                                 <option value="rol">Filtrar por Rol</option>
+                                 <option value="area">Filtrar por Área</option>
+                             </select>
+                             {/* Select dinámico de valores */}
+                             <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
+                                {filterOptions.map(option => (
+                                <option key={option} value={option}>{option}</option>
+                                ))}
                                 </select>
-                            </div>
-                        </div>
-                        {/* Filtro dinámico por valor */}
-                        <div className="col-md-2 mb-2">
+                             </div>
+                         </div>
+                        <div className="col-md-3 mb-2">
                             <div className="input-group">
-                                <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
-                                    {filterOptions.map(option => (
-                                        <option key={option} value={option}>{option}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-
-                        <div className="col-md-4 mb-2">
-                            <div className="input-group">
-                                <Link to="/usuarios/CrearUsuario" className="input-daterange input-group btn btn-soft-success waves-effect waves-light">
-                                    <i className="mdi mdi-plus me-1"></i> Crear Usuario
+                                <Link to="/usuarios/CrearUsuario" className="input-daterange input-group btn btn-outline-success waves-effect waves-light">
+                                    <i className="uil-user-plus fs-6"/> Crear Usuario
                                 </Link>
                             </div>
                         </div>
@@ -143,7 +142,7 @@ const Lista_usuarios = () => {
                 </div>
 
                 <div className="col-lg-12">
-                    <div className="table-responsive">
+                    <div className="table-responsive shadow-sm">
                         <table className="table table-centered table-striped table-bordered">
                             <thead>
                                 <tr>
@@ -182,7 +181,7 @@ const Lista_usuarios = () => {
                 {/* Paginacion */}
                 <div className="d-flex justify-content-between align-items-center mt-3">
                     <button
-                        className="btn btn-secondary"
+                        className="btn btn-secondary shadow-sm"
                         onClick={setPreviousPage}
                         disabled={currentPage === 1}
                     >
@@ -190,7 +189,7 @@ const Lista_usuarios = () => {
                     </button>
                     <span>Página {currentPage} de {totalPages}</span>
                     <button
-                        className="btn btn-secondary"
+                        className="btn btn-secondary shadow-sm"
                         onClick={setNextPage}
                         disabled={currentPage === totalPages}
                     >
