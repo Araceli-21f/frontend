@@ -4,7 +4,7 @@ import axios from 'axios';
 const UserService = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const baseURL = 'http://localhost:3000/users';
+    const baseURL = 'http://localhost:8000/users';
 
     const obtenerUsuarios = useCallback(async () => {
         setLoading(true);

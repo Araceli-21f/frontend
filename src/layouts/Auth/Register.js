@@ -3,32 +3,33 @@ import { Link, useNavigate } from "react-router-dom";
 import authService from "../../services/authService";
 
 const Register = () => {
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
+  const [apellidos, setApellidos] = useState(""); // Nuevo estado para apellidos
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [area, setArea] = useState(''); 
   const [message, setMessage] = useState("");
-  const [area, setArea] = useState(''); // Agrega el estado 'area'
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!username || !email || !area || !password) {
+    if (!name || !apellidos || !email || !area || !password) {
       setError("Todos los campos son obligatorios.");
       setMessage("");
       return;
     }
 
     try {
-      const data = await authService.register(username, " ", email, password);
+      const data = await authService.register(name, apellidos, email, password, area);
       setMessage("Registro exitoso! Bienvenido a Minible.");
       setError("");
       console.log("Token: ", data.token);
       localStorage.setItem("token", data.token);
       navigate("/home");
     } catch (error) {
-      setError(error.error || "Error en el registro.");
+      setError(error.message || "Error en el registro.");
       setMessage("");
       console.error(error);
     }
@@ -58,22 +59,62 @@ const Register = () => {
 
                     <form onSubmit={handleSubmit}>
                       <div className="mb-3">
-                        <label className="form-label">Nombre de usuario</label>
-                        <input type="text" className="form-control" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Enter username" />
+                        <label className="form-label">Nombre</label>
+                        <input 
+                          type="text" 
+                          className="form-control" 
+                          value={name} 
+                          onChange={(e) => setName(e.target.value)} 
+                          placeholder="Ingresa tu nombre" 
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label">Apellidos</label>
+                        <input 
+                          type="text" 
+                          className="form-control" 
+                          value={apellidos} 
+                          onChange={(e) => setApellidos(e.target.value)} 
+                          placeholder="Ingresa tus apellidos" 
+                        />
                       </div>
                       <div className="mb-3">
                         <label className="form-label">Email</label>
-                        <input type="email" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter email" />
+                        <input 
+                          type="email" 
+                          className="form-control" 
+                          value={email} 
+                          onChange={(e) => setEmail(e.target.value)} 
+                          placeholder="Ingresa tu email" 
+                        />
                       </div>
                       <div className="mb-3">
-                        <label className="form-label">Area</label>
-                        <input type="text" className="form-control" value={area} onChange={(e) => setArea(e.target.value)} placeholder="Enter area"/>                      </div>
+                        <label className="form-label">Área/Departamento</label>
+                        <select 
+                          className="form-select"
+                          value={area}
+                          onChange={(e) => setArea(e.target.value)}
+                        >
+                          <option value="">Selecciona un área</option>
+                          <option value="Ventas">Ventas</option>
+                          <option value="Marketing">Marketing</option>
+                          <option value="TI">TI</option>
+                          <option value="Recursos Humanos">Recursos Humanos</option>
+                          <option value="Operaciones">Operaciones</option>
+                        </select>
+                      </div>
                       <div className="mb-3">
                         <label className="form-label">Contraseña</label>
-                        <input type="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter password" />
+                        <input 
+                          type="password" 
+                          className="form-control" 
+                          value={password} 
+                          onChange={(e) => setPassword(e.target.value)} 
+                          placeholder="Crea una contraseña" 
+                        />
                       </div>
                       <div className="form-check">
-                        <input type="checkbox" className="form-check-input" id="auth-terms-condition-check" />
+                        <input type="checkbox" className="form-check-input" id="auth-terms-condition-check" required />
                         <label className="form-check-label">Acepto <a href="#" className="text-reset">Términos y Condiciones</a></label>
                       </div>
                       <div className="mt-3 text-end">

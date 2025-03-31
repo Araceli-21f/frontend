@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api'; // Cambia el puerto si es diferente
+const API_URL = 'http://localhost:8000/api'; // Cambia el puerto si es diferente
 
 const api = axios.create({
     baseURL: API_URL,

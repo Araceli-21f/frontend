@@ -4,7 +4,7 @@ import axios from 'axios';
 const EstadoCuentaService = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const baseURL = 'http://localhost:3000/estados-cuenta';
+    const baseURL = 'http://localhost:8000/estados-cuenta';
 
     const obtenerEstadoCuentas = useCallback(async () => {
         setLoading(true);

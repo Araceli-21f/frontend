@@ -4,7 +4,7 @@ import axios from 'axios';
 const FilialService = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const baseURL = 'http://localhost:3000/Filiales';
+    const baseURL = 'http://localhost:8000/Filiales';
 
     const obtenerFilials = useCallback(async () => {
         setLoading(true);

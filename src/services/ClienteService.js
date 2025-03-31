@@ -4,7 +4,7 @@ import axios from 'axios';
 const ClienteService = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const baseURL = 'http://localhost:3000/clientes';
+    const baseURL = 'http://localhost:8000/clientes';
 
     const obtenerClientes = useCallback(async () => {
         setLoading(true);

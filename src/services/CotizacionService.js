@@ -4,7 +4,7 @@ import axios from 'axios';
 const CotizacionService = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const baseURL = 'http://localhost:3000/cotizaciones';
+    const baseURL = 'http://localhost:8000/cotizaciones';
 
     const obtenerCotizaciones = useCallback(async () => {
         setLoading(true);

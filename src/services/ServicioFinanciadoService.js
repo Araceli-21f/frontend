@@ -4,7 +4,7 @@ import axios from 'axios';
 const ServicioFinanciadoService = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const baseURL = 'http://localhost:3000/servicios';
+    const baseURL = 'http://localhost:8000/servicios';
 
     const obtenerServicioFinanciados = useCallback(async () => {
         setLoading(true);
