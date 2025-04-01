@@ -27,7 +27,7 @@ const Register = () => {
       setError("");
       console.log("Token: ", data.token);
       localStorage.setItem("token", data.token);
-      navigate("/home");
+      navigate("/login");
     } catch (error) {
       setError(error.message || "Error en el registro.");
       setMessage("");
