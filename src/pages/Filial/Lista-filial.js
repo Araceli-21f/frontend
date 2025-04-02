@@ -5,6 +5,7 @@ import useSearchFilter from "../../hooks/useSearchFilter";
 import usePagination from "../../hooks/usePagination";
 import BotonesAccion from "../../components/BotonesAccion";
 import AlertComponent from '../../components/AlertasComponent';
+import LoadingError from "../../components/LoadingError";
 import FilialService from "../../services/FilialService";
 
 const ListaFiliales = () => {
@@ -62,15 +63,13 @@ const ListaFiliales = () => {
         setAlert(null);
     };
 
-    if (loading) {
-        return <p>Cargando filiales...</p>;
-    }
-
-    if (error) {
-        return <p>Error al cargar filiales: {error.message}</p>;
-    }
-
     return (
+        <LoadingError
+              loading={loading}
+              error={error}
+              loadingMessage="Cargando datos..."
+              errorMessage={error?.message}
+            >
         <Layout>
             {alert && (
                 <AlertComponent
@@ -177,6 +176,7 @@ const ListaFiliales = () => {
             </div>
             <br />
         </Layout>
+        </LoadingError>
     );
 };
 

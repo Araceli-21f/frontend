@@ -169,6 +169,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
   };
 
   return (
+    
         <Layout>
           <div className="row">
             <div className="col-lg-12">

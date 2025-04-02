@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import Layout from "../../layouts/pages/layout";
+import LoadingError from "../../components/LoadingError";
 import useClienteService from "../../services/ClienteService"; // Importa el hook personalizado
 
 const EditarCliente = ({ entidad }) => {
@@ -8,12 +9,7 @@ const EditarCliente = ({ entidad }) => {
   const navigate = useNavigate();
   const { obtenerClientePorId, actualizarCliente } = useClienteService(); // Usa el hook personalizado
   const [cliente, setCliente] = useState({
-    nombre: "",
-    telefono: "",
-    correo: "",
-    direccion: "",
-    estado_cliente: "Activo", // Valor por defecto
-    tipo_cliente: "Individual", // Valor por defecto
+    nombre: "", telefono: "", correo: "", direccion: "", estado_cliente: "Activo",  tipo_cliente: "Individual", // Valor por defecto
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -55,27 +51,13 @@ const EditarCliente = ({ entidad }) => {
     }
   };
 
-  if (loading) {
-    return (
-      <Layout>
-        <div className="container">
-          <h2>Cargando...</h2>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (error) {
-    return (
-      <Layout>
-        <div className="container">
-          <h2>Error: {error}</h2>
-        </div>
-      </Layout>
-    );
-  }
-
   return (
+    <LoadingError
+      loading={loading}
+      error={error}
+      loadingMessage="Cargando datos..."
+      errorMessage={error?.message}
+    >
     <Layout>
       <div className="row">
         <div className="col">
@@ -153,6 +135,7 @@ const EditarCliente = ({ entidad }) => {
         </div>
       </div>
     </Layout>
+    </LoadingError>
   );
 };
 

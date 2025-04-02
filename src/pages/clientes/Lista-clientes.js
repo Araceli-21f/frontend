@@ -5,6 +5,7 @@ import useSearchFilter from "../../hooks/useSearchFilter";
 import usePagination from "../../hooks/usePagination";
 import BotonesAccion from "../../components/BotonesAccion";
 import AlertComponent from '../../components/AlertasComponent';
+import LoadingError from "../../components/LoadingError";
 import ClienteService from "../../services/ClienteService";
 
 const ListaClientes = () => {
@@ -63,14 +64,6 @@ const ListaClientes = () => {
         setAlert(null);
     };
 
-    if (loading) {
-        return <p>Cargando Clientes...</p>;
-    }
-
-    if (error) {
-        return <p>Error al cargar Clientes: {error.message}</p>;
-    }
-
     const handleView = (id) => {
         const cliente = clientes.find((c) => c._id === id); // Corregido: usa _id
         if (cliente) {
@@ -81,6 +74,12 @@ const ListaClientes = () => {
     };
 
   return (
+    <LoadingError
+      loading={loading}
+      error={error}
+      loadingMessage="Cargando datos..."
+      errorMessage={error?.message}
+    >
     <Layout>
          {alert && (
         <AlertComponent
@@ -211,6 +210,7 @@ const ListaClientes = () => {
       </div>
       <br/>
 </Layout>
+</LoadingError>
   );
 };
 

@@ -6,6 +6,7 @@ import usePagination from "../../hooks/usePagination";
 import useDateRange from "../../hooks/useDateRange";
 import BotonesAccion from "../../components/BotonesAccion";
 import AlertComponent from '../../components/AlertasComponent';
+import LoadingError from "../../components/LoadingError";
 import ServicioFinanciadoService from "../../services/ServicioFinanciadoService";
 
 const ListaServiciosFinancieros = () => {
@@ -90,42 +91,38 @@ const ListaServiciosFinancieros = () => {
         setAlert(null);
     };
 
-    if (loading) {
-        return <p>Cargando servicios financieros...</p>;
+    //vista
+    const handleView = (id) => {
+    const servicio = servicios.find((u) => u._id === id); // Corregido: usa _id
+    if (servicio) {
+        navigate(`/servicio/ver/${id}`);
+    } else {
+        console.error('Servicio no encontrado');
     }
+};
 
-    if (error) {
-        return <p>Error al cargar servicios financieros: {error.message}</p>;
-    }
-
-        // Función para formatear la fecha a DD-MM-YYYY
-        const formatDate = (dateString) => {
-            if (!dateString) return "";
-            const date = new Date(dateString);
-            const day = String(date.getDate()).padStart(2, "0");
-            const month = String(date.getMonth() + 1).padStart(2, "0");
-            const year = date.getFullYear();
-            return `${day}-${month}-${year}`;
-        };
-
-        const handleView = (id) => {
-            const servicio = servicios.find((c) => c._id === id); // Corregido: usa _id
-            if (servicio) {
-                navigate(`/servicio/ver/${id}`);
-            } else {
-                console.error('Servicio no encontrado');
-            }
-        };
+     // Función para formatear la fecha a DD-MM-YYYY
+    const formatDate = (dateString) => {
+      if (!dateString) return "";
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    };
 
     return (
+    <LoadingError
+      loading={loading}
+      error={error}
+      loadingMessage="Cargando datos..."
+      errorMessage={error?.message}
+    >
         <Layout>
             {alert && (
                 <AlertComponent
-                    type={alert.type}
-                    action={alert.action}
-                    entity={alert.entity}
-                    onConfirm={() => handleConfirmDelete(alert.id)}
-                    onCancel={handleCancelDelete}
+                    type={alert.type} action={alert.action} entity={alert.entity}
+                    onConfirm={() => handleConfirmDelete(alert.id)} onCancel={handleCancelDelete}
                 />
             )}
             <div className="card p-3">
@@ -136,11 +133,9 @@ const ListaServiciosFinancieros = () => {
                         <div className="col-md-4 mb-2">
                             <div className="input-group shadow-sm">
                                 <input
-                                    type="text"
-                                    className="form-control pe-5"
+                                    type="text" className="form-control pe-5"
                                     placeholder="Buscar Servicio o Cliente..."
-                                    value={searchTerm}
-                                    onChange={handleSearchChange}
+                                    value={searchTerm} onChange={handleSearchChange}
                                 />
                                 <button type="button" className="btn btn-primary" style={{ marginLeft: '2px' }}>
                                     <i className="uil-search"></i>
@@ -174,13 +169,12 @@ const ListaServiciosFinancieros = () => {
                             <thead>
                                 <tr>
                                     <th>ID</th>
+                                    <th>Servicio</th>
                                     <th>Cliente</th>
-                                    <th>Descripción</th>
                                     <th>Monto Servicio</th>
+                                    <th>Pago Semanal</th>
                                     <th>Fecha Inicio</th>
                                     <th>Fecha Término</th>
-                                    <th>Pago Semanal</th>
-                                    <th>Saldo Restante</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -188,13 +182,12 @@ const ListaServiciosFinancieros = () => {
                                 {currentServicios.map((servicio) => (
                                     <tr key={servicio._id}>
                                         <td>{servicio._id}</td>
+                                        <td>{servicio.nombre_servicio}</td>
                                         <td>{servicio.cliente_id?.nombre || 'N/A'}</td> {/* Manejo de nulos */}
-                                        <td>{servicio.descripcion}</td>
                                         <td>{servicio.monto_servicio}</td>
+                                        <td>{servicio.pago_semanal}</td>
                                         <td>{formatDate(servicio.fecha_inicio)}</td>
                                         <td>{formatDate(servicio.fecha_termino)}</td>
-                                        <td>{servicio.pago_semanal}</td>
-                                        <td>{servicio.saldo_restante}</td>
                                         <td>
                                             <BotonesAccion
                                                 id={servicio._id}
@@ -223,6 +216,7 @@ const ListaServiciosFinancieros = () => {
             </div>
             <br />
         </Layout>
+        </LoadingError>
     );
 };
 

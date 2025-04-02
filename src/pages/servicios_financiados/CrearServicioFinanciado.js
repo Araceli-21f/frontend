@@ -2,38 +2,25 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../../layouts/pages/layout";
 import AlertComponent from "../../components/AlertasComponent";
+import LoadingError from "../../components/LoadingError";
 import ServicioFinanciadoService from "../../services/ServicioFinanciadoService";
 import ClienteService from "../../services/ClienteService";
 
 const CrearServicioFinanciado = ({ onServicioFinanciadoCreado }) => {
   const navigate = useNavigate();
-  const { crearServicioFinanciado } = ServicioFinanciadoService();
-  const { obtenerClientes } = ClienteService();
-  const [formData, setFormData] = useState({
-    cliente_id: "",
-    descripcion: "",
-    monto_servicio: "",
-    fecha_inicio: "",
-    fecha_termino: "",
-    pago_semanal: "",
-    saldo_restante: "",
-  });
-  const [errors, setErrors] = useState({
-    cliente_id: "",
-    descripcion: "",
-    monto_servicio: "",
-    fecha_inicio: "",
-    fecha_termino: "",
-    pago_semanal: "",
-    saldo_restante: "",
-  });
   const [showAlert, setShowAlert] = useState(false);
   const [alertType, setAlertType] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
+  const { error, loading, crearServicioFinanciado } = ServicioFinanciadoService();
+  const [formData, setFormData] = useState({
+    nombre_servicio: "", cliente_id: "", descripcion: "", monto_servicio: "", fecha_inicio: "", fecha_termino: null, pago_semanal: "", saldo_restante: "",
+  });
+  const { obtenerClientes } = ClienteService(); //obtener a los clientes
   const [clientes, setClientes] = useState([]);
-  const [loadingClientes, setLoadingClientes] = useState(true); // Estado para la carga de clientes
-  const [errorClientes, setErrorClientes] = useState(null); // Estado para errores de clientes
-
+  const [loadingClientes, setLoadingClientes] = useState(true);
+  const [errorClientes, setErrorClientes] = useState(null);
+  const servicios = ["Instalacion", "Desarrollo", "Diseño", "Marketing", "Configuracion"]; //seleccionar servicios
+ 
   useEffect(() => {
     const fetchClientes = async () => {
       setLoadingClientes(true);
@@ -47,46 +34,49 @@ const CrearServicioFinanciado = ({ onServicioFinanciadoCreado }) => {
         setLoadingClientes(false);
       }
     };
+
     fetchClientes();
   }, [obtenerClientes]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    setErrors({ ...errors, [name]: "" });
+
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // ... (resto de tu lógica de validación y envío)
+    try {
+      await crearServicioFinanciado(formData);
+      setAlertType("success");
+      setAlertMessage("Servicio Financiado creado exitosamente.");
+      setShowAlert(true);
+      setFormData({ nombre_servicio: "", cliente_id: "", descripcion: "", monto_servicio: "", fecha_inicio: "", fecha_termino: null, pago_semanal: "", saldo_restante: "" });
+
+      if (onServicioFinanciadoCreado) {
+        onServicioFinanciadoCreado(formData);
+        navigate(`/Lista_Servicios`);
+      }
+      navigate(`/Lista_Servicios`);
+    } catch (error) {
+      console.error("Error al crear el servicio financiado:", error);
+      setAlertType("error");
+      setAlertMessage("Error al crear el servicio financiado.");
+      setShowAlert(true);
+    }
   };
 
   const handleAlertClose = () => {
     setShowAlert(false);
   };
 
-  if (loadingClientes) {
-    return (
-      <Layout>
-        <div className="container">
-          <h2>Cargando clientes...</h2>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (errorClientes) {
-    return (
-      <Layout>
-        <div className="container">
-          <h2>Error al cargar clientes: {errorClientes.message}</h2>
-        </div>
-      </Layout>
-    );
-  }
-
-
   return (
+    <LoadingError
+      loading={loadingClientes || loading}
+      error={errorClientes || error}
+      loadingMessage="Cargando datos..."
+      errorMessage={errorClientes?.message || error?.message}
+    >
     <Layout>
       <div className="row">
         <div className="col">
@@ -102,50 +92,52 @@ const CrearServicioFinanciado = ({ onServicioFinanciadoCreado }) => {
 
             <form onSubmit={handleSubmit}>
               <div className="row">
+              <div className="col-md-5">
+              <div className="mb-2">
+                     <label className="form-label"><i className="bx bxs-user-detail"/> Servicio</label>
+                      <select className="form-select shadow-sm" name="nombre_servicio" value={formData.nombre_servicio} onChange={handleChange}  required>
+                      <option value="">Selecciona un servicio</option>
+                      {servicios.map((nombre_servicio) => (
+                      <option key={nombre_servicio} value={nombre_servicio}>
+                      {nombre_servicio}
+                      </option>
+                      ))}
+                      </select>
+                  </div>
+                </div>
                 <div className="col-md-5">
                   <div className="mb-2">
                     <label className="form-label">Cliente:</label>
                     <select
-                      className="form-select"
-                      name="cliente_id"
-                      value={formData.cliente_id}
-                      onChange={handleChange}
+                      className="form-select shadow-sm" name="cliente_id"
+                      value={formData.cliente_id} onChange={handleChange}  required
                     >
                       <option value="">Selecciona un cliente</option>
                       {clientes.map((cliente) => (
                         <option key={cliente._id} value={cliente._id}>
-                          {cliente.nombre}
+                          {cliente.nombre} 
                         </option>
                       ))}
                     </select>
-                    {errors.cliente_id && <div className="text-danger">{errors.cliente_id}</div>}
                   </div>
                 </div>
                 <div className="col-md-3">
                   <div className="mb-2">
                     <label className="form-label">Fecha de Inicio:</label>
                     <input
-                      type="date"
-                      name="fecha_inicio"
-                      value={formData.fecha_inicio}
-                      onChange={handleChange}
-                      className="form-control"
+                      type="date" name="fecha_inicio" className="form-control shadow-sm"
+                      value={formData.fecha_inicio} onChange={handleChange}  required
                     />
-                    {errors.fecha_inicio && <div className="text-danger">{errors.fecha_inicio}</div>}
-                  </div>
+                    </div>
                 </div>
                 <div className="col-md-4">
                   <div className="mb-2">
                     <label className="form-label">Fecha de Término (Opcional):</label>
                     <input
-                      type="date"
-                      name="fecha_termino"
-                      value={formData.fecha_termino}
-                      onChange={handleChange}
-                      className="form-control"
+                      type="date" name="fecha_termino" className="form-control shadow-sm"
+                      value={formData.fecha_termino} onChange={handleChange}  required
                     />
-                    {errors.fecha_termino && <div className="text-danger">{errors.fecha_termino}</div>}
-                  </div>
+                    </div>
                 </div>
 
               </div>
@@ -153,55 +145,36 @@ const CrearServicioFinanciado = ({ onServicioFinanciadoCreado }) => {
                   <div className="mb-2">
                     <label className="form-label">Descripción:</label>
                     <textarea
-                    type="text"
-                    name="descripcion"
-                    className="form-control"
-                    value={formData.descripcion}
-                    onChange={handleChange}
-                    required
+                    type="text" name="descripcion" className="form-control shadow-sm" 
+                    value={formData.descripcion} onChange={handleChange} required
                   />
-                    {errors.descripcion && <div className="text-danger">{errors.descripcion}</div>}
-                  </div>
+                    </div>
                 </div>
                 <div className="row">
                 <div className="col-md-4">
                   <div className="mb-2">
                     <label className="form-label">Monto del Servicio:</label>
                     <input
-                      type="number"
-                      name="monto_servicio"
-                      value={formData.monto_servicio}
-                      onChange={handleChange}
-                      className="form-control"
+                      type="number" name="monto_servicio" className="form-control shadow-sm"
+                      value={formData.monto_servicio} onChange={handleChange} required
                     />
-                    {errors.monto_servicio && <div className="text-danger">{errors.monto_servicio}</div>}
-                  </div>
+                    </div>
                 </div>                
                 <div className="col-md-4">
                   <div className="mb-2">
                     <label className="form-label">Pago Semanal:</label>
                     <input
-                      type="number"
-                      name="pago_semanal"
-                      value={formData.pago_semanal}
-                      onChange={handleChange}
-                      className="form-control"
-                    />
-                    {errors.pago_semanal && <div className="text-danger">{errors.pago_semanal}</div>}
-                  </div>
+                      type="number" name="pago_semanal" className="form-control shadow-sm"
+                      value={formData.pago_semanal} onChange={handleChange} required />
+                    </div>
                 </div>
                 <div className="col-md-4">
                   <div className="mb-2">
                     <label className="form-label">Saldo Restante:</label>
                     <input
-                      type="number"
-                      name="saldo_restante"
-                      value={formData.saldo_restante}
-                      onChange={handleChange}
-                      className="form-control"
-                    />
-                    {errors.saldo_restante && <div className="text-danger">{errors.saldo_restante}</div>}
-                  </div>
+                      type="number" name="saldo_restante" className="form-control shadow-sm"
+                      value={formData.saldo_restante} onChange={handleChange} required  />
+                    </div>
                  </div>
                 </div>
                   <div className="text-center p-3">
@@ -221,6 +194,7 @@ const CrearServicioFinanciado = ({ onServicioFinanciadoCreado }) => {
         </div>
       </div>
     </Layout>
+    </LoadingError>
   );
 };
 

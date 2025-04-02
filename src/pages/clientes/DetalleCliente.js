@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Layout from "../../layouts/pages/layout";
+import LoadingError from "../../components/LoadingError";
 import ClienteService from "../../services/ClienteService";
 
 const DetalleCliente = ({ entidad }) => {
   const { id } = useParams();
-  const { obtenerClientePorId } = ClienteService(); // Nombre corregido
+  const {error, obtenerClientePorId } = ClienteService(); // Nombre corregido
   const [cliente, setCliente] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -26,31 +27,15 @@ const DetalleCliente = ({ entidad }) => {
       }
     };
     fetchCliente();
-  }, [id]);  // Eliminamos `obtenerClientePorId` de las dependencias para evitar re-renders innecesarios
+  }, [id]);  
   
-
-  if (loading) {
-    return (
-      <Layout>
-        <div className="container">
-          <h2>Cargando...</h2>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (!cliente) {
-    return (
-      <Layout>
-        <div className="container">
-          <h2>Cliente no encontrado</h2>
-        </div>
-      </Layout>
-    );
-  };
-  
-
   return (
+    <LoadingError
+      loading={loading}
+      error={error}
+      loadingMessage="Cargando datos..."
+      errorMessage={error?.message}
+    >
     <Layout>
       <div className="row">
         <div className="col">
@@ -101,6 +86,7 @@ const DetalleCliente = ({ entidad }) => {
         </div>
 
     </Layout>
+    </LoadingError>
   );
 };
 

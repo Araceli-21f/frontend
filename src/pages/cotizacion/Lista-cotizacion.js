@@ -5,6 +5,7 @@ import useSearchFilter from "../../hooks/useSearchFilter";
 import usePagination from "../../hooks/usePagination";
 import BotonesAccion from "../../components/BotonesAccion";
 import AlertComponent from '../../components/AlertasComponent';
+import LoadingError from "../../components/LoadingError";
 import CotizacionService from "../../services/CotizacionService";
 
 const ListaCotizaciones = () => {
@@ -62,14 +63,6 @@ const ListaCotizaciones = () => {
     setAlert(null);
   };
 
-  if (loading) {
-    return <p>Cargando Cotizaciones...</p>;
-  }
-
-  if (error) {
-    return <p>Error al cargar Cotizaciones: {error.message}</p>;
-  }
-
   const handleView = (id) => {
     const cotizacion = cotizaciones.find((c) => c._id === id);
     if (cotizacion) {
@@ -90,6 +83,12 @@ const ListaCotizaciones = () => {
 };
 
   return (
+    <LoadingError
+      loading={loading}
+      error={error}
+      loadingMessage="Cargando datos..."
+      errorMessage={error?.message}
+    >
     <Layout>
       {alert && (
         <AlertComponent
@@ -210,6 +209,7 @@ const ListaCotizaciones = () => {
       </div>
       <br />
     </Layout>
+    </LoadingError>
   );
 };
 

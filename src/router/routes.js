@@ -22,6 +22,7 @@ import EditarCampana from "../pages/campanas/EditarCampana";
 
 import ListaServiciosFinancieros from "../pages/servicios_financiados/Lista_ServicioFinanciado";
 import CrearServicioFinanciado from "../pages/servicios_financiados/CrearServicioFinanciado";
+import EditarServicioFinanciado from "../pages/servicios_financiados/EditarServicioFinanciado";
 import DetalleServicioFinanciado from "../pages/servicios_financiados/DetalleServicioFinanciado";
 
 import ListaFiliales from "../pages/Filial/Lista-filial";
@@ -84,7 +85,9 @@ const AppRoutes = () => {
             {/*Servicios Financiados */}
             <Route path="/Lista_Servicios" element={<ListaServiciosFinancieros/>}/>
             <Route path="/servicios-financieros/CrearServicioFinanciero" element={<CrearServicioFinanciado />} />
+            <Route path="/servicio/editar/:id" element={<EditarServicioFinanciado />} />
             <Route path="/servicio/ver/:id" element={<DetalleServicioFinanciado />} />
+
 
             {/*Clientes*/}
             <Route path="/Lista_clientes" element={<ListaClientes />}/>

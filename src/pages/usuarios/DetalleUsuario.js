@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Layout from "../../layouts/pages/layout";
+import LoadingError from "../../components/LoadingError";
 import UserService from "../../services/UserService";
 
 const DetalleUsuario = ({ entidad }) => {
   const { id } = useParams();
-  const { obtenerUsuarioPorId } = UserService(); // Nombre corregido
+  const { error, obtenerUsuarioPorId } = UserService(); // Nombre corregido
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -28,29 +29,13 @@ const DetalleUsuario = ({ entidad }) => {
     fetchUser();
   }, [id]);  // Eliminamos `obtenerUsuarioPorId` de las dependencias para evitar re-renders innecesarios
   
-
-  if (loading) {
-    return (
-      <Layout>
-        <div className="container">
-          <h2>Cargando...</h2>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (!user) {
-    return (
-      <Layout>
-        <div className="container">
-          <h2>Usuario no encontrado</h2>
-        </div>
-      </Layout>
-    );
-  };
-  
-
   return (
+    <LoadingError
+    loading={loading}
+    error={error}
+    loadingMessage="Cargando datos..."
+    errorMessage={error?.message}
+    >
     <Layout>
       <div className="row">
         <div className="col-lg-12">
@@ -122,6 +107,7 @@ const DetalleUsuario = ({ entidad }) => {
         </div>
       </div>
     </Layout>
+    </LoadingError>
   );
 };
 

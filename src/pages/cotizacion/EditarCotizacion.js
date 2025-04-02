@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Layout from "../../layouts/pages/layout";
+import LoadingError from "../../components/LoadingError";
 import useCotizacionService from "../../services/CotizacionService";
 import ClienteService from "../../services/ClienteService"; 
 
@@ -103,27 +104,13 @@ const EditarCotizacion = () => {
       }
     };
 
-    if (loading) {
-        return (
-            <Layout>
-                <div className="container">
-                    <h2>Cargando...</h2>
-                </div>
-            </Layout>
-        );
-    }
-
-    if (error) {
-        return (
-            <Layout>
-                <div className="container">
-                    <h2>Error: {error}</h2>
-                </div>
-            </Layout>
-        );
-    }
-
   return (
+  <LoadingError
+    loading={loading}
+    error={error}
+    loadingMessage="Cargando datos..."
+    errorMessage={error?.message}
+  >
 <Layout>
   <div className="row">
     <div className="col-lg-12">
@@ -262,6 +249,7 @@ const EditarCotizacion = () => {
     </div>
   </div>
   </Layout>
+  </LoadingError>
   );
 };
 

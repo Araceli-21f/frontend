@@ -5,6 +5,7 @@ import useSearchFilter from "../../hooks/useSearchFilter";
 import usePagination from "../../hooks/usePagination";
 import BotonesAccion from "../../components/BotonesAccion";
 import AlertComponent from '../../components/AlertasComponent';
+import LoadingError from "../../components/LoadingError";
 import UserService from "../../services/UserService";
 
 const Lista_usuarios = () => {
@@ -30,6 +31,7 @@ const Lista_usuarios = () => {
     //Manda un hook de busqueda y filtrar
     const { current: currentusers, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredUsuarios, 5);
 
+    //Obtiene a los usuarios
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -42,7 +44,7 @@ const Lista_usuarios = () => {
         fetchUsers();
     }, [obtenerUsuarios]); 
     
-
+    //Elimina los usuarios
     const handleDelete = async (id) => {
         try {
             await eliminarUsuario(id);
@@ -53,24 +55,17 @@ const Lista_usuarios = () => {
             console.error("Error al eliminar usuario:", err);
         }
     };
-
+    //confirma la eliminacion
     const handleConfirmDelete = (id) => {
         handleDelete(id);
         setAlert(null);
     };
-
+    //Manda una alerta
     const handleCancelDelete = () => {
         setAlert(null);
     };
 
-    if (loading) {
-        return <p>Cargando usuarios...</p>;
-    }
-
-    if (error) {
-        return <p>Error al cargar usuarios: {error.message}</p>;
-    }
-
+    //Manda a la vista 
     const handleView = (id) => {
         const user = users.find((u) => u._id === id); // Corregido: usa _id
         if (user) {
@@ -81,6 +76,12 @@ const Lista_usuarios = () => {
     };
 
     return (
+        <LoadingError
+          loading={loading}
+          error={error}
+          loadingMessage="Cargando datos..."
+          errorMessage={error?.message}
+        >
         <Layout>
             {/*Manda la alerta como un modal*/}
             {alert && (
@@ -199,6 +200,7 @@ const Lista_usuarios = () => {
             </div>
             <br />
         </Layout>
+        </LoadingError>
       );
 };
 

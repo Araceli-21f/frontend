@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import useSearchFilter from "../../hooks/useSearchFilter";
 import usePagination from "../../hooks/usePagination";
 import AlertComponent from '../../components/AlertasComponent';
+import LoadingError from "../../components/LoadingError";
 import EstadoCuentaService from "../../services/EstadoCuentaService";
 
 const ListaEstadoCuenta = () => {
@@ -62,15 +63,13 @@ const ListaEstadoCuenta = () => {
         setAlert(null);
     };
 
-    if (loading) {
-        return <p>Cargando Estados de Cuenta...</p>;
-    }
-
-    if (error) {
-        return <p>Error al cargar Estados de Cuenta: {error.message}</p>;
-    }
-
     return (
+        <LoadingError
+            loading={loading}
+            error={error}
+            loadingMessage="Cargando datos..."
+            errorMessage={error?.message}
+        >
         <Layout>
             {alert && (
                 <AlertComponent
@@ -174,23 +173,20 @@ const ListaEstadoCuenta = () => {
                 <div className="d-flex justify-content-between align-items-center mt-3">
                     <button
                         className="btn btn-secondary"
-                        onClick={setPreviousPage}
-                        disabled={currentPage === 1}
-                    >
+                        onClick={setPreviousPage} disabled={currentPage === 1}>
                         Anterior
                     </button>
                     <span>Página {currentPage} de {totalPages}</span>
                     <button
                         className="btn btn-secondary"
-                        onClick={setNextPage}
-                        disabled={currentPage === totalPages}
-                    >
+                        onClick={setNextPage} disabled={currentPage === totalPages}>
                         Siguiente
                     </button>
                 </div>
             </div>
             <br />
         </Layout>
+        </LoadingError>
     );
 };
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import Layout from "../../layouts/pages/layout";
+import LoadingError from "../../components/LoadingError";
 import UserService from "../../services/UserService";
 
 const EditarUsuario = ({ entidad }) => {
@@ -8,17 +9,12 @@ const EditarUsuario = ({ entidad }) => {
   const navigate = useNavigate();
   const { obtenerUsuarioPorId, actualizarUsuario } = UserService();
   const [user, setUser] = useState({
-    name: "",
-    apellidos: "",
-    email: "",
-    area: "",
-    rol_user: "",
-    bloqueo: "",
-    foto_user: "",
+    name: "", apellidos: "", email: "", area: "", rol_user: "", bloqueo: "", foto_user: "",
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  //obtine los datos del usuario id
   useEffect(() => {
     const fetchUser = async () => {
       setLoading(true);
@@ -52,27 +48,13 @@ const EditarUsuario = ({ entidad }) => {
     }
   };
 
-  if (loading) {
-    return (
-      <Layout>
-        <div className="container">
-          <h2>Cargando...</h2>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (error) {
-    return (
-      <Layout>
-        <div className="container">
-          <h2>Error: {error}</h2>
-        </div>
-      </Layout>
-    );
-  }
-
   return (
+    <LoadingError
+      loading={loading}
+     error={error}
+     loadingMessage="Cargando datos..."
+     errorMessage={error?.message}
+            >
     <Layout>
       <div className="row">
         <div className="col-lg-12">
@@ -197,6 +179,7 @@ const EditarUsuario = ({ entidad }) => {
         </div>
       </div>
     </Layout>
+    </LoadingError>
   );
 };
 
