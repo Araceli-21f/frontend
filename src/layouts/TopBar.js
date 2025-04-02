@@ -1,8 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 
-const TopBar = ({ toggleSidebar, toggleRightSidebar}) => {
-
-
+const TopBar = ({ toggleSidebar, toggleRightSidebar }) => {
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
   return (
     <header id="page-topbar">
       <div className="navbar-header">
@@ -30,7 +29,8 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar}) => {
           <button
             type="button"
             className="btn btn-sm px-3 font-size-16 header-item waves-effect vertical-menu-btn"
-            onClick={toggleSidebar}>
+            onClick={toggleSidebar}
+          >
             <i className="fa fa-fw fa-bars"></i>
           </button>
 
@@ -230,7 +230,7 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar}) => {
                 </a>
 
                 <a href="javascript:void(0);" className="text-dark notification-item">
-                <div className="d-flex align-items-start">
+                  <div className="d-flex align-items-start">
                     <div className="flex-shrink-0 me-3">
                       <img
                         src="/assets/images/users/avatar-4.jpg"
@@ -266,47 +266,52 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar}) => {
           </div>
 
           <div className="dropdown d-inline-block">
-            <button
-              type="button" className="btn header-item waves-effect"
-              id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
-              aria-expanded="false"
-            >
-              <img
-                className="rounded-circle header-profile-user"
-                src="/assets/images/users/avatar-4.jpg"
-                alt="Header Avatar"
-              />
-              <span className="d-none d-xl-inline-block ms-1 fw-medium font-size-15">
-                Marcus
-              </span>
-              <i className="uil-angle-down d-none d-xl-inline-block font-size-15"></i>
-            </button>
-            <div className="dropdown-menu dropdown-menu-end">
-              <a className="dropdown-item" href="#">
-                <i className="uil uil-user-circle font-size-18 align-middle text-muted me-1"></i>{" "}
-                <span className="align-middle">View Profile</span>
-              </a>
-              <a className="dropdown-item" href="#">
-                <i className="uil uil-wallet font-size-18 align-middle me-1 text-muted"></i>{" "}
-                <span className="align-middle">My Wallet</span>
-              </a>
-              <a className="dropdown-item d-block" href="#">
-                <i className="uil uil-cog font-size-18 align-middle me-1 text-muted"></i>{" "}
-                <span className="align-middle">Settings</span>{" "}
-                <span className="badge bg-success-subtle text-success rounded-pill mt-1 ms-2">
-                  03
-                </span>
-              </a>
-              <a className="dropdown-item" href="#">
-                <i className="uil uil-lock-alt font-size-18 align-middle me-1 text-muted"></i>{" "}
-                <span className="align-middle">Lock screen</span>
-              </a>
-              <a className="dropdown-item" href="/logout">
-                <i className="uil uil-sign-out-alt font-size-18 align-middle me-1 text-muted"></i>{" "}
-                <span className="align-middle">Sign out</span>
-              </a>
-            </div>
-          </div>
+        <button
+          type="button"
+          className="btn header-item waves-effect"
+          onClick={() => setShowUserDropdown(!showUserDropdown)}
+          aria-expanded={showUserDropdown}
+        >
+          <img
+            className="rounded-circle header-profile-user"
+            src="/assets/images/users/avatar-4.jpg"
+            alt="Header Avatar"
+          />
+          <span className="d-none d-xl-inline-block ms-1 fw-medium font-size-15">
+            Marcus
+          </span>
+          <i className="uil-angle-down d-none d-xl-inline-block font-size-15"></i>
+        </button>
+        
+        <div 
+          className={`dropdown-menu dropdown-menu-end ${showUserDropdown ? 'show' : ''}`}
+          style={{ position: 'absolute', inset: '0px auto auto 0px', margin: '0px', transform: 'translate(0px, 70px)' }}
+        >
+          <a className="dropdown-item" href="/Profile">
+            <i className="uil uil-user-circle font-size-18 align-middle text-muted me-1"></i>
+            <span className="align-middle">View Profile</span>
+          </a>
+          <a className="dropdown-item" href="#wallet" onClick={(e) => { e.preventDefault(); /* tu lógica aquí */ }}>
+            <i className="uil uil-wallet font-size-18 align-middle me-1 text-muted"></i>
+            <span className="align-middle">My Wallet</span>
+          </a>
+          <a className="dropdown-item d-block" href="#settings" onClick={(e) => { e.preventDefault(); /* tu lógica aquí */ }}>
+            <i className="uil uil-cog font-size-18 align-middle me-1 text-muted"></i>
+            <span className="align-middle">Settings</span>
+            <span className="badge bg-success-subtle text-success rounded-pill mt-1 ms-2">
+              03
+            </span>
+          </a>
+          <a className="dropdown-item" href="#lock" onClick={(e) => { e.preventDefault(); /* tu lógica aquí */ }}>
+            <i className="uil uil-lock-alt font-size-18 align-middle me-1 text-muted"></i>
+            <span className="align-middle">Lock screen</span>
+          </a>
+          <a className="dropdown-item" href="/logout">
+            <i className="uil uil-sign-out-alt font-size-18 align-middle me-1 text-muted"></i>
+            <span className="align-middle">Sign out</span>
+          </a>
+        </div>
+      </div>
 
           <div className="dropdown d-inline-block">
             <button
@@ -316,10 +321,8 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar}) => {
             >
               <i className="uil-cog"></i>
             </button>
-    
           </div>
-        
-    </div>
+        </div>
       </div>
     </header>
   );
