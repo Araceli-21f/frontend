@@ -4,6 +4,8 @@ import Login from "../layouts/Auth/Login";
 import Register from "../layouts/Auth/Register";
 import ResetPassword from "../layouts/Auth/ResetPassword";
 import RecoverPassword from "../layouts/Auth/RecoverPassword";
+import Profile from "../layouts/Auth/Profile";
+
 import Home from "../pages/Home";
 import Tablero from "../pages/Tablero";
 import Cronograma from "../pages/Cronograma";
@@ -59,6 +61,8 @@ const AppRoutes = () => {
             <Route path="/RecoverPassword" element={<RecoverPassword />}/>
 
             {/*Inicio*/}
+            <Route path="/Profile" element={<Profile />}/>
+
             <Route path="/Home" element={<Home />} />
             <Route path="/Tablero" element={<Tablero />}/>
             <Route path="/Calendario" element={<Calendario />}/>
