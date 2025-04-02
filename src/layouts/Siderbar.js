@@ -95,7 +95,7 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
               </Link>
             </li>
             <li>
-              <Link to="/Filial" className="waves-effect">
+              <Link to="/Filials" className="waves-effect">
                 <i className="bx bx-folder-open"></i>
                 <span> Filial </span>
               </Link>

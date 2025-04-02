@@ -54,7 +54,7 @@ const EditarServicioFinanciado = () => {
       }
     };
     cargarClientes();
-  }, [obtenerClientes]);
+  }, []);
 
   const handleChange = (e) => {
     setservicio({ ...servicio, [e.target.name]: e.target.value });
@@ -66,9 +66,7 @@ const EditarServicioFinanciado = () => {
     setMostrarSelectClientes(false);
   };
 
-  const handleSeleccionarCliente = () => {
-    setMostrarSelectClientes(true);
-  };
+  const handleSeleccionarCliente = () => { setMostrarSelectClientes(true);};
 
   const handleClienteSeleccionadoChange = (e) => {
     const clienteIdSeleccionado = e.target.value;
@@ -87,7 +85,7 @@ const EditarServicioFinanciado = () => {
         return;
       }
       await actualizarServicioFinanciado(id, servicio);
-      navigate("/Lista_servicio_financiado"); // Asegúrate de que esta ruta sea correcta
+      navigate("/Lista_servicios"); // Asegúrate de que esta ruta sea correcta
     } catch (err) {
       setError(err.message);
     } finally {
@@ -109,12 +107,18 @@ const EditarServicioFinanciado = () => {
                     {/* Cliente */}
                     <div className="col-md-6 d-flex align-items-center p-2">
                       <label className="form-label me-2 font-size-17">Cliente: </label>
-                      <div className="flex-grow-1 border p-2 rounded bg-light">
-                        {clienteSeleccionado ? <strong>{clienteSeleccionado.nombre}</strong> : "Ninguno seleccionado"}
-                      </div>
-                      <button type="button" onClick={handleSeleccionarCliente} className="btn btn-primary btn-md ms-2">
-                        {clienteSeleccionado ? "Cambiar" : "Seleccionar"}
-                      </button>
+                      <select  className="form-select"   value={clienteSeleccionado?._id || ""} onChange={handleClienteSeleccionadoChange} >
+                          {clientes.length > 0 ? (
+                             clientes.map((cliente) => (
+                              
+                               <option key={cliente._id} value={cliente._id}>
+                                 {cliente.nombre}
+                                  </option>
+                                   ))
+                                   ) : (
+                                     <option disabled>Cargando clientes...</option>
+                                      )}
+                                      </select>
                     </div>
                     {/* Nombre del servicio */}
                     <div className="col-md-6 d-flex align-items-center p-2">
@@ -130,17 +134,26 @@ const EditarServicioFinanciado = () => {
                   </div>
                   {/* Dropdown para seleccionar cliente */}
                   {mostrarSelectClientes && (
-                    <div className="mb-3">
-                      <select className="form-select" value={clienteSeleccionado ? clienteSeleccionado._id : ""} onChange={handleClienteSeleccionadoChange}>
-                        <option value="">Selecciona un cliente</option>
-                        {clientes.map((cliente) => (
-                          <option key={cliente._id} value={cliente._id}>
-                            {cliente.nombre}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
+  <div className="mb-3">
+    {clientes.length > 0 ? (
+      <select
+        className="form-select"
+        value={clienteSeleccionado ? clienteSeleccionado._id : ""}
+        onChange={handleClienteSeleccionadoChange}
+      >
+        <option value="">Selecciona un cliente</option>
+        {clientes.map((cliente) => (
+          <option key={cliente._id} value={cliente._id}>
+            {cliente.nombre}
+          </option>
+        ))}
+      </select>
+    ) : (
+      <p>No hay clientes disponibles</p>
+    )}
+  </div>
+)}
+
                   <div className="row mb-3">
                     {/* Descripción */}
                     <div className="col-md-6">

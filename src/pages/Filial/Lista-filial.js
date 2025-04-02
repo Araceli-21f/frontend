@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../../layouts/pages/layout";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useSearchFilter from "../../hooks/useSearchFilter";
 import usePagination from "../../hooks/usePagination";
 import BotonesAccion from "../../components/BotonesAccion";
@@ -10,8 +10,10 @@ import FilialService from "../../services/FilialService";
 
 const ListaFiliales = () => {
     const [alert, setAlert] = useState(null);
-    const [filiales, setFiliales] = useState([]);
-    const { loading, error, obtenerFiliales, eliminarFilial } = FilialService();
+    const [filials, setFilials] = useState([]);
+    const navigate = useNavigate();
+
+    const { loading, error, obtenerFilials, eliminarFilial } = FilialService();
 
     //Manda un hook de busqueda y filtrar
     const {
@@ -19,34 +21,34 @@ const ListaFiliales = () => {
         handleSearchChange, handleFilterTypeChange, handleFilterValueChange
     } = useSearchFilter("nombre_filial"); // Adjust filterType as needed
 
-    const filteredFiliales = filiales.filter((filial) => {
+    const filteredFilials = filials.filter((filial) => {
         const nombre = filial.nombre_filial || '';
         const matchesSearch = nombre.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesFilter = filterValue === "Todos" || filial[filterType] === filterValue;
         return matchesSearch && matchesFilter;
     });
 
-    const filterOptions = ["Todos", ...new Set(filiales.map((filial) => filial[filterType]))];
+    const filterOptions = ["Todos", ...new Set(filials.map((filial) => filial[filterType]))];
 
     //Manda un hook de paginación
-    const { current: currentFiliales, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredFiliales, 5);
+    const { current: currentFilials, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredFilials, 5);
 
     useEffect(() => {
-        const fetchFiliales = async () => {
+        const fetchFilials = async () => {
             try {
-                const fetchedFiliales = await obtenerFiliales();
-                setFiliales(fetchedFiliales);
+                const fetchedFilials = await obtenerFilials();
+                setFilials(fetchedFilials);
             } catch (err) {
                 console.error("Error al obtener filiales:", err);
             }
         };
-        fetchFiliales();
-    }, [obtenerFiliales]);
+        fetchFilials();
+    }, [obtenerFilials]);
 
     const handleDelete = async (id) => {
         try {
             await eliminarFilial(id);
-            setFiliales(filiales.filter(filial => filial._id !== id));
+            setFilials(filials.filter(filial => filial._id !== id));
             setAlert({ type: "warning", action: "delete", entity: "filial" });
             setTimeout(() => setAlert(null), 5000);
         } catch (err) {
@@ -62,6 +64,16 @@ const ListaFiliales = () => {
     const handleCancelDelete = () => {
         setAlert(null);
     };
+
+        //vista
+        const handleView = (id) => {
+            const filial = filials.find((f) => f._id === id); // Corregido: usa _id
+            if (filial) {
+                navigate(`/filial/ver/${id}`);
+            } else {
+                console.error('filial no encontrado');
+            }
+        };
 
     return (
         <LoadingError
@@ -83,7 +95,7 @@ const ListaFiliales = () => {
             <div className="card p-3">
                 <h2 className="mb-3 ">Lista de Filiales</h2>
 
-                <div className="col-md-10">
+                <div className="col-md">
                     <div className="row">
                         <div className="col-md-4 mb-2">
                             <div className="input-group shadow-sm">
@@ -106,7 +118,6 @@ const ListaFiliales = () => {
                                 </span>
                                 <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
                                     <option value="nombre_filial">Filtrar por Nombre</option>
-                                    <option value="cotizaciones">Filtrar por Cotizaciones</option>
                                 </select>
                                 <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
                                     {filterOptions.map(option => (
@@ -117,7 +128,7 @@ const ListaFiliales = () => {
                         </div>
                         <div className="col-md-3 mb-2">
                             <div className="input-group">
-                                <Link to="/filiales/CrearFilial" className="input-daterange input-group btn btn-outline-success waves-effect waves-light">
+                                <Link to="/filial/CrearFilial" className="input-daterange input-group btn btn-outline-success waves-effect waves-light">
                                     <i className="uil-plus fs-6" /> Crear Filial
                                 </Link>
                             </div>
@@ -132,22 +143,24 @@ const ListaFiliales = () => {
                                 <tr>
                                     <th>ID</th>
                                     <th>Nombre Filial</th>
-                                    <th>Cotizaciones</th>
+                                    <th>Descripción</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentFiliales.map((filial) => (
+                                {currentFilials.map((filial) => (
                                     <tr key={filial._id}>
                                         <td>{filial._id}</td>
                                         <td>{filial.nombre_filial}</td>
-                                        <td>{filial.cotizaciones}</td>
+                                        <td>{filial.descripcion_filial || "No disponible"}</td>
                                         <td>
                                             <BotonesAccion
                                                 id={filial._id}
                                                 entidad="filial"
                                                 onDelete={handleDelete}
                                                 setAlert={setAlert}
+                                                onView={() => handleView(filial._id)}
+
                                             />
                                         </td>
                                     </tr>

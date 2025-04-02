@@ -11,6 +11,7 @@ const FilialService = () => {
         setError(null);
         try {
             const response = await axios.get(`${baseURL}`);
+            console.log("Respuesta de la API:", response.data); 
             setLoading(false);
             return response.data;
         } catch (err) {

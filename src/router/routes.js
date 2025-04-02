@@ -28,6 +28,10 @@ import EditarServicioFinanciado from "../pages/servicios_financiados/EditarServi
 import DetalleServicioFinanciado from "../pages/servicios_financiados/DetalleServicioFinanciado";
 
 import ListaFiliales from "../pages/Filial/Lista-filial";
+import CrearFilial from "../pages/Filial/CrearFilial";
+import DetalleFilial from "../pages/Filial/DetalleFilial";
+import EditarFilial from "../pages/Filial/EditarFilial";
+
 
 import ListaClientes from "../pages/clientes/Lista-clientes";
 import CrearCliente from "../pages/clientes/CrearCliente";
@@ -78,7 +82,12 @@ const AppRoutes = () => {
             <Route path="/Reporte" element={<Reporte />}/>
 
             {/*Filials*/}
-            <Route path="/Filial" element={<ListaFiliales />}/>
+            <Route path="/Filials" element={<ListaFiliales />}/>
+            <Route path="/filial/CrearFilial" element={<CrearFilial />} />
+            <Route path="/filial/ver/:id" element={<DetalleFilial/>} />
+            <Route path="/filial/editar/:id" element={<EditarFilial/>} />
+
+
 
             {/*Campañas*/}
             <Route path="/Campañas" element={<Campana />}/>

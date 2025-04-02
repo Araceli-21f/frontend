@@ -4,13 +4,14 @@ import { Link, useNavigate } from "react-router-dom";
 import useSearchFilter from "../../hooks/useSearchFilter";
 import usePagination from "../../hooks/usePagination";
 import AlertComponent from '../../components/AlertasComponent';
+import BotonesAccion from "../../components/BotonesAccion";
 import LoadingError from "../../components/LoadingError";
 import EstadoCuentaService from "../../services/EstadoCuentaService";
 
 const ListaEstadoCuenta = () => {
     const [alert, setAlert] = useState(null);
     const navigate = useNavigate();
-    const [estadosCuenta, setEstadosCuenta] = useState([]);
+    const [EstadosCuentas, setEstadosCuenta] = useState([]);
     const { loading, error, obtenerEstadosCuenta, eliminarEstadoCuenta } = EstadoCuentaService();
 
     // Hook de búsqueda y filtrado
@@ -19,14 +20,14 @@ const ListaEstadoCuenta = () => {
         handleSearchChange, handleFilterTypeChange, handleFilterValueChange
     } = useSearchFilter("");
 
-    const filteredEstadosCuenta = estadosCuenta.filter((estadoCuenta) => {
-        const clienteId = estadoCuenta.cliente_id?.toString() || '';
+    const filteredEstadosCuenta = EstadosCuentas.filter((estadocuenta) => {
+        const clienteId = estadocuenta.cliente_id?.toString() || '';
         const matchesSearch = clienteId.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesFilter = filterValue === "Todos" || estadoCuenta[filterType] === filterValue;
+        const matchesFilter = filterValue === "Todos" || estadocuenta[filterType] === filterValue;
         return matchesSearch && matchesFilter;
     });
 
-    const filterOptions = ["Todos", ...new Set(estadosCuenta.map((estadoCuenta) => estadoCuenta[filterType]))];
+    const filterOptions = ["Todos", ...new Set(EstadosCuentas.map((estadocuenta) => estadocuenta[filterType]))];
 
     // Hook de paginación
     const { current: currentEstadosCuenta, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredEstadosCuenta, 5);
@@ -46,7 +47,7 @@ const ListaEstadoCuenta = () => {
     const handleDelete = async (id) => {
         try {
             await eliminarEstadoCuenta(id);
-            setEstadosCuenta(estadosCuenta.filter(estadoCuenta => estadoCuenta._id !== id));
+            setEstadosCuenta(EstadosCuentas.filter(estadocuenta => estadocuenta._id !== id));
             setAlert({ type: "success", action: "delete", entity: "Estado de Cuenta" });
             setTimeout(() => setAlert(null), 5000);
         } catch (err) {
@@ -62,6 +63,17 @@ const ListaEstadoCuenta = () => {
     const handleCancelDelete = () => {
         setAlert(null);
     };
+
+
+        //vista
+        const handleView = (id) => {
+            const estadocuenta = EstadosCuentas.find((e) => e._id === id); // Corregido: usa _id
+            if (estadocuenta) {
+                navigate(`/estado/ver/${id}`);
+            } else {
+                console.error('estadocuenta no encontrado');
+            }
+        }; 
 
     return (
         <LoadingError
@@ -83,7 +95,7 @@ const ListaEstadoCuenta = () => {
             <div className="card p-3">
                 <h2 className="mb-3"><i className="fa fa-fw fa-bars" /> Lista de Estados de Cuenta</h2>
 
-                <div className="col-md-10">
+                <div className="col-md">
                     <div className="row">
                         {/* Barra de búsqueda */}
                         <div className="col-md-4 mb-2">
@@ -101,29 +113,30 @@ const ListaEstadoCuenta = () => {
                             </div>
                         </div>
                         {/* Filtro por tipo */}
-                        <div className="col-md-2 mb-2">
-                            <div className="input-group">
-                                <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
-                                    <option value="cliente_id">Filtrar por Cliente ID</option>
-                                    <option value="servicio_id">Filtrar por Servicio ID</option>
-                                </select>
-                            </div>
-                        </div>
-                        {/* Filtro por valor */}
-                        <div className="col-md-2 mb-2">
-                            <div className="input-group">
-                                <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
-                                    {filterOptions.map(option => (
-                                        <option key={option} value={option}>{option}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
+                         {/* Filtro por tipo (2 columnas) */}
+                         <div className="col-md-4 mb-2 d-flex align-items-center">
+                            <div className="input-group w-100 shadow-sm">
+                                  {/* Ícono de filtro fuera del grupo, con fondo redondeado */}
+                                  <span className="me-0 p-2 text-white bg-primary rounded-1 d-flex justify-content-center align-items-center">
+                                     <i className="uil-filter fs-6"></i>
+                                  </span>
+                                  {/* Select de tipo de filtro */}
+                                  <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
+                                    <option value="cliente_id">Filtrar cliente</option>
+                                    <option value="servicio_id">Filtrar Servicio</option>
+                                  </select>
+                                  <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
+                                   {filterOptions.map(option => (
+                                  <option key={option} value={option}>{option}</option>
+                                  ))}
+                                  </select>
+                                  </div>
+                                  </div>
                         {/* Crear Estado de Cuenta Button */}
                         <div className="col-md-4 mb-2">
                             <div className="input-group">
                                 <Link to="/estados-cuenta/CrearEstadoCuenta" className="input-daterange input-group btn btn-soft-success waves-effect waves-light">
-                                    <i className="mdi mdi-plus me-1"></i> Crear Estado de Cuenta
+                                    <i className="mdi mdi-plus me-1"></i> Crear Estado Cuenta
                                 </Link>
                             </div>
                         </div>
@@ -139,29 +152,29 @@ const ListaEstadoCuenta = () => {
                                     <th>Cliente ID</th>
                                     <th>Servicio ID</th>
                                     <th>Fecha Estado</th>
-                                    <th>Saldo Inicial</th>
-                                    <th>Pago Total</th>
                                     <th>Saldo Actual</th>
-                                    <th>Pago Semanal</th>
                                     <th>Total a Pagar</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentEstadosCuenta.map((estadoCuenta) => (
-                                    <tr key={estadoCuenta._id}>
-                                        <td>{estadoCuenta._id}</td>
-                                        <td>{estadoCuenta.cliente_id}</td>
-                                        <td>{estadoCuenta.servicio_id}</td>
-                                        <td>{new Date(estadoCuenta.fecha_estado).toLocaleDateString()}</td>
-                                        <td>{estadoCuenta.saldo_inicial}</td>
-                                        <td>{estadoCuenta.pago_total}</td>
-                                        <td>{estadoCuenta.saldo_actual}</td>
-                                        <td>{estadoCuenta.pago_semanal}</td>
-                                        <td>{estadoCuenta.total_a_pagar}</td>
+                                {currentEstadosCuenta.map((estadocuenta) => (
+                                    <tr key={estadocuenta._id}>
+                                        <td>{estadocuenta._id}</td>
+                                        <td>{estadocuenta.cliente_id}</td>
+                                        <td>{estadocuenta.servicio_id}</td>
+                                        <td>{new Date(estadocuenta.fecha_estado).toLocaleDateString()}</td>
+                                        <td>{estadocuenta.saldo_actual}</td>
+                                        <td>{estadocuenta.total_a_pagar}</td>
                                         <td>
-                                            <button className="btn btn-danger btn-sm" onClick={() => setAlert({ type: "delete", id: estadoCuenta._id })}>Eliminar</button>
-                                        </td>
+                                        <BotonesAccion
+                                                id={estadocuenta._id}
+                                                entidad="estadocuenta"
+                                                onDelete={handleDelete}
+                                                setAlert={setAlert}
+                                                onView={() => handleView(estadocuenta._id)}
+
+                                            />                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
