@@ -10,14 +10,7 @@ const EditarServicioFinanciado = () => {
   const navigate = useNavigate();
   const { obtenerServicioFinanciadoPorId, actualizarServicioFinanciado } = ServicioFinanciadoService();
   const [servicio, setservicio] = useState({
-    cliente_id: null,
-    nombre_servicio: "Instalacion",
-    descripcion: "",
-    monto_servicio: 0,
-    fecha_inicio: new Date(),
-    fecha_termino: new Date(),
-    pago_semanal: 0,
-    saldo_restante: 0,
+    cliente_id: null, nombre_servicio: "Instalacion", descripcion: "", monto_servicio: 0, fecha_inicio: new Date(), fecha_termino: new Date(), pago_semanal: 0, saldo_restante: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

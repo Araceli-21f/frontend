@@ -4,26 +4,25 @@ import Layout from "../../layouts/pages/layout";
 import LoadingError from "../../components/LoadingError";
 import useCotizacionService from "../../services/CotizacionService";
 import ClienteService from "../../services/ClienteService"; 
+import FilialService from "../../services/FilialService";
 
 const EditarCotizacion = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { obtenerCotizacionPorId, actualizarCotizacion } = useCotizacionService();
     const [cotizacion, setCotizacion] = useState({
-        fecha_cotizacion: new Date(),
-        forma_pago: "Contado",
-        precio_venta: 0,
-        anticipo_solicitado: 0,
-        filial: "",
-        cliente_id: null,
-        detalles: [],
+        fecha_cotizacion: new Date(), forma_pago: "Contado", precio_venta: 0, anticipo_solicitado: 0, filial_id: "", cliente_id: null, detalles: [],
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { obtenerClientes } = ClienteService(); 
+    const { obtenerClientes } = ClienteService();
     const [clientes, setClientes] = useState([]);
     const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
     const [mostrarSelectClientes, setMostrarSelectClientes] = useState(false);
+    const { obtenerFilials } = FilialService();
+    const [filials, setFilials] = useState([]);
+    const [filialSeleccionado, setFilialSeleccionado] = useState(null);
+    const [mostrarSelectFilials, setMostrarSelectFilials] = useState(false);
     const [nuevoDetalle, setNuevoDetalle] = useState({
         descripcion: "", costo_materiales: 0, costo_mano_obra: 0, inversion: 0, utilidad_esperada: 0,
     });
@@ -47,33 +46,75 @@ const EditarCotizacion = () => {
       fetchCotizacion();
   }, [id]);
 
+
+    // obtener clientes
     useEffect(() => {
       const cargarClientes = async () => {
-          try {
-              const listaClientes = await obtenerClientes();
-              setClientes(listaClientes);
-          } catch (error) {
-              console.error("Error al cargar clientes:", error);
-          }
+        try {
+          const listaClientes = await obtenerClientes();
+          setClientes(listaClientes);
+        } catch (error) {
+          console.error("Error al cargar clientes:", error);
+        }
       };
       cargarClientes();
-  }, [obtenerClientes]);
-
-    const handleChange = (e) => { setCotizacion({ ...cotizacion, [e.target.name]: e.target.value });};
+    }, []);
+  
+    const handleChange = (e) => {
+      setCotizacion({ ...cotizacion, [e.target.name]: e.target.value });
+    };
+  
     const handleClienteSeleccionado = (cliente) => {
       setClienteSeleccionado(cliente);
       setCotizacion({ ...cotizacion, cliente_id: cliente._id });
       setMostrarSelectClientes(false);
-  };
-  const handleSeleccionarCliente = () => {  setMostrarSelectClientes(true); };
-
-  const handleClienteSeleccionadoChange = (e) => {
+    };
+  
+    const handleSeleccionarCliente = () => {
+      setMostrarSelectClientes(true);
+    };
+  
+    const handleClienteSeleccionadoChange = (e) => {
       const clienteIdSeleccionado = e.target.value;
-      const clienteEncontrado = clientes.find(cliente => cliente._id === clienteIdSeleccionado);
+      const clienteEncontrado = clientes.find((cliente) => cliente._id === clienteIdSeleccionado);
       if (clienteEncontrado) {
-          handleClienteSeleccionado(clienteEncontrado);
+        handleClienteSeleccionado(clienteEncontrado);
       }
     };
+  
+    // obtener filials
+    useEffect(() => {
+      const cargarFilials = async () => {
+        try {
+          const listafilials = await obtenerFilials();
+          setFilials(listafilials); // Corregido: Usar setFilials
+        } catch (error) {
+          console.error("Error al cargar filials:", error); // Corregido el mensaje de error
+        }
+      };
+      cargarFilials();
+    }, []);
+  
+    const handleFilialSeleccionado = (filial) => {
+      setFilialSeleccionado(filial);
+      setCotizacion({ ...cotizacion, filial_id: filial._id });
+      setMostrarSelectFilials(false);
+    };
+  
+    const handleSeleccionarFilial = () => {
+      setMostrarSelectFilials(true);
+    };
+  
+    const handleFilialSeleccionadoChange = (e) => {
+      const filialIdSeleccionado = e.target.value;
+      const filialEncontrado = filials.find((filial) => filial._id === filialIdSeleccionado);
+      if (filialEncontrado) {
+        handleFilialSeleccionado(filialEncontrado); 
+      }
+    };
+  
+
+
 
     const handleNuevoDetalleChange = (e) => {setNuevoDetalle({ ...nuevoDetalle, [e.target.name]: e.target.value }); };
     const handleAgregarDetalle = () => {
@@ -121,34 +162,38 @@ const EditarCotizacion = () => {
              {/* Campos de la cotización */}
           <div className="row mb-3">
               {/* Cliente (50% del ancho) */}
-            <div className="col-md-6 d-flex align-items-center p-2">
-              <label className="form-label me-2 font-size-17">Cliente: </label>
-              <div className="flex-grow-1 border p-2 rounded bg-light">
-               {clienteSeleccionado ? (
-                <strong>{clienteSeleccionado.nombre}</strong>
-                ) : ( "Ninguno seleccionado" )}
-              </div>
-            <button type="button" onClick={handleSeleccionarCliente} className="btn btn-primary btn-md ms-2" >
-              {clienteSeleccionado ? "Cambiar" : "Seleccionar"}
-            </button>
-            </div>
+              <div className="col-md-6 d-flex align-items-center p-2">
+                      <label className="form-label me-2 font-size-17">Cliente: </label>
+                      <select  className="form-select"   value={clienteSeleccionado?._id || ""} onChange={handleClienteSeleccionadoChange} >
+                          {clientes.length > 0 ? (
+                             clientes.map((cliente) => (
+                              
+                               <option key={cliente._id} value={cliente._id}>
+                                 {cliente.nombre}
+                                  </option>
+                                   ))
+                                   ) : (
+                                     <option disabled>Cargando clientes...</option>
+                                      )}
+                                      </select>
+                    </div>
             {/* Filial (50% del ancho) */}
             <div className="col-md-6 d-flex align-items-center p-2">
               <label className="form-label me-2 font-size-17">Filial: </label>
-              <input type="text" name="filial"  value={cotizacion.filial}  onChange={handleChange} className="form-control bg-light"/>
-            </div>
+              <select  className="form-select"   value={filialSeleccionado?._id || ""} onChange={handleFilialSeleccionadoChange} >
+                          {filials.length > 0 ? (
+                             filials.map((filial) => (
+                              
+                               <option key={filial._id} value={filial._id}>
+                                 {filial.nombre_filial}
+                                  </option>
+                                   ))
+                                   ) : (
+                                     <option disabled>Cargando filial...</option>
+                                      )}
+                                      </select>            </div>
           </div>
-          {/* Dropdown para seleccionar cliente */}
-          {mostrarSelectClientes && (
-            <div className="mb-3">
-              <select className="form-select" value={clienteSeleccionado ? clienteSeleccionado._id : ''} onChange={handleClienteSeleccionadoChange} >
-                <option value="">Selecciona un cliente</option>
-                {clientes.map((cliente) => (
-                <option key={cliente._id} value={cliente._id}> {cliente.nombre} </option>
-                 ))}
-              </select>
-            </div>
-          )}
+
         <div className="row mb-3">
          {/* Forma de Pago */}
         <div className="col-md-4">

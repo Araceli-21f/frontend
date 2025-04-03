@@ -14,20 +14,23 @@ const ListaCotizaciones = () => {
   const [cotizaciones, setCotizaciones] = useState([]);
   const { loading, error, obtenerCotizaciones, eliminarCotizacion } = CotizacionService();
 
-  //Manda un hook de busqueda y filtrar
-  const {
-    searchTerm, filterType, filterValue,
-    handleSearchChange, handleFilterTypeChange, handleFilterValueChange
-  } = useSearchFilter("");
+// Manda un hook de busqueda y filtrar
+const {
+  searchTerm, filterType, filterValue,
+  handleSearchChange, handleFilterTypeChange, handleFilterValueChange
+} = useSearchFilter("");
 
-  const filteredCotizaciones = cotizaciones.filter((cotizacion) => {
-    const clienteNombre = cotizacion.cliente_id?.nombre || '';
-    const matchesSearch = clienteNombre.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterValue === "Todos" || cotizacion[filterType] === filterValue;
-    return matchesSearch && matchesFilter;
-  });
-  const filterOptions = ["Todos", ...new Set(cotizaciones.map((cotizacion) => cotizacion[filterType]))];
+const filteredCotizaciones = cotizaciones.filter((cotizacion) => {
+  const clienteNombre = cotizacion.cliente_id?.nombre || '';
+  const filialNombre = cotizacion.filial_id?.nombre_filial || '';
+  const matchesSearch =
+    clienteNombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    filialNombre.toLowerCase().includes(searchTerm.toLowerCase()); // Combinar las condiciones
+  const matchesFilter = filterValue === "Todos" || cotizacion[filterType] === filterValue;
+  return matchesSearch && matchesFilter;
+});
 
+const filterOptions = ["Todos", ...new Set(cotizaciones.map((cotizacion) => cotizacion[filterType]))];
   //Manda un hook de busqueda y filtrar
   const { current: currentCotizaciones, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredCotizaciones, 5);
 
@@ -155,11 +158,11 @@ const ListaCotizaciones = () => {
               <thead>
                 <tr>
                   <th>ID</th>
+                  <th>Filial</th>
                   <th>Cliente</th>
                   <th>Fecha Cotización</th>
                   <th>Forma Pago</th>
                   <th>Precio Venta</th>
-                  <th>Filial</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -167,11 +170,11 @@ const ListaCotizaciones = () => {
                 {currentCotizaciones.map((cotizacion) => (
                   <tr key={cotizacion._id}>
                     <td>{cotizacion._id}</td>
+                    <td>{cotizacion.filial_id?.nombre_filial}</td>
                     <td>{cotizacion.cliente_id?.nombre}</td>
                     <td>{formatDate(cotizacion.fecha_cotizacion)}</td>
                     <td>{cotizacion.forma_pago}</td>
                     <td>{cotizacion.precio_venta}</td>
-                    <td>{cotizacion.filial}</td>
                     <td>
                       <BotonesAccion
                         id={cotizacion._id}

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom"; // Importa useParams
 import Layout from "../../layouts/pages/layout";
-import LoadingError from "../../components/LoadingError";
 import CotizacionService from "../../services/CotizacionService";
 
 const DetalleCotizacion = () => {
@@ -21,14 +20,19 @@ const DetalleCotizacion = () => {
     fetchCotizacion();
   }, [id]);
 
+  if (loading) {
+    return <p>Cargando cotización...</p>;
+  }
+
+  if (error) {
+    return <p>Error al cargar cotización: {error.message}</p>;
+  }
+
+  if (!cotizacion) {
+    return <p>Cotización no encontrada.</p>;
+  }
 
   return (
-    <LoadingError
-      loading={loading}
-      error={error}
-      loadingMessage="Cargando datos..."
-      errorMessage={error?.message}
-    >
     <Layout>
       {/* Detalles de Cotización */}
       <div className="row">
@@ -54,7 +58,7 @@ const DetalleCotizacion = () => {
                   />
                 </div>
                 <div className="text-muted">
-                  <p className="mb-1">Filial: {cotizacion.filial}</p>
+                  <p className="mb-1">Filial: {cotizacion.filial_id.nombre_filial}</p>
                 </div>
               </div>
 
@@ -134,7 +138,7 @@ const DetalleCotizacion = () => {
                 <div className="d-print-none mt-4">
                   <div className="float-end">
                     <Link
-                      href="javascript:window.print()"
+                      href=""
                       className="btn btn-success waves-effect waves-light me-1"
                     >
                       <i className="fa fa-print"></i>
@@ -153,7 +157,6 @@ const DetalleCotizacion = () => {
         </div>
       </div>
     </Layout>
-    </LoadingError>
   );
 };
 
