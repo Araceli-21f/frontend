@@ -1,7 +1,48 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Layout from "../pages/layout";
+import UserService from "../../services/UserService";
 
 const Profile = () => {
+  const [users, setUsers] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const userService = UserService(); // Instancia del servicio
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const fetchedUsers = await userService.obtenerUsuarios();
+        setUsers(fetchedUsers);
+        if (fetchedUsers.length > 0) {
+          setCurrentUser(fetchedUsers[0]);
+        }
+      } catch (err) {
+        setError(err.message || "Error al cargar los datos del usuario");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchUsers();
+  }, []);
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="text-center py-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Cargando...</span>
+          </div>
+          <p>Cargando perfil...</p>
+        </div>
+      </Layout>
+    );
+  }
+
+ 
+
   return (
     <Layout>
       {/* Page Title */}
@@ -35,38 +76,31 @@ const Profile = () => {
                 </div>
                 <div className="clearfix"></div>
                 <div>
-                  <img src="/assets/images/users/avatar-4.jpg" alt="" className="avatar-lg rounded-circle img-thumbnail" />
+                  <img src={currentUser.avatar || "/assets/images/users/avatar-4.jpg"} alt="" className="avatar-lg rounded-circle img-thumbnail" />
                 </div>
-                <h5 className="mt-3 mb-1">Marcus</h5>
-                <p className="text-muted">UI/UX Designer</p>
-
-                <div className="mt-4">
-                  <button type="button" className="btn btn-light btn-sm"><i className="uil uil-envelope-alt me-2"></i> Message</button>
-                </div>
+                <h5 className="mt-3 mb-1"> {currentUser?.name || ''} {currentUser?.apellidos || ''} </h5>
+                <p className="text-muted">{currentUser.area }</p>
               </div>
 
               <hr className="my-4" />
 
               <div className="text-muted">
-                <h5 className="font-size-16">About</h5>
-                <p>Hi I'm Marcus,has been the industry's standard dummy text To an English person, it will seem like simplified English, as a skeptical Cambridge.</p>
+                <h5 className="font-size-16">Descripcion</h5>
+                <p>{currentUser.about || "Hi I'm Marcus,has been the industry's standard dummy text To an English person, it will seem like simplified English, as a skeptical Cambridge."}</p>
                 <div className="table-responsive mt-4">
                   <div>
-                    <p className="mb-1">Name :</p>
-                    <h5 className="font-size-16">Marcus</h5>
+                    <p className="mb-1">Nombre :</p>
+                    <h5 className="font-size-16"> {currentUser?.name || ''} {currentUser?.apellidos || ''}</h5>
                   </div>
                   <div className="mt-4">
-                    <p className="mb-1">Mobile :</p>
-                    <h5 className="font-size-16">012-234-5678</h5>
+                    <p className="mb-1">Rol :</p>
+                    <h5 className="font-size-16">{currentUser?.rol_user || ''}</h5>
                   </div>
                   <div className="mt-4">
                     <p className="mb-1">Email :</p>
-                    <h5 className="font-size-16">marcus@minible.com</h5>
+                    <h5 className="font-size-16">{currentUser.email || ""}</h5>
                   </div>
-                  <div className="mt-4">
-                    <p className="mb-1">Location :</p>
-                    <h5 className="font-size-16">California, United States</h5>
-                  </div>
+                 
                 </div>
               </div>
             </div>
@@ -178,7 +212,8 @@ const Profile = () => {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+
     </Layout>
   );
 };

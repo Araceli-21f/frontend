@@ -52,7 +52,12 @@ import DetalleUsuario from "../pages/usuarios/DetalleUsuario";
 
 import ListaNomina from "../pages/nomina/Lista-nomina";
 
+import ListaInteraccions from "../pages/interaccions/ListaInteraccions";
+import CrearInteraccions from "../pages/interaccions/CrearInteraccions";
+import DetalleInteraccions from "../pages/interaccions/DetalleInteraccions";
+import EditarInteraccions from "../pages/interaccions/EditarInteraccions";
 
+ 
 const AppRoutes = () => {
     return (
         <Router>
@@ -126,6 +131,12 @@ const AppRoutes = () => {
 
             {/*Nomina*/}
             <Route path="/Lista_nomina" element={<ListaNomina />}/>
+
+            {/*Interaccions*/}
+           <Route path="/ListaInteraccions" element={<ListaInteraccions />}/>
+           <Route path="/interaccions/CrearInteraccions" element={<CrearInteraccions />} />
+           <Route path="/interaccions/ver/:id" element={<DetalleInteraccions/>} />
+           <Route path="/interaccions/editar/:id" element={<EditarInteraccions/>} />
 
 
             </Routes>

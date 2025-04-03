@@ -100,6 +100,13 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
                 <span> Filial </span>
               </Link>
             </li>
+
+            <li>
+              <Link to="/Interacciones" className="waves-effect">
+                <i className="bx bx-folder-open"></i>
+                <span> Interacciones </span>
+              </Link>
+            </li>
             
             <li>
               <Link className="has-arrow waves-effect" onClick={toggleSubMenu}>
