@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom"; // Importa useParams
 import Layout from "../../layouts/pages/layout";
+import LoadingError from "../../components/LoadingError";
 import CotizacionService from "../../services/CotizacionService";
 
 const DetalleCotizacion = () => {
@@ -21,19 +22,15 @@ const DetalleCotizacion = () => {
     fetchCotizacion();
   }, [id]);
 
-  if (loading) {
-    return <p>Cargando cotización...</p>;
-  }
 
-  if (error) {
-    return <p>Error al cargar cotización: {error.message}</p>;
-  }
-
-  if (!cotizacion) {
-    return <p>Cotización no encontrada.</p>;
-  }
 
   return (
+    <LoadingError
+    loading={loading}
+    error={error}
+    loadingMessage="Cargando datos..."
+    errorMessage={error?.message}
+  >
     <Layout>
       {/* Detalles de Cotización */}
       <div className="row">
@@ -158,6 +155,7 @@ const DetalleCotizacion = () => {
         </div>
       </div>
     </Layout>
+    </LoadingError>
   );
 };
 

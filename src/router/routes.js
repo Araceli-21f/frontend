@@ -39,6 +39,7 @@ import DetalleCliente from "../pages/clientes/DetalleCliente";
 import EditarCliente from "../pages/clientes/EditarCliente";
 
 import ListaEstadoCuenta from "../pages/estados_cuenta/Lista_EstadoCuenta";
+import CrearEstadoCuenta from "../pages/estados_cuenta/CrearEstadoCuenta";
 
 import EstadosFactura from "../pages/facturas/Estados-factura";
 import ListaFacturas from "../pages/facturas/Lista-facturas";
@@ -115,6 +116,8 @@ const AppRoutes = () => {
 
             {/*Estados Cuenta */}
             <Route path="/Estados_Cuenta" element={<ListaEstadoCuenta />}/>
+            <Route path="/estado/CrearEstado" element={<CrearEstadoCuenta/>} />
+
 
 
             {/*Facturas*/}

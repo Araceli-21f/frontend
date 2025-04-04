@@ -135,7 +135,7 @@ const ListaEstadoCuenta = () => {
                         {/* Crear Estado de Cuenta Button */}
                         <div className="col-md-5 mb-2">
                             <div className="input-group">
-                                <Link to="/estados-cuenta/CrearEstadoCuenta" className="input-daterange input-group btn btn-soft-success waves-effect waves-light">
+                                <Link to="/estado/CrearEstado" className="input-daterange input-group btn btn-soft-success waves-effect waves-light">
                                     <i className="mdi mdi-plus me-1"></i> Crear Estado Cuenta
                                 </Link>
                             </div>
