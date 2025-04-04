@@ -59,7 +59,7 @@ const DetalleCotizacion = () => {
                   />
                 </div>
                 <div className="text-muted">
-                  <p className="mb-1">Filial: {cotizacion.filial_id} {cotizacion.nombre_filial}</p>
+                  <p className="mb-1">Filial: {cotizacion.filial_id.nombre_filial}</p>
                 </div>
               </div>
 
