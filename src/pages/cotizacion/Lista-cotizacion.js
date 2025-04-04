@@ -21,16 +21,17 @@ const {
 } = useSearchFilter("");
 
 const filteredCotizaciones = cotizaciones.filter((cotizacion) => {
-  const clienteNombre = cotizacion.cliente_id?.nombre || '';
-  const filialNombre = cotizacion.filial_id?.nombre_filial || '';
+  const clienteNombre = cotizacion.cliente_id?.nombre|| '';
   const matchesSearch =
-    clienteNombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    filialNombre.toLowerCase().includes(searchTerm.toLowerCase()); // Combinar las condiciones
+    clienteNombre.toLowerCase().includes(searchTerm.toLowerCase()); // Combinar las condiciones
   const matchesFilter = filterValue === "Todos" || cotizacion[filterType] === filterValue;
   return matchesSearch && matchesFilter;
 });
 
-const filterOptions = ["Todos", ...new Set(cotizaciones.map((cotizacion) => cotizacion[filterType]))];
+const filterOptions = ["Todos", ...new Set(cotizaciones.map((cotizacion) => 
+  cotizacion[filterType]
+))]. filter(Boolean);
+
   //Manda un hook de busqueda y filtrar
   const { current: currentCotizaciones, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredCotizaciones, 5);
 
@@ -170,8 +171,8 @@ const filterOptions = ["Todos", ...new Set(cotizaciones.map((cotizacion) => coti
                 {currentCotizaciones.map((cotizacion) => (
                   <tr key={cotizacion._id}>
                     <td>{cotizacion._id}</td>
-                    <td>{cotizacion.filial_id?.nombre_filial}</td>
-                    <td>{cotizacion.cliente_id?.nombre}</td>
+                    <td>{cotizacion.filial_id?.nombre_filial || cotizacion.filial_id?.nombre_filial}</td>
+                    <td>{cotizacion.cliente_id.nombre}</td>
                     <td>{formatDate(cotizacion.fecha_cotizacion)}</td>
                     <td>{cotizacion.forma_pago}</td>
                     <td>{cotizacion.precio_venta}</td>

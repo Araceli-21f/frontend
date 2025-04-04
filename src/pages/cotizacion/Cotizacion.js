@@ -12,6 +12,7 @@ const DetalleCotizacion = () => {
     const fetchCotizacion = async () => {
       try {
         const fetchedCotizacion = await obtenerCotizacionPorId(id);
+        console.log("Cotizaciónes por id:", fetchedCotizacion);
         setCotizacion(fetchedCotizacion);
       } catch (err) {
         console.error("Error al obtener cotización:", err);
@@ -58,7 +59,7 @@ const DetalleCotizacion = () => {
                   />
                 </div>
                 <div className="text-muted">
-                  <p className="mb-1">Filial: {cotizacion.filial_id.nombre_filial}</p>
+                  <p className="mb-1">Filial: {cotizacion.filial_id} {cotizacion.nombre_filial}</p>
                 </div>
               </div>
 

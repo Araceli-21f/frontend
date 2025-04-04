@@ -27,7 +27,7 @@ const DetalleUsuario = ({ entidad }) => {
       }
     };
     fetchUser();
-  }, [id]);  // Eliminamos `obtenerUsuarioPorId` de las dependencias para evitar re-renders innecesarios
+  }, [id]);  
   
   return (
     <LoadingError
@@ -42,7 +42,7 @@ const DetalleUsuario = ({ entidad }) => {
           <div className="card">
             <div className="card-body">
               <div className="invoice-title">
-                <h4 className="float-end font-size-16">Usuario   #{user._id}</h4>
+                <h4 className="float-end font-size-16">Usuario   #{user?._id}</h4>
                 <div className="mb-4">
                   <img
                     src="/assets/images/logo-dark.png"
@@ -95,7 +95,7 @@ const DetalleUsuario = ({ entidad }) => {
               <div className="d-print-none mt-4">
                 <div className="float-end">
                   <Link
-                    to={`/EditarUsuario/${user?._id}`}
+                    to="/usuario/editar/:id"
                     className="btn btn-primary w-md waves-effect waves-light"
                   >
                     Editar Perfil

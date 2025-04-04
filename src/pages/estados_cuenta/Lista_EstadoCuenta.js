@@ -93,12 +93,12 @@ const ListaEstadoCuenta = () => {
                 />
             )}
             <div className="card p-3">
-                <h2 className="mb-3"><i className="fa fa-fw fa-bars" /> Lista de Estados de Cuenta</h2>
+                <h2 className="mb-2"><i className="fa fa-fw fa-bars" /> Lista de Estados de Cuenta</h2>
 
                 <div className="col-md">
                     <div className="row">
                         {/* Barra de búsqueda */}
-                        <div className="col-md-4 mb-2">
+                        <div className="col-md-3 mb-2">
                             <div className="input-group">
                                 <input
                                     type="text"
@@ -113,27 +113,27 @@ const ListaEstadoCuenta = () => {
                             </div>
                         </div>
                         {/* Filtro por tipo */}
-                         {/* Filtro por tipo (2 columnas) */}
-                         <div className="col-md-4 mb-2 d-flex align-items-center">
-                            <div className="input-group w-100 shadow-sm">
-                                  {/* Ícono de filtro fuera del grupo, con fondo redondeado */}
-                                  <span className="me-0 p-2 text-white bg-primary rounded-1 d-flex justify-content-center align-items-center">
-                                     <i className="uil-filter fs-6"></i>
-                                  </span>
-                                  {/* Select de tipo de filtro */}
-                                  <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
-                                    <option value="cliente_id">Filtrar cliente</option>
-                                    <option value="servicio_id">Filtrar Servicio</option>
-                                  </select>
-                                  <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
-                                   {filterOptions.map(option => (
-                                  <option key={option} value={option}>{option}</option>
-                                  ))}
-                                  </select>
-                                  </div>
-                                  </div>
+                        <div className="col-md-4 mb-2 d-flex align-items-center">
+                        <div className="input-group w-100 shadow-sm">
+                            {/* Ícono de filtro fuera del grupo, con fondo redondeado */}
+                            <span className="me-0 p-2 text-white bg-primary rounded-1 d-flex justify-content-center align-items-center">
+                                <i className="uil-filter fs-6"></i>
+                            </span>
+                             {/* Select de tipo de filtro */}
+                             <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
+                                 <option value="rol">Filtrar por Rol</option>
+                                 <option value="area">Filtrar por Área</option>
+                             </select>
+                             {/* Select dinámico de valores */}
+                             <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
+                                {filterOptions.map(option => (
+                                <option key={option} value={option}>{option}</option>
+                                ))}
+                                </select>
+                             </div>
+                         </div>
                         {/* Crear Estado de Cuenta Button */}
-                        <div className="col-md-4 mb-2">
+                        <div className="col-md-5 mb-2">
                             <div className="input-group">
                                 <Link to="/estados-cuenta/CrearEstadoCuenta" className="input-daterange input-group btn btn-soft-success waves-effect waves-light">
                                     <i className="mdi mdi-plus me-1"></i> Crear Estado Cuenta

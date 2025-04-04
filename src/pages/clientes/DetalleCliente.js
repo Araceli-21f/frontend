@@ -5,7 +5,7 @@ import LoadingError from "../../components/LoadingError";
 import ClienteService from "../../services/ClienteService";
 
 const DetalleCliente = ({ entidad }) => {
-  const { id } = useParams();
+  const { id } = useParams(); 
   const {error, obtenerClientePorId } = ClienteService(); // Nombre corregido
   const [cliente, setCliente] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,7 +28,17 @@ const DetalleCliente = ({ entidad }) => {
     };
     fetchCliente();
   }, [id]);  
-  
+
+     // Función para formatear la fecha a DD-MM-YYYY
+     const formatDate = (dateString) => {
+      if (!dateString) return "";
+      const date = new Date(dateString);
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = date.getFullYear();
+      return `${day}-${month}-${year}`;
+  };
+
   return (
     <LoadingError
       loading={loading}
@@ -41,7 +51,7 @@ const DetalleCliente = ({ entidad }) => {
         <div className="col">
           <div className="card p-4">
               <div className="invoice-title">
-                <h4 className="float-end font-size-16">Cliente   #{cliente._id}</h4>
+                <h4 className="float-end font-size-16">Cliente   #{cliente?._id}</h4>
                 <div className="mb-4">
                   <img src="/assets/images/logo-dark.png" alt="logo" height="20"className="logo-dark"/>
                   <img src="/assets/images/logo-light.png" alt="logo" height="20" className="logo-light" />
@@ -66,7 +76,7 @@ const DetalleCliente = ({ entidad }) => {
                     <p className="font-size-16 mb-2">Estado Cliente: {cliente?.estado_cliente}</p>
                     <p className="font-size-16 mb-2">Tipo Cliente: {cliente?.tipo_cliente}</p>
                     <h5 className="font-size-18 mt-4 mb-1">Otros Datos:</h5>
-                    <p className="font-size-16 mb-2">Fecha Registro: {cliente?.fecha_registro}</p>
+                    <p className="font-size-16 mb-2">Fecha Registro: {formatDate(cliente?.fecha_registro)}</p>
                   </div>
                 </div>
               </div>
