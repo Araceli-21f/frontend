@@ -30,9 +30,9 @@ const ListaInteraccions = () => {
 
     // Opciones de filtro dinámicas
     const filterOptions = {
-        tipo_interaccion: ["Todos", "llamada", "correo", "reunión", "visita"],
-        estado: ["Todos", "pendiente", "completada", "cancelada"],
-        canal: ["Todos", "teléfono", "email", "presencial", "videollamada"] // Ejemplo adicional
+        tipo_interaccion: [ "llamada", "correo", "reunión", "visita"],
+        estado: [ "pendiente", "completada", "cancelada"],
+       
     };
 
     // Hook de paginación
@@ -71,7 +71,7 @@ const ListaInteraccions = () => {
     };
 
     const handleView = (id) => {
-        navigate(`/interaccions/ver/${id}`);
+        navigate(`/interaccions/editar${id}`);
     };
 
     // Formatear fecha legible
@@ -138,8 +138,10 @@ const ListaInteraccions = () => {
                                     </span>
                                     <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
                                         <option value="tipo_interaccion">Tipo</option>
-                                        <option value="estado">Estado</option>
-                                        <option value="canal">Canal</option>
+                                        <option value="llamada">Llamada</option>
+                                        <option value="correo">Correo</option>
+                                        <option value="reunion">Reunión</option>
+                                        <option value="visita">visita</option>
                                     </select>
                                     <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
                                         {filterOptions[filterType].map(option => (
@@ -175,7 +177,7 @@ const ListaInteraccions = () => {
                                 <tbody>
                                     {currentInteracciones.map((interaccion) => (
                                         <tr key={interaccion._id}>
-                                            <td>{interaccion.cliente_id?.nombre || "Cliente no especificado"}</td>
+                                            <td>{interaccion.cliente_id?.nombre}</td>
                                             <td>
                                                 <span className="badge bg-primary">
                                                     {interaccion.tipo_interaccion}
@@ -194,7 +196,7 @@ const ListaInteraccions = () => {
                                             <td>
                                                 <BotonesAccion
                                                     id={interaccion._id}
-                                                    entidad="interacción"
+                                                    entidad="interaccions"
                                                     onDelete={handleDelete}
                                                     setAlert={setAlert}
                                                     onView={() => handleView(interaccion._id)}
