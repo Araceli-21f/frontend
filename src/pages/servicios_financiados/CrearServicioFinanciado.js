@@ -5,6 +5,7 @@ import AlertComponent from "../../components/AlertasComponent";
 import LoadingError from "../../components/LoadingError";
 import ServicioFinanciadoService from "../../services/ServicioFinanciadoService";
 import ClienteService from "../../services/ClienteService";
+import CotizacionService from "../../services/CotizacionService";
 
 const CrearServicioFinanciado = ({ onServicioFinanciadoCreado }) => {
   const navigate = useNavigate();
@@ -14,13 +15,37 @@ const CrearServicioFinanciado = ({ onServicioFinanciadoCreado }) => {
   const { error, loading, crearServicioFinanciado } = ServicioFinanciadoService();
   const [formData, setFormData] = useState({
     nombre_servicio: "", cliente_id: "", descripcion: "", monto_servicio: "", fecha_inicio: "", fecha_termino: null, pago_semanal: "", saldo_restante: "",
+    cotizacion_id: "",
   });
   const { obtenerClientes } = ClienteService(); //obtener a los clientes
   const [clientes, setClientes] = useState([]);
   const [loadingClientes, setLoadingClientes] = useState(true);
   const [errorClientes, setErrorClientes] = useState(null);
+
+  const { obtenerCotizaciones } = CotizacionService(); //obtener a los cotizacion
+  const [cotizaciones, setCotizaciones] = useState([]);
+  const [LoadingCotizaciones, setLoadingCotizaciones] = useState(true);
+  const [errorCotizaciones, setErrorCotizaciones] = useState(null);
+
   const servicios = ["Instalacion", "Desarrollo", "Diseño", "Marketing", "Configuracion"]; //seleccionar servicios
  
+  useEffect(() => {
+    const fetchCotizaciones = async () => {
+      setLoadingCotizaciones(true);
+      try {
+        const fetchedCotizaciones = await obtenerCotizaciones();
+        setCotizaciones(fetchedCotizaciones);
+      } catch (err) {
+        console.error("Error al obtener cotizaciones:", err);
+        setErrorCotizaciones(err);
+      } finally {
+        setLoadingCotizaciones(false);
+      }
+    };
+
+    fetchCotizaciones();
+  }, [obtenerCotizaciones]);
+
   useEffect(() => {
     const fetchClientes = async () => {
       setLoadingClientes(true);
@@ -51,7 +76,7 @@ const CrearServicioFinanciado = ({ onServicioFinanciadoCreado }) => {
       setAlertType("success");
       setAlertMessage("Servicio Financiado creado exitosamente.");
       setShowAlert(true);
-      setFormData({ nombre_servicio: "", cliente_id: "", descripcion: "", monto_servicio: "", fecha_inicio: "", fecha_termino: null, pago_semanal: "", saldo_restante: "" });
+      setFormData({ cotizacion_id:"", nombre_servicio: "", cliente_id: "", descripcion: "", monto_servicio: "", fecha_inicio: "", fecha_termino: null, pago_semanal: "", saldo_restante: "" });
 
       if (onServicioFinanciadoCreado) {
         onServicioFinanciadoCreado(formData);
@@ -72,10 +97,10 @@ const CrearServicioFinanciado = ({ onServicioFinanciadoCreado }) => {
 
   return (
     <LoadingError
-      loading={loadingClientes || loading}
+      loading={loadingClientes || LoadingCotizaciones || loading}
       error={errorClientes || error}
       loadingMessage="Cargando datos..."
-      errorMessage={errorClientes?.message || error?.message}
+      errorMessage={errorClientes?.message || errorCotizaciones?.message || error?.message}
     >
     <Layout>
       <div className="row">
@@ -92,6 +117,22 @@ const CrearServicioFinanciado = ({ onServicioFinanciadoCreado }) => {
 
             <form onSubmit={handleSubmit}>
               <div className="row">
+              <div className="col-md-5">
+                  <div className="mb-2">
+                    <label className="form-label">Cotizaciones</label>
+                    <select
+                      className="form-select shadow-sm" name="cotizacion_id"
+                      value={formData.cotizacion_id} onChange={handleChange}  required
+                    >
+                      <option value="">Selecciona un cotizacion</option>
+                      {cotizaciones.map((cotizacion) => (
+                        <option key={cotizacion._id} value={cotizacion._id}>
+                          {cotizacion.nombre_cotizacion} 
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               <div className="col-md-5">
               <div className="mb-2">
                      <label className="form-label"><i className="bx bxs-user-detail"/> Servicio</label>

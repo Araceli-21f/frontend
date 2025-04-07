@@ -24,15 +24,16 @@ const CotizacionService = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.post(`${baseURL}`, cotizacion);
-            setLoading(false);
-            return response.data;
+          const response = await axios.post(`${baseURL}`, cotizacion);
+          setLoading(false);
+          return response.data;
         } catch (err) {
-            setError(err);
-            setLoading(false);
-            throw err;
+          console.error('Error completo:', err.response?.data || err.message);
+          setError(err.response?.data || err.message);
+          setLoading(false);
+          throw err.response?.data || err;
         }
-    };
+      };
 
     const obtenerCotizacionPorId = async (id) => {
         setLoading(true);

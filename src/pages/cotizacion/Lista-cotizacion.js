@@ -158,6 +158,7 @@ const filterOptions = ["Todos", ...new Set(cotizaciones.map((cotizacion) => coti
               <thead>
                 <tr>
                   <th>ID</th>
+                  <th>Nombre de Cotizacion</th>
                   <th>Filial</th>
                   <th>Cliente</th>
                   <th>Fecha Cotización</th>
@@ -169,7 +170,8 @@ const filterOptions = ["Todos", ...new Set(cotizaciones.map((cotizacion) => coti
               <tbody>
                 {currentCotizaciones.map((cotizacion) => (
                   <tr key={cotizacion._id}>
-                    <td>{cotizacion._id}</td>
+                    <td>{cotizacion._id}</td>                    
+                    <td>{cotizacion.nombre_cotizacion}</td>
                     <td>{cotizacion.filial_id?.nombre_filial}</td>
                     <td>{cotizacion.cliente_id?.nombre}</td>
                     <td>{formatDate(cotizacion.fecha_cotizacion)}</td>

@@ -169,6 +169,7 @@ const ListaServiciosFinancieros = () => {
                             <thead>
                                 <tr>
                                     <th>ID</th>
+                                    <th>Cotizacion</th>
                                     <th>Servicio</th>
                                     <th>Cliente</th>
                                     <th>Monto Servicio</th>
@@ -182,6 +183,7 @@ const ListaServiciosFinancieros = () => {
                                 {currentServicios.map((servicio) => (
                                     <tr key={servicio._id}>
                                         <td>{servicio._id}</td>
+                                        <td>{servicio.cotizacion_id?.nombre_cotizacion}</td>
                                         <td>{servicio.nombre_servicio}</td>
                                         <td>{servicio.cliente_id?.nombre || 'N/A'}</td> {/* Manejo de nulos */}
                                         <td>{servicio.monto_servicio}</td>

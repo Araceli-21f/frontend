@@ -13,7 +13,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
   const { obtenerFilials } = FilialService();
   const [formData, setFormData] = useState({
     fecha_cotizacion: new Date().toISOString().split('T')[0],
-    forma_pago: "", precio_venta: "", anticipo_solicitado: "", filial_id: "", cliente_id: "",
+    nombre_cotizacion: "", forma_pago: "", precio_venta: "", anticipo_solicitado: "", filial_id: "", cliente_id: "",
     detalles: [{
       descripcion: "",  costo_materiales: "",  costo_mano_obra: "",  inversion: "",  utilidad_esperada: "",
     }],
@@ -93,11 +93,8 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
       navigate(`/Lista_cotizacion`);
       setFormData({
         fecha_cotizacion: new Date().toISOString().split('T')[0],
-        forma_pago: "",
-        precio_venta: "",
-        anticipo_solicitado: "",
-        filial_id: "",
-        cliente_id: "",
+        nombre_cotizacion: "", forma_pago: "", precio_venta: "",
+        anticipo_solicitado: "", filial_id: "", cliente_id: "",
         detalles: [{
           descripcion: "", costo_materiales: "",  costo_mano_obra: "",  inversion: "",  utilidad_esperada: "",
         }],
@@ -132,6 +129,10 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                   <form onSubmit={handleSubmit}>
                     <div className="row">
                       <div className="col-sm-7">
+                      <div className="mb-3">
+                          <label className="form-label">Titulo de Cotización</label>
+                          <input type="text" className="form-control" id="nombre_cotizacion" name="nombre_cotizacion" value={formData.nombre_cotizacion} onChange={handleChange} required />
+                        </div>
                       <div className="mb-3">
                           <label htmlFor="filial" className="form-label">Filial</label>
                           <select className="form-select" id="filial_id" name="filial_id" value={formData.filial_id} onChange={handleChange} required>
