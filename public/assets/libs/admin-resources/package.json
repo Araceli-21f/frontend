@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/themesbrand/admin-resources/issues"
   },
-  "homepage": "https://github.com/themesbrand/admin-resources"
+  "homepage": "https://github.com/themesbrand/admin-resources",
+  "dependencies": {
+    "admin-resources": "file:"
+  }
 }

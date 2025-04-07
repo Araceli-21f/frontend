@@ -58,7 +58,11 @@ import CrearInteraccions from "../pages/interaccions/CrearInteraccions";
 import DetalleInteraccions from "../pages/interaccions/DetalleInteraccions";
 import EditarInteraccions from "../pages/interaccions/EditarInteraccions";
 
- 
+import Nota from "../pages/Nota/Nota";
+import CrearNota from "../pages/Nota/CrearNota";
+import DetalleNota from "../pages/Nota/DetalleNota";
+import EditarNota from "../pages/Nota/EditarNota";
+
 const AppRoutes = () => {
     return (
         <Router>
@@ -141,6 +145,11 @@ const AppRoutes = () => {
            <Route path="/interaccions/ver/:id" element={<DetalleInteraccions/>} />
            <Route path="/interaccions/editar/:id" element={<EditarInteraccions/>} />
 
+            {/*Nota*/}
+           <Route path="/Nota" element={<Nota />}/>
+           <Route path="/Nota/CrearNota" element={<CrearNota />} />
+           <Route path="/Nota/ver/:id" element={<DetalleNota/>} />
+           <Route path="/Nota/editar/:id" element={<EditarNota/>} />
 
             </Routes>
         </Router>

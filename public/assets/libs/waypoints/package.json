@@ -30,5 +30,8 @@
     "merge-stream": "^0.1.1",
     "testem": "0.6.24"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "waypoints": "file:"
+  }
 }

@@ -19,6 +19,7 @@
     "rtl"
   ],
   "dependencies": {
+    "gulp-rtlcss": "file:",
     "plugin-error": "^1.0.1",
     "rtlcss": "^3.5.0",
     "through2": "^2.0.5",

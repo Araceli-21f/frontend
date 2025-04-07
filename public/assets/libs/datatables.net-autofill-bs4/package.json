@@ -25,6 +25,7 @@
     ],
     "dependencies": {
         "datatables.net-autofill": "2.7.0",
+        "datatables.net-autofill-bs4": "file:",
         "datatables.net-bs4": ">=1.11",
         "jquery": ">=1.7"
     },

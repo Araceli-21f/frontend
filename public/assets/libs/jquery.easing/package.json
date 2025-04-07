@@ -31,5 +31,8 @@
     "jquery-plugin",
     "ecosystem:jquery"
   ],
-  "license": "BSD-3-Clause"
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "jquery.easing": "file:"
+  }
 }

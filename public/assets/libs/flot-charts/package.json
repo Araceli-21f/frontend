@@ -21,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/magora-suchkov/flot/issues"
   },
-  "homepage": "https://github.com/magora-suchkov/flot#readme"
+  "homepage": "https://github.com/magora-suchkov/flot#readme",
+  "dependencies": {
+    "flot-charts": "file:"
+  }
 }

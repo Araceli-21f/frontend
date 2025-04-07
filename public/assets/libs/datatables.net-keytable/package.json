@@ -23,6 +23,7 @@
     ],
     "dependencies": {
         "datatables.net": ">=1.11.0",
+        "datatables.net-keytable": "file:",
         "jquery": ">=1.7"
     },
     "moduleType": [

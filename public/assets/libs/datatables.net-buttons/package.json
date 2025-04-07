@@ -25,6 +25,7 @@
     ],
     "dependencies": {
         "datatables.net": "^1.13.0",
+        "datatables.net-buttons": "file:",
         "jquery": ">=1.7"
     },
     "moduleType": [

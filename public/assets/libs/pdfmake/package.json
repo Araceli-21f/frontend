@@ -11,6 +11,7 @@
     "@foliojs-fork/linebreak": "^1.1.2",
     "@foliojs-fork/pdfkit": "^0.15.1",
     "iconv-lite": "^0.6.3",
+    "pdfmake": "file:",
     "xmldoc": "^1.3.0"
   },
   "devDependencies": {

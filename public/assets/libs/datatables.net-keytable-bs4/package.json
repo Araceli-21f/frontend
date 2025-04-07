@@ -26,8 +26,9 @@
         "sort"
     ],
     "dependencies": {
-        "datatables.net-keytable": "2.12.1",
         "datatables.net-bs4": ">=1.11.0",
+        "datatables.net-keytable": "2.12.1",
+        "datatables.net-keytable-bs4": "file:",
         "jquery": ">=1.7"
     },
     "moduleType": [

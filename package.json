@@ -16,6 +16,7 @@
     "bootstrap": "^5.3.3",
     "dhtmlx-gantt": "^9.0.6",
     "framer-motion": "^12.6.2",
+    "frontend": "file:",
     "jquery": "^3.7.1",
     "lucide-react": "^0.477.0",
     "metismenujs": "^1.4.0",

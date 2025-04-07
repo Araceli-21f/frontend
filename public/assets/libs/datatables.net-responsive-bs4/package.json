@@ -23,8 +23,9 @@
         "sort"
     ],
     "dependencies": {
-        "datatables.net-responsive": "2.5.1",
         "datatables.net-bs4": "^1.13.0",
+        "datatables.net-responsive": "2.5.1",
+        "datatables.net-responsive-bs4": "file:",
         "jquery": ">=1.7"
     },
     "moduleType": [

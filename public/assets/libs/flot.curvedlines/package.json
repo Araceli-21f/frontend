@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/daothanh/CurvedLines/issues"
   },
-  "homepage": "https://github.com/daothanh/CurvedLines#readme"
+  "homepage": "https://github.com/daothanh/CurvedLines#readme",
+  "dependencies": {
+    "flot.curvedlines": "file:"
+  }
 }

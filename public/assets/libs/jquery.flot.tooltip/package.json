@@ -8,14 +8,16 @@
   },
   "main": "./js/jquery.flot.tooltip.js",
   "browser": "./js/jquery.flot.tooltip.js",
-  "dependencies": {},
+  "dependencies": {
+    "jquery.flot.tooltip": "file:"
+  },
   "devDependencies": {
     "grunt": "latest",
-    "grunt-contrib-jshint": "latest",
-    "grunt-contrib-watch": "latest",
-    "grunt-contrib-uglify": "latest",
     "grunt-contrib-concat": "latest",
-    "grunt-contrib-connect": "latest"
+    "grunt-contrib-connect": "latest",
+    "grunt-contrib-jshint": "latest",
+    "grunt-contrib-uglify": "latest",
+    "grunt-contrib-watch": "latest"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
