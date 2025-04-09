@@ -54,7 +54,7 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
             <li className="menu-title"> Menu </li>
 
             <li>
-              <Link to="/" className="waves-effect">
+              <Link to="/Home" className="waves-effect">
                 <i className="uil-home-alt"></i>
                 <span> Inicio </span>
               </Link>

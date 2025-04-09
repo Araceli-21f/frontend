@@ -9,7 +9,11 @@ import Profile from "../layouts/Auth/Profile";
 import Home from "../pages/Home";
 import Tablero from "../pages/Tablero";
 import Cronograma from "../pages/Cronograma";
-import Calendario from "../pages/Calendario";
+
+
+import Calendario from "../pages/calendario/Calendario";
+import CrearTarea from "../pages/calendario/CrearTarea";
+import EditarTarea from "../pages/calendario/EditarTarea";
 
 import ListaCotizaciones from "../pages/cotizacion/Lista-cotizacion";
 import CrearCotizacion from "../pages/cotizacion/CrearCotizacion";
@@ -80,7 +84,11 @@ const AppRoutes = () => {
             <Route path="/Home" element={<Home />} />
             <Route path="/Tablero" element={<Tablero />}/>
             <Route path="/Calendario" element={<Calendario />}/>
+
+            {/*Tarea*/}
             <Route path="/Cronograma" element={<Cronograma />}/>
+            <Route path="/EditarTarea" element={<EditarTarea />}/>
+            <Route path="/CrearTarea" element={<CrearTarea />}/>
 
             {/*Cotizacion*/}
             <Route path="/Lista_cotizacion" element={<ListaCotizaciones />}/>
