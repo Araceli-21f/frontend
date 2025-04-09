@@ -22,10 +22,10 @@ import CrearCampana from "../pages/campanas/CrearCampana";
 import DetalleCampana from "../pages/campanas/DetalleCampana";
 import EditarCampana from "../pages/campanas/EditarCampana";
 
-import ListaServiciosFinancieros from "../pages/servicios_financiados/Lista_ServicioFinanciado";
-import CrearServicioFinanciado from "../pages/servicios_financiados/CrearServicioFinanciado";
-import EditarServicioFinanciado from "../pages/servicios_financiados/EditarServicioFinanciado";
-import DetalleServicioFinanciado from "../pages/servicios_financiados/DetalleServicioFinanciado";
+import ListaEventos from "../pages/eventos/Lista_Evento";
+import CrearEvento from "../pages/eventos/CrearEvento";
+import EditarEvento from "../pages/eventos/EditarEvento";
+import DetalleEvento from "../pages/eventos/DetalleEvento";
 
 import ListaFiliales from "../pages/Filial/Lista-filial";
 import CrearFilial from "../pages/Filial/CrearFilial";
@@ -97,19 +97,17 @@ const AppRoutes = () => {
             <Route path="/filial/ver/:id" element={<DetalleFilial/>} />
             <Route path="/filial/editar/:id" element={<EditarFilial/>} />
 
-
-
             {/*Campañas*/}
             <Route path="/Campañas" element={<Campana />}/>
-            <Route path="/Campaña/CrearCampana" element={<CrearCampana />} />
-            <Route path="/Campaña/ver/:id" element={<DetalleCampana />} />
-            <Route path="/Campaña/editar/:id" element={<EditarCampana />} />
+            <Route path="/Campana/CrearCampana" element={<CrearCampana />} />
+            <Route path="/Campana/ver/:id" element={<DetalleCampana />} />
+            <Route path="/Campana/editar/:id" element={<EditarCampana />} />
 
-            {/*Servicios Financiados */}
-            <Route path="/Lista_Servicios" element={<ListaServiciosFinancieros/>}/>
-            <Route path="/servicios-financieros/CrearServicioFinanciero" element={<CrearServicioFinanciado />} />
-            <Route path="/servicio/editar/:id" element={<EditarServicioFinanciado />} />
-            <Route path="/servicio/ver/:id" element={<DetalleServicioFinanciado />} />
+            {/*Servicios Eventos */}
+            <Route path="/Lista_Eventos" element={<ListaEventos/>}/>
+            <Route path="/evento/CrearEvento" element={<CrearEvento />} />
+            <Route path="/evento/editar/:id" element={<EditarEvento />} />
+            <Route path="/evento/ver/:id" element={<DetalleEvento />} />
 
 
             {/*Clientes*/}

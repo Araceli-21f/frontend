@@ -6,111 +6,109 @@ import usePagination from "../../hooks/usePagination";
 import BotonesAccion from "../../components/BotonesAccion";
 import AlertComponent from '../../components/AlertasComponent';
 import LoadingError from "../../components/LoadingError";
-import CampanaService from "../../services/CampanaService"
+import EventoService from "../../services/EventoService";
 import useDateRange from "../../hooks/useDateRange";
 
-const ListaCampana = () => {
+const ListaEventos = () => {
     const [alert, setAlert] = useState(null);
     const navigate = useNavigate();
-    const [campanas, setCampanas] = useState([]);
-    const { loading, error, obtenerCampanas, eliminarCampana } = CampanaService(); // Ajusta los nombres según tu servicio
+    const [eventos, setEventos] = useState([]);
+    const { loading, error, obtenerEventos, eliminarEvento } = EventoService();
 
-    //Manda un hook de busqueda y filtrar
+    // Hook de búsqueda y filtro
     const {
         searchTerm, filterType, filterValue,
         handleSearchChange, handleFilterTypeChange, handleFilterValueChange
-    } = useSearchFilter("estado"); // Puedes cambiar "estado" por otro campo inicial para filtrar
+    } = useSearchFilter("ubicacion"); // Filtro inicial por ubicación
 
-    const filteredCampanas = campanas.filter((campana) => {
-        const nombre = campana.nombre || '';
-        const descripcion = campana.descripcion || '';
-        const id = campana._id || ''; 
+    const filteredEventos = eventos.filter((evento) => {
+        const nombre = evento.nombre || '';
+        const descripcion = evento.descripcion || '';
+        const ubicacion = evento.ubicacion || '';
+        const id = evento._id || ''; 
         const matchesSearch =
             nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
             descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            ubicacion.toLowerCase().includes(searchTerm.toLowerCase()) ||
             id.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesFilter = filterValue === "Todos" || campana[filterType] === filterValue;
+        const matchesFilter = filterValue === "Todos" || evento[filterType] === filterValue;
         return matchesSearch && matchesFilter;
     });
-    const filterOptions = ["Todos", ...new Set(campanas.map((campana) => campana[filterType]))];
+    
+    const filterOptions = ["Todos", ...new Set(eventos.map((evento) => evento[filterType]))];
 
-    // Usar el hook para las fechas
-    const { dateRanges, handleDateChange } = useDateRange({ fecha_inicio: "",  fecha_fin: "", });
+    // Hook para rango de fechas
+    const { dateRanges, handleDateChange } = useDateRange({ fecha: "" });
 
-    // --- Usa el hook de paginación.
-    const { current: currentCampanas, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredCampanas, 5);
+    // Hook de paginación
+    const { current: currentEventos, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredEventos, 5);
 
-    // Filtrado por fechas
-    const filterByDateRange = (campanas, startDate, endDate) => {
-        if (!startDate || !endDate) return campanas; // Si no hay fechas, retorna todas las campañas
-        return campanas.filter(campana => {
-            const campanaStartDate = new Date(campana.fecha_inicio);
-            const campanaEndDate = new Date(campana.fecha_fin);
-            return campanaStartDate >= new Date(startDate) && campanaEndDate <= new Date(endDate);
+    // Filtrado por fecha
+    const filterByDate = (eventos, date) => {
+        if (!date) return eventos;
+        const filterDate = new Date(date);
+        return eventos.filter(evento => {
+            const eventoDate = new Date(evento.fecha);
+            return eventoDate.toDateString() === filterDate.toDateString();
         });
     };
 
-    // Aplicar filtro de fechas al hacer clic en el botón
     const handleDateFilter = () => {
-        const filteredByDate = filterByDateRange(filteredCampanas, dateRanges.fecha_inicio, dateRanges.fecha_fin);
-        setCampanas(filteredByDate); // Actualizar el estado de las campañas con el filtrado de fechas
+        const filteredByDate = filterByDate(filteredEventos, dateRanges.fecha);
+        setEventos(filteredByDate);
     };
 
-    //Obtiene las campañas
+    // Obtener eventos
     useEffect(() => {
-        const fetchCampanas = async () => {
+        const fetchEventos = async () => {
             try {
-                const fetchedCampanas = await obtenerCampanas();
-                setCampanas(fetchedCampanas);
+                const fetchedEventos = await obtenerEventos();
+                setEventos(fetchedEventos);
             } catch (err) {
-                console.error("Error al obtener campañas:", err);
+                console.error("Error al obtener eventos:", err);
             }
         };
-        fetchCampanas();
-    }, [obtenerCampanas]);
+        fetchEventos();
+    }, [obtenerEventos]);
 
-    // Elimina la campaña
+    // Eliminar evento
     const handleDelete = async (id) => {
         try {
-            await eliminarCampana(id);
-            setCampanas(campanas.filter(campana => campana._id !== id));
-            setAlert({ type: "warning", action: "delete", entity: "campaña" });
+            await eliminarEvento(id);
+            setEventos(eventos.filter(evento => evento._id !== id));
+            setAlert({ type: "warning", action: "delete", entity: "evento" });
             setTimeout(() => setAlert(null), 5000);
         } catch (err) {
-            console.error("Error al eliminar campaña:", err);
+            console.error("Error al eliminar evento:", err);
         }
     };
 
-    //confirma la eliminacion
     const handleConfirmDelete = (id) => {
         handleDelete(id);
         setAlert(null);
     };
 
-    //Manda una alerta
     const handleCancelDelete = () => {
         setAlert(null);
     };
 
-    //Manda a la vista de detalle (si la tienes)
     const handleView = (id) => {
-        const campana = campanas.find((c) => c._id === id);
-        if (campana) {
-            navigate(`/campana/ver/${id}`); // Ajusta la ruta según tu configuración
+        const evento = eventos.find((e) => e._id === id);
+        if (evento) {
+            navigate(`/evento/ver/${id}`);
         } else {
-            console.error('Campaña no encontrada');
+            console.error('Evento no encontrado');
         }
     };
 
     return (
         <LoadingError
-            loading={loading || loading}
-            error={error || error}
-            loadingMessage="Cargando campañas..."
+            loading={loading}
+            error={error}
+            loadingMessage="Cargando eventos..."
             errorMessage={error?.message}
         >
             <Layout>
-                {/*Manda la alerta como un modal*/}
                 {alert && (
                     <AlertComponent
                         type={alert.type}
@@ -121,15 +119,15 @@ const ListaCampana = () => {
                     />
                 )}
                 <div className="card p-3">
-                    <h2 className="mb-3 "><i className="fa fa-fw fa-bars"/> Lista de Campañas</h2>
+                    <h2 className="mb-3 "><i className="fa fa-fw fa-calendar"/> Lista de Eventos</h2>
 
                     <div className="col-md">
                         <div className="row">
-                            {/* Barra de búsqueda (4 columnas) */}
+                            {/* Barra de búsqueda */}
                             <div className="col-md-3 mb-2">
                                 <div className="input-group shadow-sm">
                                     <input
-                                        type="text" className="form-control pe-4" placeholder="Buscar Campaña .."
+                                        type="text" className="form-control pe-4" placeholder="Buscar Evento .."
                                         value={searchTerm} onChange={handleSearchChange}
                                     />
                                     <button type="button" className="btn btn-primary" style={{ marginLeft: '2px' }}>
@@ -137,18 +135,15 @@ const ListaCampana = () => {
                                     </button>
                                 </div>
                             </div>
-                            {/* Filtro por estado (4 columnas) */}
+                            {/* Filtro por ubicación */}
                             <div className="col-md-3 mb-2 d-flex align-items-center">
                                 <div className="input-group w-100 shadow-sm">
-                                    {/* Ícono de filtro fuera del grupo, con fondo redondeado */}
                                     <span className="me-0 p-2 text-white bg-primary rounded-1 d-flex justify-content-center align-items-center">
                                         <i className="uil-filter fs-6"></i>
                                     </span>
-                                    {/* Select de tipo de filtro */}
                                     <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
-                                        <option value="estado">Filtrar por Estado</option>
+                                        <option value="ubicacion">Filtrar por Ubicación</option>
                                     </select>
-                                    {/* Select dinámico de valores */}
                                     <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
                                         {filterOptions.map(option => (
                                             <option key={option} value={option}>{option}</option>
@@ -156,16 +151,12 @@ const ListaCampana = () => {
                                     </select>
                                 </div>
                             </div>
-                            {/* Filtro por fechas (6 columnas) */}
+                            {/* Filtro por fecha */}
                             <div className="col-md-3 mb-2">
                                 <div className="input-daterange input-group shadow-sm">
                                     <input
-                                        type="date" className="form-control" placeholder="Fecha Inicio"
-                                        value={dateRanges.fecha_inicio} onChange={(e) => handleDateChange("fecha_inicio", e.target.value)}
-                                    />
-                                    <input
-                                        type="date" className="form-control" placeholder="Fecha Fin"
-                                        value={dateRanges.fecha_fin} onChange={(e) => handleDateChange("fecha_fin", e.target.value)}    
+                                        type="date" className="form-control" placeholder="Fecha"
+                                        value={dateRanges.fecha} onChange={(e) => handleDateChange("fecha", e.target.value)}
                                     />
                                     <button
                                         type="button" className="btn btn-primary"
@@ -174,11 +165,11 @@ const ListaCampana = () => {
                                     </button>
                                 </div>
                             </div>
-                            {/* Crear campaña Button (4 columnas) */}
+                            {/* Crear evento Button */}
                             <div className="col-md-3 mb-2">
                                 <div className="input-group">
-                                    <Link to="/Campana/CrearCampana" className="input-daterange input-group btn btn-outline-success waves-effect waves-light">
-                                        <i className="mdi mdi-plus me-1"></i> Crear Campaña
+                                    <Link to="/evento/CrearEvento" className="input-daterange input-group btn btn-outline-success waves-effect waves-light">
+                                        <i className="mdi mdi-plus me-1"></i> Crear Evento
                                     </Link>
                                 </div>
                             </div>
@@ -192,31 +183,25 @@ const ListaCampana = () => {
                                     <tr>
                                         <th>ID</th>
                                         <th>Nombre</th>
-                                        <th>Fecha Inicio</th>
-                                        <th>Fecha Fin</th>
-                                        <th>Estado</th>
+                                        <th>Fecha</th>
+                                        <th>Ubicación</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {currentCampanas.map((campana) => (
-                                        <tr key={campana._id}>
-                                            <td>{campana._id}</td>
-                                            <td>{campana.nombre}</td>
-                                            <td>{new Date(campana.fecha_inicio).toLocaleDateString()}</td>
-                                            <td>{new Date(campana.fecha_fin).toLocaleDateString()}</td>
-                                            <td>
-                                                <div className={`badge ${campana.estado === "completada" ? "bg-success-subtle text-success" : campana.estado === "activa" ? "bg-warning-subtle text-warning" : "bg-secondary-subtle text-secondary"} font-size-12`}>
-                                                    {campana.estado}
-                                                </div>
-                                            </td>
+                                    {currentEventos.map((evento) => (
+                                        <tr key={evento._id}>
+                                            <td>{evento._id}</td>
+                                            <td>{evento.nombre}</td>
+                                            <td>{new Date(evento.fecha).toLocaleDateString()}</td>
+                                            <td>{evento.ubicacion}</td>
                                             <td>
                                                 <BotonesAccion
-                                                    id={campana._id}
-                                                    entidad="campana"
+                                                    id={evento._id}
+                                                    entidad="evento"
                                                     onDelete={handleDelete}
                                                     setAlert={setAlert}
-                                                    onView={() => handleView(campana._id)}
+                                                    onView={() => handleView(evento._id)}
                                                 />
                                             </td>
                                         </tr>
@@ -225,7 +210,7 @@ const ListaCampana = () => {
                             </table>
                         </div>
                     </div>
-                    {/* Paginacion */}
+                    {/* Paginación */}
                     <div className="d-flex justify-content-between align-items-center mt-3">
                         <button
                             className="btn btn-secondary shadow-sm"
@@ -250,4 +235,4 @@ const ListaCampana = () => {
     );
 };
 
-export default ListaCampana;
+export default ListaEventos;

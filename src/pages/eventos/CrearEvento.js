@@ -2,15 +2,19 @@ import React, { useState, useEffect } from "react";
 import Layout from "../../layouts/pages/layout";
 import { useNavigate } from "react-router-dom";
 import AlertComponent from "../../components/AlertasComponent";
-import CampanaService from "../../services/CampanaService";
+import EventoService from "../../services/EventoService";
 import ClienteService from "../../services/ClienteService";
 
-const CrearCampana = ({ onCampanaCreada }) => {
+const CrearEvento = ({ onEventoCreado }) => {
     const navigate = useNavigate();
-    const { crearCampana } = CampanaService();
+    const { crearEvento } = EventoService();
     const { obtenerClientes } = ClienteService();
     const [formData, setFormData] = useState({
-        nombre: "", descripcion: "",  fecha_inicio: new Date().toISOString().split('T')[0], fecha_fin: "", estado: "activa", clientes: [],
+        nombre: "", 
+        descripcion: "",  
+        fecha: new Date().toISOString().split('T')[0], 
+        ubicacion: "",
+        clientes: [],
     });
     const [clientesDisponibles, setClientesDisponibles] = useState([]);
     const [clientesSeleccionados, setClientesSeleccionados] = useState([]);
@@ -36,16 +40,8 @@ const CrearCampana = ({ onCampanaCreada }) => {
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleFechaInicioChange = (e) => {
-        setFormData({ ...formData, fecha_inicio: e.target.value });
-    };
-
-    const handleFechaFinChange = (e) => {
-        setFormData({ ...formData, fecha_fin: e.target.value });
-    };
-
-    const handleEstadoChange = (e) => {
-        setFormData({ ...formData, estado: e.target.value });
+    const handleFechaChange = (e) => {
+        setFormData({ ...formData, fecha: e.target.value });
     };
 
     const toggleSelectorClientes = () => {
@@ -67,24 +63,28 @@ const CrearCampana = ({ onCampanaCreada }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await crearCampana(formData);
+            await crearEvento(formData);
             setAlertType("success");
-            setAlertMessage("Campaña creada exitosamente.");
+            setAlertMessage("Evento creado exitosamente.");
             setShowAlert(true);
-            navigate(`/campanas`);
+            navigate(`/eventos`);
             setFormData({
-                nombre: "", descripcion: "", fecha_inicio: new Date().toISOString().split('T')[0], fecha_fin: "",  estado: "activa", clientes: [],
+                nombre: "", 
+                descripcion: "", 
+                fecha: new Date().toISOString().split('T')[0], 
+                ubicacion: "", 
+                clientes: [],
             });
             setClientesSeleccionados([]);
             setMostrarSelectorClientes(false);
-            if (onCampanaCreada) {
-                onCampanaCreada(formData);
-                navigate(`/campanas`);
+            if (onEventoCreado) {
+                onEventoCreado(formData);
+                navigate(`/eventos`);
             }
         } catch (error) {
-            console.error("Error al crear la campaña:", error);
+            console.error("Error al crear el evento:", error);
             setAlertType("error");
-            setAlertMessage("Error al crear la campaña.");
+            setAlertMessage("Error al crear el evento.");
             setShowAlert(true);
         }
     };
@@ -99,7 +99,7 @@ const CrearCampana = ({ onCampanaCreada }) => {
                 <div className="col-lg-12">
                     <div className="card">
                         <div className="card-body">
-                            <h2 className="float-left font-size-h4">Nueva Campaña</h2>
+                            <h2 className="float-left font-size-h4">Nuevo Evento</h2>
                             <div className="invoice-title d-flex flex-column align-items-center">
                                 <img src="/assets/images/logo-dark.png" alt="logo" height="20" className="logo-dark ms-auto" />
                             </div>
@@ -123,37 +123,26 @@ const CrearCampana = ({ onCampanaCreada }) => {
                                 <div className="row">
                                     <div className="col-md-6">
                                         <div className="mb-3">
-                                            <label htmlFor="fecha_inicio" className="form-label">Fecha de Inicio <span className="text-danger">*</span></label>
+                                            <label htmlFor="fecha" className="form-label">Fecha <span className="text-danger">*</span></label>
                                             <input
-                                                type="date" className="form-control" id="fecha_inicio" name="fecha_inicio"
-                                                value={formData.fecha_inicio} onChange={handleFechaInicioChange} required
+                                                type="date" className="form-control" id="fecha" name="fecha"
+                                                value={formData.fecha} onChange={handleFechaChange} required
                                             />
                                         </div>
                                     </div>
                                     <div className="col-md-6">
                                         <div className="mb-3">
-                                            <label htmlFor="fecha_fin" className="form-label">Fecha de Fin <span className="text-danger">*</span></label>
+                                            <label htmlFor="ubicacion" className="form-label">Ubicación <span className="text-danger">*</span></label>
                                             <input
-                                                type="date" className="form-control" id="fecha_fin" name="fecha_fin"
-                                                value={formData.fecha_fin} onChange={handleFechaFinChange} required
+                                                type="text" className="form-control" id="ubicacion" name="ubicacion"
+                                                value={formData.ubicacion} onChange={handleInputChange} required
                                             />
                                         </div>
                                     </div>
                                 </div>
-                                <div className="mb-3">
-                                    <label htmlFor="estado" className="form-label">Estado</label>
-                                    <select
-                                        className="form-select" id="estado" name="estado"
-                                        value={formData.estado} onChange={handleEstadoChange}
-                                    >
-                                        <option value="activa">Activa</option>
-                                        <option value="inactiva">Inactiva</option>
-                                        <option value="completada">Completada</option>
-                                    </select>
-                                </div>
 
                                 <div className="mb-3">
-                                    <label className="form-label">Seleccionar Clientes <span className="text-danger">*</span></label>
+                                    <label className="form-label">Seleccionar Clientes</label>
                                     <button type="button" className="btn btn-outline-info mb-2" onClick={toggleSelectorClientes}>
                                         {mostrarSelectorClientes ? 'Ocultar Clientes' : 'Mostrar Clientes'}
                                     </button>
@@ -202,7 +191,7 @@ const CrearCampana = ({ onCampanaCreada }) => {
 
                                 <div className="d-print-none mt-4">
                                     <div className="float-end">
-                                        <button type="submit" className="btn btn-primary w-md waves-effect waves-light">Crear Campaña</button>
+                                        <button type="submit" className="btn btn-primary w-md waves-effect waves-light">Crear Evento</button>
                                     </div>
                                 </div>
                             </form>
@@ -212,7 +201,7 @@ const CrearCampana = ({ onCampanaCreada }) => {
             </div>
             {showAlert && (
                 <AlertComponent
-                    type={alertType} entity="Campaña"
+                    type={alertType} entity="Evento"
                     action={alertType === "success" ? "create" : "error"}
                     onCancel={handleAlertClose} message={alertMessage}
                 />
@@ -221,4 +210,4 @@ const CrearCampana = ({ onCampanaCreada }) => {
     );
 };
 
-export default CrearCampana;
+export default CrearEvento;
