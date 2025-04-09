@@ -118,7 +118,7 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
               <Link to="/Campañas" className="waves-effect"><i className="uil-megaphone"></i><span> Campañas</span></Link>
             </li>
             <li>
-              <Link to="/Lista_Servicios" className="waves-effect"><i className="uil-chart-line"></i><span> Servicios Financiados</span></Link>
+              <Link to="/Lista_Eventos" className="waves-effect"><i className="uil-chart-line"></i><span>Eventos</span></Link>
             </li>
               </ul>
               )}

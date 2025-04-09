@@ -1,12 +1,12 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
 
-const CampanaService = () => {
+const EventoService = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const baseURL = 'http://localhost:8000/Campanas';
+    const baseURL = 'http://localhost:8000/Eventos';
 
-    const obtenerCampanas = useCallback(async () => {
+    const obtenerEventos = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
@@ -20,11 +20,11 @@ const CampanaService = () => {
         }
     }, []); // <- Se ejecuta solo una vez y mantiene la referencia
 
-    const crearCampana = async (campana) => {
+    const crearEvento = async (evento) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.post(`${baseURL}`, campana);
+            const response = await axios.post(`${baseURL}`, evento);
             setLoading(false);
             return response.data;
         } catch (err) {
@@ -34,7 +34,7 @@ const CampanaService = () => {
         }
     };
 
-    const obtenerCampanaPorId = async (id) => {
+    const obtenerEventoPorId = async (id) => {
         setLoading(true);
         setError(null);
         try {
@@ -48,11 +48,11 @@ const CampanaService = () => {
         }
     };
 
-    const actualizarCampana = async (id, campana) => {
+    const actualizarEvento = async (id, evento) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.put(`${baseURL}/${id}`, campana);
+            const response = await axios.put(`${baseURL}/${id}`, evento);
             setLoading(false);
             return response.data;
         } catch (err) {
@@ -62,7 +62,7 @@ const CampanaService = () => {
         }
     };
 
-    const eliminarCampana = async (id) => {
+    const eliminarEvento = async (id) => {
         setLoading(true);
         setError(null);
         try {
@@ -79,12 +79,12 @@ const CampanaService = () => {
     return {
         loading,
         error,
-        obtenerCampanas,
-        crearCampana,
-        obtenerCampanaPorId,
-        actualizarCampana,
-        eliminarCampana,
+        obtenerEventos,
+        crearEvento,
+        obtenerEventoPorId,
+        actualizarEvento,
+        eliminarEvento,
     };
 };
 
-export default CampanaService;
+export default EventoService;
