@@ -95,10 +95,9 @@ const DetalleUsuario = ({ entidad }) => {
               <div className="d-print-none mt-4">
                 <div className="float-end">
                   <Link
-                    to="/usuario/editar/:id"
-                    className="btn btn-primary w-md waves-effect waves-light"
-                  >
-                    Editar Perfil
+                    to="/Lista_usuarios"
+                    className="btn btn-primary w-md waves-effect waves-light">
+                    Volver
                   </Link>
                 </div>
               </div>

@@ -79,37 +79,37 @@ const AppRoutes = () => {
             <Route path="/RecoverPassword" element={<RecoverPassword />}/>
 
             {/*Inicio*/}
-            <Route path="/Profile" element={<Profile />}/>
+            <Route path="/Profile" element={<Profile/>}/>
 
-            <Route path="/Home" element={<Home />} />
-            <Route path="/Tablero" element={<Tablero />}/>
-            <Route path="/Calendario" element={<Calendario />}/>
+            <Route path="/Home" element={<Home/>}/>
+            <Route path="/Tablero" element={<Tablero/>}/>
+            <Route path="/Calendario" element={<Calendario/>}/>
 
             {/*Tarea*/}
-            <Route path="/Cronograma" element={<Cronograma />}/>
-            <Route path="/EditarTarea" element={<EditarTarea />}/>
-            <Route path="/CrearTarea" element={<CrearTarea />}/>
+            <Route path="/Cronograma" element={<Cronograma/>}/>
+            <Route path="/EditarTarea" element={<EditarTarea/>}/>
+            <Route path="/CrearTarea" element={<CrearTarea/>}/>
 
             {/*Cotizacion*/}
-            <Route path="/Lista_cotizacion" element={<ListaCotizaciones />}/>
-            <Route path="/Cotizacion/CrearCotizacion" element={<CrearCotizacion />}/>
-            <Route path="/Cotizacion/ver/:id" element={<DetalleCotizacion />}/>
-            <Route path="/Cotizacion/editar/:id" element={<EditarCotizacion />}/>
+            <Route path="/Lista_cotizacion" element={<ListaCotizaciones/>}/>
+            <Route path="/Cotizacion/CrearCotizacion" element={<CrearCotizacion/>}/>
+            <Route path="/Cotizacion/ver/:id" element={<DetalleCotizacion/>}/>
+            <Route path="/Cotizacion/editar/:id" element={<EditarCotizacion/>}/>
 
             {/*Reportes*/}
             <Route path="/Reporte" element={<Reporte />}/>
 
             {/*Filials*/}
-            <Route path="/Filials" element={<ListaFiliales />}/>
-            <Route path="/filial/CrearFilial" element={<CrearFilial />} />
-            <Route path="/filial/ver/:id" element={<DetalleFilial/>} />
-            <Route path="/filial/editar/:id" element={<EditarFilial/>} />
+            <Route path="/Filials" element={<ListaFiliales/>}/>
+            <Route path="/filial/CrearFilial" element={<CrearFilial/>}/>
+            <Route path="/filial/ver/:id" element={<DetalleFilial/>}/>
+            <Route path="/filial/editar/:id" element={<EditarFilial/>}/>
 
             {/*Campañas*/}
             <Route path="/Campañas" element={<Campana />}/>
-            <Route path="/Campana/CrearCampana" element={<CrearCampana />} />
-            <Route path="/Campana/ver/:id" element={<DetalleCampana />} />
-            <Route path="/Campana/editar/:id" element={<EditarCampana />} />
+            <Route path="/Campana/CrearCampana" element={<CrearCampana/>}/>
+            <Route path="/Campana/ver/:id" element={<DetalleCampana/>}/>
+            <Route path="/Campana/editar/:id" element={<EditarCampana/>}/>
 
             {/*Servicios Eventos */}
             <Route path="/Lista_Eventos" element={<ListaEventos/>}/>
@@ -152,10 +152,10 @@ const AppRoutes = () => {
            <Route path="/interaccions/editar/:id" element={<EditarInteraccions/>} />
 
             {/*Nota*/}
-           <Route path="/Nota" element={<Nota />}/>
-           <Route path="/Nota/CrearNota" element={<CrearNota />} />
-           <Route path="/Nota/ver/:id" element={<DetalleNota/>} />
-           <Route path="/Nota/editar/:id" element={<EditarNota/>} />
+           <Route path="/Nota" element={<Nota/>}/>
+           <Route path="/Nota/CrearNota" element={<CrearNota/>}/>
+           <Route path="/Nota/ver/:id" element={<DetalleNota/>}/>
+           <Route path="/Nota/editar/:id" element={<EditarNota/>}/>
 
             </Routes>
         </Router>
