@@ -185,7 +185,7 @@ const EditarPago = () => {
                           <option value="">Seleccione un cliente</option>
                           {clientes.map(cliente => (
                             <option key={cliente._id} value={cliente._id}>
-                              {cliente.nombre} {cliente.apellidos}
+                              {cliente.nombre}
                             </option>
                           ))}
                         </select>

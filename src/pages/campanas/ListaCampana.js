@@ -123,7 +123,7 @@ const ListaCampana = () => {
                 <div className="card p-3">
                     <h2 className="mb-3 "><i className="fa fa-fw fa-bars"/> Lista de Campañas</h2>
 
-                    <div className="col-md">
+                    <div className="col-lg">
                         <div className="row">
                             {/* Barra de búsqueda (4 columnas) */}
                             <div className="col-md-3 mb-2">

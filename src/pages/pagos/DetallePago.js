@@ -78,17 +78,17 @@ const DetallePago = () => {
                   {/* Encabezado */}
                   <div className="d-flex justify-content-between align-items-center mb-4">
                     <div>
-                      <h2 className="mb-0 text-primary">
+                      <h3 className="mb-0 text-primary">
                         <i className="bx bx-credit-card me-2"></i>
                         COMPROBANTE DE PAGO
-                      </h2>
+                      </h3>
                       <small className="text-muted">Referencia: {pago.referencia || 'N/A'}</small>
                     </div>
                     <div className="text-end">
                       <img 
                         src="/assets/images/logo-dark.png" 
                         alt="Logo" 
-                        style={{ height: '40px' }}
+                        style={{ height: '30px' }}
                       />
                       <p className="text-muted mb-0 small">
                         <i className="bx bx-calendar me-1"></i>
@@ -107,7 +107,11 @@ const DetallePago = () => {
                         </h4>
                         <p className="text-muted mb-0">
                           <i className="bx bx-id-card me-1"/>
-                          {pago.cliente_id?.identificacion || "No especificado"}
+                          {pago.cliente_id?.correo|| "No especificado"}
+                        </p>
+                        <p className="text-muted mb-0">
+                          <i className="bx bx-id-card me-1"/>
+                          {pago.cliente_id?.telefono|| "No especificado"}
                         </p>
                       </div>
                     </div>
@@ -118,12 +122,12 @@ const DetallePago = () => {
                           <>
                             <h4 className="mb-1">
                               <Link to={`/cotizaciones/ver/${pago.cotizacion_id._id}`}>
-                                #{pago.cotizacion_id.numero}
+                                #{pago.cotizacion_id._id}
                               </Link>
                             </h4>
                             <p className="text-muted mb-0">
                               <i className="bx bx-money me-1"/>
-                              Total: {formatCurrency(pago.cotizacion_id.total)}
+                              Total: {formatCurrency(pago.cotizacion_id?.precio_venta)}
                             </p>
                           </>
                         ) : (
@@ -134,48 +138,53 @@ const DetallePago = () => {
                   </div>
 
                   {/* Detalles del pago */}
-                  <div className="mb-4">
+                  <div className="mb-4 col-md">
                     <h5 className="mb-3 text-uppercase border-bottom pb-2">
                       <i className="bx bx-detail me-2"></i>
                       Detalles del Pago
                     </h5>
                     <div className="row">
-                      <div className="col-md-4">
-                        <div className="border p-3 rounded text-center">
+                      <div className="col-md-6 mb-2">
+                        <div className="border p-2 rounded text-center">
                           <h6 className="text-muted small">MONTO PAGADO</h6>
-                          <h2 className="text-success">
+                          <h3 className="text-success">
                             {formatCurrency(pago.monto_pago)}
-                          </h2>
+                          </h3>
                         </div>
                       </div>
-                      <div className="col-md-4">
-                        <div className="border p-3 rounded text-center">
+                      <div className="col-md-6 mb-2">
+                        <div className="border p-2 rounded text-center">
                           <h6 className="text-muted small">SALDO PENDIENTE</h6>
-                          <h2 className={pago.saldo_pendiente > 0 ? "text-warning" : "text-success"}>
+                          <h3 className={pago.saldo_pendiente > 0 ? "text-warning" : "text-success"}>
                             {formatCurrency(pago.saldo_pendiente)}
-                          </h2>
+                          </h3>
                         </div>
                       </div>
-                      <div className="col-md-4">
-                        <div className="border p-3 rounded text-center">
-                          <h6 className="text-muted small">TIPO DE PAGO</h6>
+                      <div className="col-md-6 mb-2">
+                      <div className="border p-3 rounded text-center">
+                        <h6 className="text-muted small">TIPO DE PAGO</h6>
                           <span className={`badge ${
-                            pago.tipo_pago === 'Anticipo' ? 'bg-info' :
-                            pago.tipo_pago === 'Abono' ? 'bg-primary' :
-                            'bg-secondary'
+                            pago.tipo_pago === 'Contado' ? 'bg-info font-size-12' :
+                            pago.tipo_pago === 'Financiado' ? 'bg-primary font-size-12' :
+                            'bg-secondary font-size-12'
                           }`}>
                             {pago.tipo_pago}
                           </span>
-                          <h6 className="mt-2 text-muted small">MÉTODO</h6>
+                        </div>
+                      </div>
+                       <div className="col-md-6 mb-2">
+                        <div className="border p-3 rounded text-center">
+                          <h6 className="text-muted small">MÉTODO</h6>
                           <span className={`badge ${
-                            pago.metodo_pago === 'Transferencia' ? 'bg-success' :
-                            pago.metodo_pago === 'Tarjeta' ? 'bg-warning' :
-                            'bg-light text-dark'
+                            pago.metodo_pago === 'Efectivo' ? 'bg-success font-size-12' :
+                            pago.metodo_pago === 'Tarjeta' ? 'bg-warning font-size-12' :
+                            'bg-light text-dark font-size-12'
                           }`}>
                             {pago.metodo_pago}
                           </span>
                         </div>
                       </div>
+
                     </div>
                   </div>
 
@@ -215,25 +224,20 @@ const DetallePago = () => {
                   {/* Acciones */}
                   <div className="d-flex justify-content-between align-items-center mt-4">
                     <div>
-                      <Link to="/pagos" className="btn btn-primary">
-                        <i className="bx bx-arrow-back me-1"></i> Volver
+                      <Link to="/pagos" className="btn btn-primary mb-2">
+                        <i className="bx bx-arrow-back me-1"></i>  Volver
                       </Link>
-                      <button 
-                        onClick={confirmDelete}
-                        className="btn btn-outline-danger ms-2"
-                      >
-                        <i className="bx bx-trash me-1"></i> Eliminar
-                      </button>
+
                     </div>
                     <div>
                       <Link 
                         to={`/pagos/editar/${pago._id}`} 
-                        className="btn btn-outline-primary me-2"
+                        className="btn btn-outline-primary me-2 mb-2"
                       >
                         <i className="bx bx-edit me-1"></i> Editar
                       </Link>
-                      <button onClick={() => window.print()} className="btn btn-success">
-                        <i className="bx bx-printer me-1"></i> Imprimir Comprobante
+                      <button onClick={() => window.print()} className="btn btn-success mb-2">
+                        <i className="bx bx-printer me-1"></i> Imprimir
                       </button>
                     </div>
                   </div>
