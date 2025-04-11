@@ -81,25 +81,6 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
               </Link>
             </li>
 
-            <li>
-              <Link to="/Lista_cotizacion" className="waves-effect">
-                <i className="fas fa-file-invoice-dollar"></i>
-                <span> Cotizaciones </span>
-              </Link>
-            </li>
-
-            <li>
-              <Link to="/Reporte" className="waves-effect">
-                <i className="bx bx-folder-open"></i>
-                <span> Reportes </span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/Filials" className="waves-effect">
-                <i className="bx bx-folder-open"></i>
-                <span> Filial </span>
-              </Link>
-            </li>
 
             <li>
               <Link to="/ListaInteraccions" className="waves-effect">
@@ -122,6 +103,19 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
             </li>
               </ul>
               )}
+            </li>
+            <li>
+              <Link to="/Lista_cotizacion" className="waves-effect">
+                <i className="fas fa-file-invoice-dollar"></i>
+                <span> Cotizaciones </span>
+              </Link>
+            </li>
+
+            <li>
+              <Link to="/Lista_pagos" className="waves-effect">
+                <i className="bx bx-folder-open"></i>
+                <span> Pagos </span>
+              </Link>
             </li>
 
             <li>
@@ -148,6 +142,12 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
               <ul className="sub-menu">
               <li><Link to="/Lista_usuarios">Lista de Usuarios</Link></li>
               <li><Link to="/Lista_nomina">Lista de Nomina</Link></li>
+              <li>
+              <Link to="/Filials" className="waves-effect">
+                <i className="bx bx-folder-open"></i>
+                <span> Areas </span>
+              </Link>
+            </li>
               </ul>
               )}
           </li> 

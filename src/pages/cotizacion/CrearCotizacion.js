@@ -18,6 +18,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
     fecha_cotizacion: new Date().toISOString().split('T')[0],
     validoHasta: "",
     estado: "Borrador",
+    aplicaIva: true, // Nuevo campo para controlar IVA
 
     // Relaciones
     cliente_id: "",
@@ -47,7 +48,6 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
       plazo_semanas: 0,
       pago_semanal: 0,
       saldo_restante: 0,
-    
     },
     
     // Pago contado
@@ -94,7 +94,19 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
   }, [obtenerFilials]);
 
   const handleChange = (e, index) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
+    
+    // Manejar el checkbox de IVA
+    if (type === 'checkbox') {
+      setFormData({
+        ...formData,
+        [name]: checked,
+        // Recalcular IVA y precio de venta
+        iva: checked ? formData.subtotal * 0.19 : 0,
+        precio_venta: checked ? formData.subtotal * 1.19 : formData.subtotal
+      });
+      return;
+    }
     
     if (name.startsWith("financiamiento.")) {
       const field = name.split('.')[1];
@@ -130,7 +142,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
       
       // Calcular subtotal, IVA y precio_venta
       const subtotal = detalles.reduce((sum, item) => sum + (item.inversion || 0), 0);
-      const iva = subtotal * 0.19;
+      const iva = formData.aplicaIva ? subtotal * 0.19 : 0;
       const precio_venta = subtotal + iva;
       
       // Si es financiado, recalcular saldo
@@ -181,7 +193,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
     
     // Recalcular totales
     const subtotal = detalles.reduce((sum, item) => sum + (item.inversion || 0), 0);
-    const iva = subtotal * 0.19;
+    const iva = formData.aplicaIva ? subtotal * 0.19 : 0;
     const precio_venta = subtotal + iva;
     
     setFormData({ 
@@ -208,6 +220,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
         fecha_cotizacion: new Date().toISOString().split('T')[0],
         validoHasta: "",
         estado: "Borrador",
+        aplicaIva: true,
         cliente_id: "",
         vendedor: "",
         filial_id: "",
@@ -227,8 +240,6 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
           plazo_semanas: 0,
           pago_semanal: 0,
           saldo_restante: 0,
-          fecha_inicio: "",
-          fecha_termino: ""
         },
         pagoContado: {
           fechaPago: ""
@@ -486,7 +497,22 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                 </div>
 
                 <div className="row mt-3">
-                  <div className="col-md-4 offset-md-8">
+                  <div className="col-md-4">
+                    <div className="form-check mb-3">
+                      <input
+                        type="checkbox"
+                        className="form-check-input"
+                        name="aplicaIva"
+                        checked={formData.aplicaIva}
+                        onChange={handleChange}
+                        id="aplicaIvaCheck"
+                      />
+                      <label className="form-check-label" htmlFor="aplicaIvaCheck">
+                        Aplicar IVA (19%)
+                      </label>
+                    </div>
+                  </div>
+                  <div className="col-md-4 offset-md-4">
                     <div className="table-responsive">
                       <table className="table table-sm table-borderless">
                         <tbody>
@@ -494,10 +520,12 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                             <th>Subtotal:</th>
                             <td className="text-end">${formData.subtotal.toFixed(2)}</td>
                           </tr>
-                          <tr>
-                            <th>IVA (19%):</th>
-                            <td className="text-end">${formData.iva.toFixed(2)}</td>
-                          </tr>
+                          {formData.aplicaIva && (
+                            <tr>
+                              <th>IVA (19%):</th>
+                              <td className="text-end">${formData.iva.toFixed(2)}</td>
+                            </tr>
+                          )}
                           <tr className="border-top">
                             <th>Total:</th>
                             <td className="text-end fw-bold">${formData.precio_venta.toFixed(2)}</td>
@@ -506,11 +534,10 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                       </table>
                     </div>
                   </div>
-
-                  <hr className="my-4" />
+                </div>
                 
                 {formData.forma_pago === "Financiado" && (
-                  <div className="row mt-3">
+                  <div className="row mt-3 border-top">
                     <div className="col-md-12">
                       <h5>Datos de Financiamiento</h5>    
                       <div className="row">
@@ -568,61 +595,6 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                     </div>
                   </div>
                 )}
-
-                {formData.forma_pago === "Contado" && (
-                  <div className="row mt-3">
-                    <div className="col-md-6">
-                      <div className="mb-3">
-                        
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                </div>
-
-
-                {/*<div className="row mt-3">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label htmlFor="fecha_inicio_servicio" className="form-label">Fecha Inicio Servicio</label>
-                      <input 
-                        type="date" 
-                        className="form-control" 
-                        name="fecha_inicio_servicio" 
-                        value={formData.fecha_inicio_servicio} 
-                        onChange={handleChange} 
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label htmlFor="fecha_fin_servicio" className="form-label">Fecha Fin Servicio</label>
-                      <input 
-                        type="date" 
-                        className="form-control" 
-                        name="fecha_fin_servicio" 
-                        value={formData.fecha_fin_servicio} 
-                        onChange={handleChange} 
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label htmlFor="estado_servicio" className="form-label">Estado del Servicio</label>
-                      <select 
-                        className="form-select" 
-                        name="estado_servicio" 
-                        value={formData.estado_servicio} 
-                        onChange={handleChange}
-                      >
-                        {estadosServicio.map((estado) => (
-                          <option key={estado} value={estado}>{estado}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>*/}
 
                 <div className="d-print-none mt-4">
                   <div className="float-end">

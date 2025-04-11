@@ -3,6 +3,7 @@ import Layout from "../../layouts/pages/layout";
 import { Link, useNavigate } from "react-router-dom";
 import useSearchFilter from "../../hooks/useSearchFilter";
 import usePagination from "../../hooks/usePagination";
+import useDateRange from "../../hooks/useDateRange";
 import BotonesAccion from "../../components/BotonesAccion";
 import AlertComponent from '../../components/AlertasComponent';
 import LoadingError from "../../components/LoadingError";
@@ -64,6 +65,26 @@ const ListaClientes = () => {
         setAlert(null);
     };
 
+      // Hook para rango de fechas
+     const { dateRanges, handleDateChange } = useDateRange({ fecha: "" });
+
+    // Filtrado por fecha
+    const filterByDate = (clientes, date) => {
+      if (!date) return clientes;
+      const filterDate = new Date(date);
+      return clientes.filter(cliente => {
+          const clienteDate = new Date(clientes.fecha);
+          return clienteDate.toDateString() === filterDate.toDateString();
+      });
+  };
+
+  const handleDateFilter = () => {
+      const filteredByDate = filterByDate(filteredClientes, dateRanges.fecha);
+      setClientes(filteredByDate);
+  };
+
+
+//obtener vista
     const handleView = (id) => {
         const cliente = clientes.find((c) => c._id === id); // Corregido: usa _id
         if (cliente) {
@@ -161,7 +182,7 @@ const ListaClientes = () => {
                         <td>{cliente._id}</td>
                         <td>{cliente.nombre}</td>
                         <td>{cliente.correo}</td>
-                        <td>{cliente.fecha_registro}</td>
+                        <td>{new Date(cliente.fecha_registro).toLocaleDateString()}</td>
                         <td>
                         <div className={`badge ${cliente.estado_cliente === "Activo" ? "bg-success-subtle text-success" : 
                           cliente.estado_cliente === "Inactivo" ? "bg-secondary-subtle text-secondary" : "bg-warning-subtle text-warning" } font-size-12`}>

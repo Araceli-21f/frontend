@@ -10,7 +10,6 @@ import Home from "../pages/Home";
 import Tablero from "../pages/Tablero";
 import Cronograma from "../pages/Cronograma";
 
-
 import Calendario from "../pages/calendario/Calendario";
 import CrearTarea from "../pages/calendario/CrearTarea";
 import EditarTarea from "../pages/calendario/EditarTarea";
@@ -20,6 +19,11 @@ import ListaCotizaciones from "../pages/cotizacion/Lista-cotizacion";
 import CrearCotizacion from "../pages/cotizacion/CrearCotizacion";
 import DetalleCotizacion from "../pages/cotizacion/Cotizacion";
 import EditarCotizacion from "../pages/cotizacion/EditarCotizacion";
+
+import ListaPagos from "../pages/pagos/ListaPagos";
+import CrearPago from "../pages/pagos/CrearPago";
+import DetallePago from "../pages/pagos/DetallePago";
+import EditarPago from "../pages/pagos/EditarPago";
 
 import Reporte from "../pages/Reporte";
 import Campana from "../pages/campanas/ListaCampana";
@@ -94,12 +98,6 @@ const AppRoutes = () => {
             <Route path="/VerTarea" element={<VerTarea />}/>
 
 
-            {/*Cotizacion*/}
-            <Route path="/Lista_cotizacion" element={<ListaCotizaciones/>}/>
-            <Route path="/Cotizacion/CrearCotizacion" element={<CrearCotizacion/>}/>
-            <Route path="/Cotizacion/ver/:id" element={<DetalleCotizacion/>}/>
-            <Route path="/Cotizacion/editar/:id" element={<EditarCotizacion/>}/>
-
             {/*Reportes*/}
             <Route path="/Reporte" element={<Reporte />}/>
 
@@ -121,6 +119,17 @@ const AppRoutes = () => {
             <Route path="/evento/editar/:id" element={<EditarEvento />} />
             <Route path="/evento/ver/:id" element={<DetalleEvento />} />
 
+            {/*Cotizacion*/}
+            <Route path="/Lista_cotizacion" element={<ListaCotizaciones/>}/>
+            <Route path="/Cotizacion/CrearCotizacion" element={<CrearCotizacion/>}/>
+            <Route path="/Cotizacion/ver/:id" element={<DetalleCotizacion/>}/>
+            <Route path="/Cotizacion/editar/:id" element={<EditarCotizacion/>}/>
+
+            {/*Pagos */}
+            <Route path="/Lista_pagos" element={<ListaPagos/>}/>
+            <Route path="/Pago/CrearPago" element={<CrearPago/>}/>
+            <Route path="/Pago/ver/:id" element={<DetallePago/>}/>
+            <Route path="/Pago/editar/:id" element={<EditarPago/>}/>
 
             {/*Clientes*/}
             <Route path="/Lista_clientes" element={<ListaClientes />}/>
@@ -131,8 +140,6 @@ const AppRoutes = () => {
             {/*Estados Cuenta */}
             <Route path="/Estados_Cuenta" element={<ListaEstadoCuenta />}/>
             <Route path="/estado/CrearEstado" element={<CrearEstadoCuenta/>} />
-
-
 
             {/*Facturas*/}
             <Route path="/Estados_factura" element={<EstadosFactura />}/>

@@ -69,6 +69,10 @@ const DetalleCotizacion = () => {
                         <i className="bx bx-calendar me-1"></i>
                         {formatDate(cotizacion.fecha_cotizacion)}
                       </p>
+                      <p className="text-muted mb-0 small">
+                        <i className="bx bx-calendar me-1"></i>
+                        Válido hasta: {formatDate(cotizacion.validoHasta)}
+                      </p>
                     </div>
                   </div>
 
@@ -77,10 +81,10 @@ const DetalleCotizacion = () => {
                     <div className="col-md-6">
                       <div className="border p-3 rounded">
                         <h5 className="mb-3 text-uppercase text-muted small">CLIENTE</h5>
-                        <h4 className="mb-1">{cotizacion.cliente?.nombre || "No especificado"}</h4>
+                        <h4 className="mb-1">{cotizacion.cliente_id?.nombre || "No especificado"}</h4>
                         <p className="text-muted mb-0">
-                          <i className="bx bx-buildings me-1"></i>
-                          {cotizacion.filial?.nombre_filial || "No especificado"}
+                          <i className="bx bx-buildings me-1"/>
+                          {cotizacion.filial_id?.nombre_filial || "No especificado"}
                         </p>
                       </div>
                     </div>
@@ -89,16 +93,15 @@ const DetalleCotizacion = () => {
                         <h5 className="mb-3 text-uppercase text-muted small">VENDEDOR</h5>
                         <h4 className="mb-1">{cotizacion.vendedor || "No especificado"}</h4>
                         <div className="d-flex justify-content-between">
-                          <span className="text-muted">
-                            <i className="bx bx-time me-1"></i>
-                            Válido hasta: {formatDate(cotizacion.validoHasta)}
-                          </span>
                           <span className={`badge ${
                             cotizacion.estado === "Completada" ? "bg-success" : 
                             cotizacion.estado === "Aprobada" ? "bg-primary" : 
                             cotizacion.estado === "Enviada" ? "bg-info" : "bg-secondary"
                           }`}>
                             {cotizacion.estado}
+                          </span>
+                          <span className="text-muted small">
+                            {cotizacion.aplicaIva ? "Con IVA" : "Sin IVA"}
                           </span>
                         </div>
                       </div>
@@ -118,7 +121,7 @@ const DetalleCotizacion = () => {
                             <th width="40%">DESCRIPCIÓN</th>
                             <th className="text-end">MATERIALES</th>
                             <th className="text-end">MANO DE OBRA</th>
-                            <th className="text-end">UTILIDAD</th>
+                            <th className="text-end">UTILIDAD %</th>
                             <th className="text-end">TOTAL</th>
                           </tr>
                         </thead>
@@ -147,10 +150,12 @@ const DetalleCotizacion = () => {
                           <span>Subtotal:</span>
                           <span>{formatCurrency(cotizacion.subtotal)}</span>
                         </div>
-                        <div className="d-flex justify-content-between mb-2">
-                          <span>IVA (19%):</span>
-                          <span>{formatCurrency(cotizacion.iva)}</span>
-                        </div>
+                        {cotizacion.aplicaIva && (
+                          <div className="d-flex justify-content-between mb-2">
+                            <span>IVA (19%):</span>
+                            <span>{formatCurrency(cotizacion.iva)}</span>
+                          </div>
+                        )}
                         <div className="d-flex justify-content-between fw-bold fs-5 border-top pt-2">
                           <span>TOTAL:</span>
                           <span>{formatCurrency(cotizacion.precio_venta)}</span>
@@ -252,15 +257,16 @@ const DetalleCotizacion = () => {
                           {cotizacion.estado_servicio}
                         </span>
                       </div>
-                      <div>
-                        <button onClick={() => window.print()} className="btn btn-outline-primary me-2">
-                          <i className="bx bx-printer me-1"></i> Imprimir
-                        </button>
-                        <Link to="/Lista_cotizacion" className="btn btn-primary">
-                          <i className="bx bx-arrow-back me-1"></i> Volver
-                        </Link>
-                      </div>
                     </div>
+                  </div>
+                  
+                  <div className="d-flex justify-content-between align-items-center">
+                    <Link to="/Lista_cotizacion" className="btn btn-primary">
+                      <i className="bx bx-arrow-back me-1"></i> Volver
+                    </Link>
+                    <button onClick={() => window.print()} className="btn btn-outline-primary me-2">
+                      <i className="bx bx-printer me-1"></i> Imprimir
+                    </button>
                   </div>
                 </div>
               </div>
