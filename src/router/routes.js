@@ -8,7 +8,7 @@ import Profile from "../layouts/Auth/Profile";
 
 import Home from "../pages/Home";
 import Tablero from "../pages/Tablero";
-import Cronograma from "../pages/Cronograma";
+import Cronograma from "../pages/grantt/Cronograma";
 
 import Calendario from "../pages/calendario/Calendario";
 import CrearTarea from "../pages/calendario/CrearTarea";
@@ -88,6 +88,8 @@ const AppRoutes = () => {
 
             <Route path="/Home" element={<Home />} />
             <Route path="/Tablero" element={<Tablero />}/>
+
+
             <Route path="/Cronograma" element={<Cronograma />}/>
 
             {/*Tarea*/}
