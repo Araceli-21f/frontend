@@ -18,8 +18,7 @@ const BotonesAccion = ({ id, entidad, setAlert }) => {
       };
 
     return (
-        <td>
-
+        <div>
             <button onClick={handleView} className="btn m-1 btn-sm btn-info me-1" title="Ver">
                 <i className="uil uil-eye"></i>
             </button>
@@ -29,8 +28,8 @@ const BotonesAccion = ({ id, entidad, setAlert }) => {
             <button onClick={handleDelete} className="btn m-1 btn-sm btn-danger me-1" title="Eliminar">
                 <i className="uil uil-trash-alt"></i>
             </button>
-
-        </td>
+        </div>
+       
     );
 };
 

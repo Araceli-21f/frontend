@@ -15,34 +15,29 @@ const EditarCotizacion = () => {
   const { obtenerFilials } = FilialService();
   
   const [formData, setFormData] = useState({
-    fecha: new Date().toISOString().split('T')[0],
+    nombre_cotizacion: "",
+    fecha_cotizacion: new Date().toISOString().split('T')[0],
     validoHasta: "",
-    estado: "Borrador",
-    cliente: "",
+    estado: "",
+    cliente_id: "",
     vendedor: "",
-    filial: "",
-    items: [{
-      descripcion: "",
-      cantidad: 1,
-      precio: 0,
-      total: 0
+    filial_id: "",
+    detalles: [{
+      descripcion: "", costo_materiales: 0, costo_mano_obra: 0, utilidad_esperada: 0, inversion: 0
     }],
     subtotal: 0,
     iva: 0,
-    total: 0,
-    tipo: "",
+    precio_venta: 0,
+    forma_pago: "",
     financiamiento: {
-      anticipo: 0,
-      plazo: 0,
-      pagoSemanal: 0,
-      saldoRestante: 0
+      anticipo_solicitado: 0, plazo_semanas: 0, pago_semanal: 0, saldo_restante: 0,
     },
     pagoContado: {
       fechaPago: ""
     },
-    fechaInicioServicio: "",
-    fechaFinServicio: "",
-    estadoServicio: "Pendiente"
+    fecha_inicio_servicio: "",
+    fecha_fin_servicio: "",
+    estado_servicio: "Pendiente"
   });
 
   const [clientes, setClientes] = useState([]);
@@ -53,9 +48,9 @@ const EditarCotizacion = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  const tiposServicio = ["Contado", "Financiado"];
+  const formasPago = ["Contado", "Financiado"];
   const estados = ["Borrador", "Enviada", "Aprobada", "Completada", "Cancelada"];
-  const estadosServicio = ["Pendiente", "EnProceso", "Completado", "Cancelado"];
+  const estadosServicio = ["Pendiente", "En Proceso", "Completado", "Cancelado"];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,13 +61,18 @@ const EditarCotizacion = () => {
         const cotizacion = await obtenerCotizacionPorId(id);
         setFormData({
           ...cotizacion,
-          fecha: cotizacion.fecha.split('T')[0],
+          fecha_cotizacion: cotizacion.fecha_cotizacion?.split('T')[0] || new Date().toISOString().split('T')[0],
           validoHasta: cotizacion.validoHasta?.split('T')[0] || "",
-          fechaInicioServicio: cotizacion.fechaInicioServicio?.split('T')[0] || "",
-          fechaFinServicio: cotizacion.fechaFinServicio?.split('T')[0] || "",
+          fecha_inicio_servicio: cotizacion.fecha_inicio_servicio?.split('T')[0] || "",
+          fecha_fin_servicio: cotizacion.fecha_fin_servicio?.split('T')[0] || "",
           pagoContado: {
             ...cotizacion.pagoContado,
             fechaPago: cotizacion.pagoContado?.fechaPago?.split('T')[0] || ""
+          },
+          financiamiento: {
+            ...cotizacion.financiamiento,
+            fecha_inicio: cotizacion.financiamiento?.fecha_inicio?.split('T')[0] || "",
+            fecha_termino: cotizacion.financiamiento?.fecha_termino?.split('T')[0] || ""
           }
         });
         
@@ -104,7 +104,7 @@ const EditarCotizacion = () => {
         ...formData,
         financiamiento: {
           ...formData.financiamiento,
-          [field]: parseFloat(value) || 0
+          [field]: value
         }
       });
     } else if (name.startsWith("pagoContado.")) {
@@ -117,41 +117,40 @@ const EditarCotizacion = () => {
         }
       });
     } else if (index !== undefined) {
-      // Manejo de items
-      const items = formData.items.map((item, i) => {
+      // Manejo de detalles
+      const detalles = formData.detalles.map((item, i) => {
         if (i === index) {
           const updatedItem = { 
             ...item, 
             [name]: name === 'descripcion' ? value : parseFloat(value) || 0 
           };
-          // Calcular total del item
-          updatedItem.total = updatedItem.cantidad * updatedItem.precio;
+          // Calcular inversión del item
+          updatedItem.inversion = updatedItem.costo_materiales + updatedItem.costo_mano_obra;
           return updatedItem;
         }
         return item;
       });
       
-      // Calcular subtotal, IVA y total
-      const subtotal = items.reduce((sum, item) => sum + item.total, 0);
+      // Calcular subtotal, IVA y precio_venta
+      const subtotal = detalles.reduce((sum, item) => sum + (item.inversion || 0), 0);
       const iva = subtotal * 0.19;
-      const total = subtotal + iva;
+      const precio_venta = subtotal + iva;
       
-      // Calcular financiamiento si es necesario
-      let financiamiento = { ...formData.financiamiento };
-      if (formData.tipo === 'Financiado') {
-        financiamiento.saldoRestante = total - financiamiento.anticipo;
-        financiamiento.pagoSemanal = financiamiento.plazo > 0 
-          ? financiamiento.saldoRestante / financiamiento.plazo 
-          : 0;
+      // Si es financiado, recalcular saldo
+      let financiamiento = formData.financiamiento;
+      if (formData.forma_pago === "Financiado") {
+        const saldo = precio_venta - (financiamiento.anticipo_solicitado || 0);
+        const pagoSemanal = saldo / (financiamiento.plazo_semanas || 1);
+        
+        financiamiento = {
+          ...financiamiento,
+          saldo_restante: saldo, pago_semanal: pagoSemanal
+        };
       }
       
       setFormData({ 
         ...formData, 
-        items,
-        subtotal,
-        iva,
-        total,
-        financiamiento
+        detalles,  subtotal,  iva, precio_venta, financiamiento
       });
     } else {
       setFormData({ ...formData, [name]: value });
@@ -161,28 +160,27 @@ const EditarCotizacion = () => {
   const handleAddItem = () => {
     setFormData({
       ...formData,
-      items: [
-        ...formData.items,
-        { descripcion: "", cantidad: 1, precio: 0, total: 0 }
+      detalles: [
+        ...formData.detalles,
+        { 
+          descripcion: "", costo_materiales: 0, costo_mano_obra: 0,  utilidad_esperada: 0, inversion: 0 
+        }
       ]
     });
   };
 
   const handleRemoveItem = (index) => {
-    const items = [...formData.items];
-    items.splice(index, 1);
+    const detalles = [...formData.detalles];
+    detalles.splice(index, 1);
     
     // Recalcular totales
-    const subtotal = items.reduce((sum, item) => sum + item.total, 0);
+    const subtotal = detalles.reduce((sum, item) => sum + (item.inversion || 0), 0);
     const iva = subtotal * 0.19;
-    const total = subtotal + iva;
+    const precio_venta = subtotal + iva;
     
     setFormData({ 
       ...formData, 
-      items,
-      subtotal,
-      iva,
-      total
+      detalles, subtotal, iva, precio_venta 
     });
   };
 
@@ -194,10 +192,10 @@ const EditarCotizacion = () => {
       setAlertMessage("Cotización actualizada exitosamente.");
       setShowAlert(true);
       
-      // Redirigir después de 2 segundos
+      // Redirigir después de 5 segundos
       setTimeout(() => {
-        navigate(`/detalle-cotizacion/${id}`);
-      }, 2000);
+        navigate(`/cotizacion/ver/${id}`);
+      }, 5000);
       
     } catch (error) {
       console.error("Error al actualizar la cotización:", error);
@@ -212,9 +210,10 @@ const EditarCotizacion = () => {
   };
 
   const formatCurrency = (value) => {
-    return new Intl.NumberFormat('es-MX', { 
+    return new Intl.NumberFormat('es-CO', { 
       style: 'currency', 
-      currency: 'MXN' 
+      currency: 'COP',
+      minimumFractionDigits: 0
     }).format(value);
   };
 
@@ -225,7 +224,7 @@ const EditarCotizacion = () => {
           <div className="col-lg-12">
             <div className="card">
               <div className="card-body">
-                <h2 className="float-left font-size-h4">Editar Cotización #{formData.numero || id}</h2>
+                <h2 className="float-left font-size-h4">Editar Cotización #{id}</h2>
                 <div className="invoice-title d-flex flex-column align-items-center">
                   <img src="/assets/images/logo-dark.png" alt="logo" height="20" className="logo-dark ms-auto" />
                 </div>
@@ -233,18 +232,33 @@ const EditarCotizacion = () => {
 
                 <form onSubmit={handleSubmit}>
                   <div className="row">
-                    <div className="col-sm-6">
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Título de Cotización</label>
+                        <input 
+                          type="text" 
+                          className="form-control" 
+                          name="nombre_cotizacion" 
+                          value={formData.nombre_cotizacion} 
+                          onChange={handleChange} 
+                          required 
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-3">
                       <div className="mb-3">
                         <label className="form-label">Fecha</label>
                         <input 
                           type="date" 
                           className="form-control" 
-                          name="fecha" 
-                          value={formData.fecha} 
+                          name="fecha_cotizacion" 
+                          value={formData.fecha_cotizacion} 
                           onChange={handleChange} 
                           required 
                         />
                       </div>
+                    </div>
+                    <div className="col-md-3">
                       <div className="mb-3">
                         <label className="form-label">Válido hasta</label>
                         <input 
@@ -256,6 +270,47 @@ const EditarCotizacion = () => {
                           required 
                         />
                       </div>
+                    </div>
+                  </div>
+
+                  <div className="row">
+                    <div className="col-md-4">
+                      <div className="mb-3">
+                        <label className="form-label">Forma de Pago</label>
+                        <select 
+                          className="form-select" 
+                          name="forma_pago" 
+                          value={formData.forma_pago} 
+                          onChange={handleChange} 
+                          required
+                        >
+                          <option value="">Selecciona una opción</option>
+                          {formasPago.map(forma => (
+                            <option key={forma} value={forma}>{forma}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <div className="col-md-4">
+                      <div className="mb-3">
+                        <label className="form-label">Filial</label>
+                        <select 
+                          className="form-select" 
+                          name="filial_id" 
+                          value={formData.filial_id} 
+                          onChange={handleChange} 
+                          required
+                        >
+                          <option value="">Selecciona una filial</option>
+                          {filials.map(filial => (
+                            <option key={filial._id} value={filial._id}>
+                              {filial.nombre_filial}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <div className="col-md-4">
                       <div className="mb-3">
                         <label className="form-label">Estado</label>
                         <select 
@@ -271,41 +326,16 @@ const EditarCotizacion = () => {
                         </select>
                       </div>
                     </div>
-                    <div className="col-sm-6">
-                      <div className="mb-3">
-                        <label className="form-label">Vendedor</label>
-                        <input 
-                          type="text" 
-                          className="form-control" 
-                          name="vendedor" 
-                          value={formData.vendedor} 
-                          onChange={handleChange} 
-                          required 
-                        />
-                      </div>
-                      <div className="mb-3">
-                        <label className="form-label">Filial</label>
-                        <select 
-                          className="form-select" 
-                          name="filial" 
-                          value={formData.filial} 
-                          onChange={handleChange} 
-                          required
-                        >
-                          <option value="">Selecciona una filial</option>
-                          {filials.map(filial => (
-                            <option key={filial._id} value={filial._id}>
-                              {filial.nombre_filial}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                  </div>
+
+                  <div className="row">
+                    <div className="col-md-6">
                       <div className="mb-3">
                         <label className="form-label">Cliente</label>
                         <select 
                           className="form-select" 
-                          name="cliente" 
-                          value={formData.cliente} 
+                          name="cliente_id" 
+                          value={formData.cliente_id.nombre} 
                           onChange={handleChange} 
                           required
                         >
@@ -318,32 +348,25 @@ const EditarCotizacion = () => {
                         </select>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="row mt-3">
                     <div className="col-md-6">
                       <div className="mb-3">
-                        <label className="form-label">Tipo de Servicio</label>
-                        <select 
-                          className="form-select" 
-                          name="tipo" 
-                          value={formData.tipo} 
+                        <label className="form-label">Vendedor</label>
+                        <input 
+                          type="text" 
+                          className="form-control" 
+                          name="vendedor" 
+                          value={formData.vendedor} 
                           onChange={handleChange} 
-                          required
-                        >
-                          <option value="">Selecciona un tipo</option>
-                          {tiposServicio.map(tipo => (
-                            <option key={tipo} value={tipo}>{tipo}</option>
-                          ))}
-                        </select>
+                          required 
+                        />
                       </div>
                     </div>
                   </div>
 
-                  {formData.tipo === "Financiado" && (
+                  {formData.forma_pago === "Financiado" && (
                     <div className="row mt-3">
                       <div className="col-md-12">
-                        <h5>Datos de Financiamiento</h5>
+                        <h5>Datos de Financiamiento</h5>    
                         <div className="row">
                           <div className="col-md-3">
                             <div className="mb-3">
@@ -351,8 +374,8 @@ const EditarCotizacion = () => {
                               <input 
                                 type="number" 
                                 className="form-control" 
-                                name="financiamiento.anticipo" 
-                                value={formData.financiamiento.anticipo} 
+                                name="financiamiento.anticipo_solicitado" 
+                                value={formData.financiamiento.anticipo_solicitado} 
                                 onChange={handleChange} 
                                 step="0.01" 
                               />
@@ -364,8 +387,8 @@ const EditarCotizacion = () => {
                               <input 
                                 type="number" 
                                 className="form-control" 
-                                name="financiamiento.plazo" 
-                                value={formData.financiamiento.plazo} 
+                                name="financiamiento.plazo_semanas" 
+                                value={formData.financiamiento.plazo_semanas} 
                                 onChange={handleChange} 
                               />
                             </div>
@@ -376,7 +399,7 @@ const EditarCotizacion = () => {
                               <input 
                                 type="text" 
                                 className="form-control" 
-                                value={formatCurrency(formData.financiamiento.pagoSemanal)} 
+                                value={formatCurrency(formData.financiamiento.pago_semanal)} 
                                 disabled 
                               />
                             </div>
@@ -387,17 +410,18 @@ const EditarCotizacion = () => {
                               <input 
                                 type="text" 
                                 className="form-control" 
-                                value={formatCurrency(formData.financiamiento.saldoRestante)} 
+                                value={formatCurrency(formData.financiamiento.saldo_restante)} 
                                 disabled 
                               />
                             </div>
                           </div>
+                          
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {formData.tipo === "Contado" && (
+                  {formData.forma_pago === "Contado" && (
                     <div className="row mt-3">
                       <div className="col-md-6">
                         <div className="mb-3">
@@ -415,20 +439,21 @@ const EditarCotizacion = () => {
                   )}
 
                   <div className="py-2 mt-3">
-                    <h5 className="font-size-15">Items de la Cotización</h5>
+                    <h5 className="font-size-15">Detalles de la Cotización</h5>
                     <div className="table-responsive">
                       <table className="table table-nowrap table-centered mb-0">
                         <thead>
                           <tr>
                             <th>Descripción</th>
-                            <th>Cantidad</th>
-                            <th>Precio Unitario</th>
-                            <th>Total</th>
+                            <th>Costo Materiales</th>
+                            <th>Costo Mano Obra</th>
+                            <th>Utilidad Esperada</th>
+                            <th>Inversión Total</th>
                             <th>Acciones</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {formData.items.map((item, index) => (
+                          {formData.detalles.map((item, index) => (
                             <tr key={index}>
                               <td>
                                 <input 
@@ -444,19 +469,8 @@ const EditarCotizacion = () => {
                                 <input 
                                   type="number" 
                                   className="form-control" 
-                                  name="cantidad" 
-                                  value={item.cantidad} 
-                                  onChange={(e) => handleChange(e, index)} 
-                                  min="1" 
-                                  required 
-                                />
-                              </td>
-                              <td>
-                                <input 
-                                  type="number" 
-                                  className="form-control" 
-                                  name="precio" 
-                                  value={item.precio} 
+                                  name="costo_materiales" 
+                                  value={item.costo_materiales} 
                                   onChange={(e) => handleChange(e, index)} 
                                   step="0.01" 
                                   min="0" 
@@ -465,9 +479,32 @@ const EditarCotizacion = () => {
                               </td>
                               <td>
                                 <input 
+                                  type="number" 
+                                  className="form-control" 
+                                  name="costo_mano_obra" 
+                                  value={item.costo_mano_obra} 
+                                  onChange={(e) => handleChange(e, index)} 
+                                  step="0.01" 
+                                  min="0" 
+                                  required 
+                                />
+                              </td>
+                              <td>
+                                <input 
+                                  type="number" 
+                                  className="form-control" 
+                                  name="utilidad_esperada" 
+                                  value={item.utilidad_esperada} 
+                                  onChange={(e) => handleChange(e, index)} 
+                                  step="0.01" 
+                                  min="0" 
+                                />
+                              </td>
+                              <td>
+                                <input 
                                   type="text" 
                                   className="form-control" 
-                                  value={formatCurrency(item.total)} 
+                                  value={formatCurrency(item.inversion)} 
                                   disabled 
                                 />
                               </td>
@@ -476,7 +513,7 @@ const EditarCotizacion = () => {
                                   type="button" 
                                   className="btn btn-danger btn-sm" 
                                   onClick={() => handleRemoveItem(index)}
-                                  disabled={formData.items.length <= 1}
+                                  disabled={formData.detalles.length <= 1}
                                 >
                                   Eliminar
                                 </button>
@@ -491,7 +528,7 @@ const EditarCotizacion = () => {
                       className="btn btn-primary mt-2" 
                       onClick={handleAddItem}
                     >
-                      Agregar Item
+                      Agregar Detalle
                     </button>
                   </div>
 
@@ -510,7 +547,7 @@ const EditarCotizacion = () => {
                             </tr>
                             <tr className="border-top">
                               <th>Total:</th>
-                              <td className="text-end fw-bold">{formatCurrency(formData.total)}</td>
+                              <td className="text-end fw-bold">{formatCurrency(formData.precio_venta)}</td>
                             </tr>
                           </tbody>
                         </table>
@@ -518,15 +555,15 @@ const EditarCotizacion = () => {
                     </div>
                   </div>
 
-                  <div className="row mt-3">
+                 {/* <div className="row mt-3">
                     <div className="col-md-6">
                       <div className="mb-3">
                         <label className="form-label">Fecha Inicio Servicio</label>
                         <input 
                           type="date" 
                           className="form-control" 
-                          name="fechaInicioServicio" 
-                          value={formData.fechaInicioServicio} 
+                          name="fecha_inicio_servicio" 
+                          value={formData.fecha_inicio_servicio} 
                           onChange={handleChange} 
                         />
                       </div>
@@ -537,8 +574,8 @@ const EditarCotizacion = () => {
                         <input 
                           type="date" 
                           className="form-control" 
-                          name="fechaFinServicio" 
-                          value={formData.fechaFinServicio} 
+                          name="fecha_fin_servicio" 
+                          value={formData.fecha_fin_servicio} 
                           onChange={handleChange} 
                         />
                       </div>
@@ -548,8 +585,8 @@ const EditarCotizacion = () => {
                         <label className="form-label">Estado del Servicio</label>
                         <select 
                           className="form-select" 
-                          name="estadoServicio" 
-                          value={formData.estadoServicio} 
+                          name="estado_servicio" 
+                          value={formData.estado_servicio} 
                           onChange={handleChange}
                         >
                           {estadosServicio.map(estado => (
@@ -558,7 +595,7 @@ const EditarCotizacion = () => {
                         </select>
                       </div>
                     </div>
-                  </div>
+                  </div>*/}
 
                   <div className="d-print-none mt-4">
                     <div className="float-end">

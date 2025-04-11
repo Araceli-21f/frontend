@@ -14,32 +14,49 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
   
   const [formData, setFormData] = useState({
     // Datos básicos
-    numero: "", fecha_cotizacion: new Date().toISOString().split('T')[0], validoHasta: "", estado: "Borrador", nombre_cotizacion: "",
-    
+    nombre_cotizacion: "",
+    fecha_cotizacion: new Date().toISOString().split('T')[0],
+    validoHasta: "",
+    estado: "Borrador",
+
     // Relaciones
-    cliente_id: "", vendedor: "", filial_id: "",
-    
-    // Items
-    items: [{
-      descripcion: "", cantidad: 1, precio: 0, total: 0
+    cliente_id: "",
+    vendedor: "",
+    filial_id: "",
+
+    // Detalles
+    detalles: [{
+      descripcion: "",
+      costo_materiales: 0,
+      costo_mano_obra: 0,
+      utilidad_esperada: 0,
+      inversion: 0
     }],
     
     // Totales
-    subtotal: 0, iva: 0, total: 0,
-    
+    subtotal: 0,
+    iva: 0,
+    precio_venta: 0,
+
     // Tipo de servicio
-    tipo: "",
-    
+    forma_pago: "",
+
     // Financiamiento
     financiamiento: {
-      anticipo: 0, plazo: 0, pagoSemanal: 0, saldoRestante: 0
+      anticipo_solicitado: 0,
+      plazo_semanas: 0,
+      pago_semanal: 0,
+      saldo_restante: 0,
+    
     },
     
     // Pago contado
     pagoContado: { fechaPago: "" },
     
     // Seguimiento de servicio
-    fechaInicioServicio: "", fechaFinServicio: "", estadoServicio: "Pendiente"
+    fecha_inicio_servicio: "",
+    fecha_fin_servicio: "",
+    estado_servicio: "Pendiente"
   });
 
   const [clientes, setClientes] = useState([]);
@@ -48,7 +65,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
   const [alertType, setAlertType] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
   
-  const tiposServicio = ["Contado", "Financiado"];
+  const formasPago = ["Contado", "Financiado"];
   const estados = ["Borrador", "Enviada", "Aprobada", "Completada", "Cancelada"];
   const estadosServicio = ["Pendiente", "EnProceso", "Completado", "Cancelado"];
 
@@ -98,25 +115,44 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
         }
       });
     } else if (index !== undefined) {
-      // Manejo de items
-      const items = formData.items.map((item, i) => {
+      // Manejo de detalles
+      const detalles = formData.detalles.map((item, i) => {
         if (i === index) {
           const updatedItem = { ...item, [name]: value };
-          // Calcular total del item
-          updatedItem.total = updatedItem.cantidad * updatedItem.precio;
+          // Calcular inversión del item
+          updatedItem.inversion = 
+            Number(updatedItem.costo_materiales || 0) + 
+            Number(updatedItem.costo_mano_obra || 0);
           return updatedItem;
         }
         return item;
       });
       
-      // Calcular subtotal, IVA y total
-      const subtotal = items.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+      // Calcular subtotal, IVA y precio_venta
+      const subtotal = detalles.reduce((sum, item) => sum + (item.inversion || 0), 0);
       const iva = subtotal * 0.19;
-      const total = subtotal + iva;
+      const precio_venta = subtotal + iva;
+      
+      // Si es financiado, recalcular saldo
+      let financiamiento = formData.financiamiento;
+      if (formData.forma_pago === "Financiado") {
+        const saldo = precio_venta - (financiamiento.anticipo_solicitado || 0);
+        const pagoSemanal = saldo / (financiamiento.plazo_semanas || 1);
+        
+        financiamiento = {
+          ...financiamiento,
+          saldo_restante: saldo,
+          pago_semanal: pagoSemanal
+        };
+      }
       
       setFormData({ 
         ...formData, 
-        items, subtotal, iva, total
+        detalles, 
+        subtotal, 
+        iva, 
+        precio_venta,
+        financiamiento
       });
     } else {
       setFormData({ ...formData, [name]: value });
@@ -126,25 +162,34 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
   const handleAddItem = () => {
     setFormData({
       ...formData,
-      items: [
-        ...formData.items,
-        { descripcion: "", cantidad: 1, precio: 0, total: 0 }
+      detalles: [
+        ...formData.detalles,
+        { 
+          descripcion: "", 
+          costo_materiales: 0, 
+          costo_mano_obra: 0, 
+          utilidad_esperada: 0,
+          inversion: 0 
+        }
       ]
     });
   };
 
   const handleRemoveItem = (index) => {
-    const items = [...formData.items];
-    items.splice(index, 1);
+    const detalles = [...formData.detalles];
+    detalles.splice(index, 1);
     
     // Recalcular totales
-    const subtotal = items.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+    const subtotal = detalles.reduce((sum, item) => sum + (item.inversion || 0), 0);
     const iva = subtotal * 0.19;
-    const total = subtotal + iva;
+    const precio_venta = subtotal + iva;
     
     setFormData({ 
       ...formData, 
-      items, subtotal, iva, total
+      detalles, 
+      subtotal, 
+      iva, 
+      precio_venta 
     });
   };
 
@@ -159,18 +204,38 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
       
       // Reset form
       setFormData({
-        numero: "", fecha_cotizacion: new Date().toISOString().split('T')[0], validoHasta: "", estado: "Borrador", nombre_cotizacion: "", cliente_id: "", vendedor: "", filial_id: "",
-        items: [{
-          descripcion: "", cantidad: 1, precio: 0, total: 0
+        nombre_cotizacion: "",
+        fecha_cotizacion: new Date().toISOString().split('T')[0],
+        validoHasta: "",
+        estado: "Borrador",
+        cliente_id: "",
+        vendedor: "",
+        filial_id: "",
+        detalles: [{
+          descripcion: "",
+          costo_materiales: 0,
+          costo_mano_obra: 0,
+          utilidad_esperada: 0,
+          inversion: 0
         }],
-        subtotal: 0, iva: 0, total: 0, tipo: "",
+        subtotal: 0,
+        iva: 0,
+        precio_venta: 0,
+        forma_pago: "",
         financiamiento: {
-          anticipo: 0, plazo: 0, pagoSemanal: 0, saldoRestante: 0
+          anticipo_solicitado: 0,
+          plazo_semanas: 0,
+          pago_semanal: 0,
+          saldo_restante: 0,
+          fecha_inicio: "",
+          fecha_termino: ""
         },
         pagoContado: {
           fechaPago: ""
         },
-        fechaInicioServicio: "", fechaFinServicio: "",  estadoServicio: "Pendiente"
+        fecha_inicio_servicio: "",
+        fecha_fin_servicio: "",
+        estado_servicio: "Pendiente"
       });
       
       if (onCotizacionCreada) {
@@ -201,51 +266,77 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
               <hr className="my-4" />
 
               <form onSubmit={handleSubmit}>
-              <div className="row">
-              <div className="col-md-6">
-                <div className="mb-3">
-                     <label className="form-label">Título de Cotización</label>
-                     <input type="text" className="form-control" name="nombre_cotizacion" value={formData.nombre_cotizacion} onChange={handleChange} required />
-                </div>
-              </div>
-                <div className="col-md-3">
-                  <div className="mb-3">
-                    <label htmlFor="fecha_inicio" className="form-label">Fecha de Inicio <span className="text-danger">*</span></label>
-                      <input
-                        type="date" className="form-control" name="fecha_cotizacion"
-                        value={formData.fecha_cotizacion} onChange={handleChange} required
+                <div className="row">
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label className="form-label">Título de Cotización</label>
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        name="nombre_cotizacion" 
+                        value={formData.nombre_cotizacion} 
+                        onChange={handleChange} 
+                        required 
                       />
-                      </div>
                     </div>
-                    <div className="col-md-3">
-                  <div className="mb-3">
-                    <label htmlFor="fecha_fin" className="form-label">Fecha de Fin <span className="text-danger">*</span></label>
+                  </div>
+                  <div className="col-md-3">
+                    <div className="mb-3">
+                      <label htmlFor="fecha_cotizacion" className="form-label">Fecha de Cotización</label>
                       <input
-                        type="date" className="form-control" name="fecha_cotizacion"
-                        value={formData.fecha_cotizacion} onChange={handleChange} required
-                        />
+                        type="date" 
+                        className="form-control" 
+                        name="fecha_cotizacion"
+                        value={formData.fecha_cotizacion} 
+                        onChange={handleChange} 
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="col-md-3">
+                    <div className="mb-3">
+                      <label htmlFor="validoHasta" className="form-label">Válido hasta <span className="text-danger">*</span></label>
+                      <input
+                        type="date" 
+                        className="form-control" 
+                        name="validoHasta" 
+                        value={formData.validoHasta} 
+                        onChange={handleChange} 
+                        required
+                      />
                     </div>
                   </div>
                 </div>
 
-              <div className="row">
-                
+                <div className="row">
                   <div className="col-md-4">
-                  <div className="mb-3">
-                      <label htmlFor="tipo" className="form-label">Tipo de Servicio</label>
-                      <select className="form-select" name="tipo" value={formData.tipo} onChange={handleChange} required>
-                        <option value="">Selecciona un tipo</option>
-                        {tiposServicio.map((tipo) => (
-                          <option key={tipo} value={tipo}>{tipo}</option>
+                    <div className="mb-3">
+                      <label htmlFor="forma_pago" className="form-label">Forma de Pago</label>
+                      <select 
+                        className="form-select" 
+                        name="forma_pago" 
+                        value={formData.forma_pago} 
+                        onChange={handleChange} 
+                        required
+                      >
+                        <option value="">Selecciona una opción</option>
+                        {formasPago.map((forma) => (
+                          <option key={forma} value={forma}>{forma}</option>
                         ))}
                       </select>
                     </div>
                   </div>
-                    <div className="col-md-4">
+                  <div className="col-md-4">
                     <div className="mb-3">
                       <label htmlFor="filial_id" className="form-label">Filial</label>
-                      <select className="form-select" name="filial_id" value={formData.filial_id} onChange={handleChange} required>
-                        <option value="">Selecciona un Filial</option>
+                      <select 
+                        className="form-select" 
+                        name="filial_id" 
+                        value={formData.filial_id} 
+                        onChange={handleChange} 
+                        required
+                      >
+                        <option value="">Selecciona una Filial</option>
                         {filials.map((filial) => (
                           <option key={filial._id} value={filial._id}>
                             {filial.nombre_filial}
@@ -253,24 +344,36 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                         ))}
                       </select>
                     </div>
-
-                    </div>
-                    <div className="col-md-4">
+                  </div>
+                  <div className="col-md-4">
                     <div className="mb-3">
                       <label htmlFor="estado" className="form-label">Estado</label>
-                      <select className="form-select" name="estado" value={formData.estado} onChange={handleChange} required>
+                      <select 
+                        className="form-select" 
+                        name="estado" 
+                        value={formData.estado} 
+                        onChange={handleChange} 
+                        required
+                      >
                         {estados.map((estado) => (
                           <option key={estado} value={estado}>{estado}</option>
                         ))}
                       </select>
                     </div>
-                    </div>
-                    </div>
-                    <div className="row">
+                  </div>
+                </div>
+
+                <div className="row">
                   <div className="col-md-6">
-                  <div className="mb-3">
+                    <div className="mb-3">
                       <label htmlFor="cliente_id" className="form-label">Cliente</label>
-                      <select className="form-select" name="cliente_id" value={formData.cliente_id} onChange={handleChange} required>
+                      <select 
+                        className="form-select" 
+                        name="cliente_id" 
+                        value={formData.cliente_id} 
+                        onChange={handleChange} 
+                        required
+                      >
                         <option value="">Selecciona un cliente</option>
                         {clientes.map((cliente) => (
                           <option key={cliente._id} value={cliente._id}>
@@ -279,96 +382,107 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                         ))}
                       </select>
                     </div>
-                    </div>
-                    <div className="col-md-6">
+                  </div>
+                  <div className="col-md-6">
                     <div className="mb-3">
                       <label htmlFor="vendedor" className="form-label">Vendedor</label>
-                      <input type="text" className="form-control" name="vendedor" value={formData.vendedor} onChange={handleChange} required />
-                    </div></div>
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        name="vendedor" 
+                        value={formData.vendedor} 
+                        onChange={handleChange} 
+                        required 
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                {formData.tipo === "Financiado" && (
-                  <div className="row mt-3">
-                    <div className="col-md-12">
-                      <h5>Datos de Financiamiento</h5>    
-                      <div className="row">
-                        <div className="col-md-3">
-                          <div className="mb-3">
-                            <label htmlFor="financiamiento.anticipo" className="form-label">Anticipo</label>
-                            <input type="number" className="form-control" name="financiamiento.anticipo" value={formData.financiamiento.anticipo} onChange={handleChange} />
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="mb-3">
-                            <label htmlFor="financiamiento.plazo" className="form-label">Plazo (semanas)</label>
-                            <input type="number" className="form-control" name="financiamiento.plazo" value={formData.financiamiento.plazo} onChange={handleChange} />
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="mb-3">
-                            <label htmlFor="financiamiento.pagoSemanal" className="form-label">Pago Semanal</label>
-                            <input type="number" className="form-control" name="financiamiento.pagoSemanal" value={formData.financiamiento.pagoSemanal} onChange={handleChange} disabled />
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div className="mb-3">
-                            <label htmlFor="financiamiento.saldoRestante" className="form-label">Saldo Restante</label>
-                            <input type="number" className="form-control" name="financiamiento.saldoRestante" value={formData.financiamiento.saldoRestante} onChange={handleChange} disabled />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {formData.tipo === "Contado" && (
-                  <div className="row mt-3">
-                    <div className="col-md-6">
-                      <div className="mb-3">
-                        <label htmlFor="pagoContado.fechaPago" className="form-label">Fecha de Pago</label>
-                        <input type="date" className="form-control" name="pagoContado.fechaPago" value={formData.pagoContado.fechaPago} onChange={handleChange} />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 <div className="py-2 mt-3">
-                  <h5 className="font-size-15">Items de la Cotización</h5>
+                  <h5 className="font-size-15">Detalles de la Cotización</h5>
                   <div className="table-responsive">
                     <table className="table table-nowrap table-centered mb-0">
                       <thead>
                         <tr>
                           <th>Descripción</th>
-                          <th>Cantidad</th>
-                          <th>Precio Unitario</th>
-                          <th>Total</th>
+                          <th>Costo Materiales</th>
+                          <th>Costo Mano Obra</th>
+                          <th>Utilidad Esperada</th>
+                          <th>Inversión Total</th>
                           <th>Acciones</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {formData.items.map((item, index) => (
+                        {formData.detalles.map((item, index) => (
                           <tr key={index}>
                             <td>
-                              <input type="text" className="form-control" name="descripcion" value={item.descripcion} onChange={(e) => handleChange(e, index)} required />
+                              <input 
+                                type="text" 
+                                className="form-control" 
+                                name="descripcion" 
+                                value={item.descripcion} 
+                                onChange={(e) => handleChange(e, index)} 
+                                required 
+                              />
                             </td>
                             <td>
-                              <input type="number" className="form-control" name="cantidad" value={item.cantidad} onChange={(e) => handleChange(e, index)} required />
+                              <input 
+                                type="number" 
+                                className="form-control" 
+                                name="costo_materiales" 
+                                value={item.costo_materiales} 
+                                onChange={(e) => handleChange(e, index)} 
+                                required 
+                              />
                             </td>
                             <td>
-                              <input type="number" className="form-control" name="precio" value={item.precio} onChange={(e) => handleChange(e, index)} required />
+                              <input 
+                                type="number" 
+                                className="form-control" 
+                                name="costo_mano_obra" 
+                                value={item.costo_mano_obra} 
+                                onChange={(e) => handleChange(e, index)} 
+                                required 
+                              />
                             </td>
                             <td>
-                              <input type="number" className="form-control" value={item.total} disabled />
+                              <input 
+                                type="number" 
+                                className="form-control" 
+                                name="utilidad_esperada" 
+                                value={item.utilidad_esperada} 
+                                onChange={(e) => handleChange(e, index)} 
+                              />
                             </td>
                             <td>
-                              <button type="button" className="btn btn-danger btn-sm" onClick={() => handleRemoveItem(index)}>Eliminar</button>
+                              <input 
+                                type="number" 
+                                className="form-control" 
+                                value={item.inversion} 
+                                disabled 
+                              />
+                            </td>
+                            <td>
+                              <button 
+                                type="button" 
+                                className="btn btn-danger btn-sm" 
+                                onClick={() => handleRemoveItem(index)}
+                              >
+                                Eliminar
+                              </button>
                             </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
-                  <button type="button" className=" btn btn-primary mt-2" onClick={handleAddItem}>Agregar Item</button>
+                  <button 
+                    type="button" 
+                    className="btn btn-primary mt-2" 
+                    onClick={handleAddItem}
+                  >
+                    Agregar Detalle
+                  </button>
                 </div>
 
                 <div className="row mt-3">
@@ -386,17 +500,138 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                           </tr>
                           <tr className="border-top">
                             <th>Total:</th>
-                            <td className="text-end fw-bold">${formData.total.toFixed(2)}</td>
+                            <td className="text-end fw-bold">${formData.precio_venta.toFixed(2)}</td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
                   </div>
+
+                  <hr className="my-4" />
+                
+                {formData.forma_pago === "Financiado" && (
+                  <div className="row mt-3">
+                    <div className="col-md-12">
+                      <h5>Datos de Financiamiento</h5>    
+                      <div className="row">
+                        <div className="col-md-3">
+                          <div className="mb-3">
+                            <label htmlFor="financiamiento.anticipo_solicitado" className="form-label">Anticipo</label>
+                            <input 
+                              type="number" 
+                              className="form-control" 
+                              name="financiamiento.anticipo_solicitado" 
+                              value={formData.financiamiento.anticipo_solicitado} 
+                              onChange={handleChange} 
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-3">
+                          <div className="mb-3">
+                            <label htmlFor="financiamiento.plazo_semanas" className="form-label">Plazo (semanas)</label>
+                            <input 
+                              type="number" 
+                              className="form-control" 
+                              name="financiamiento.plazo_semanas" 
+                              value={formData.financiamiento.plazo_semanas} 
+                              onChange={handleChange} 
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-3">
+                          <div className="mb-3">
+                            <label htmlFor="financiamiento.pago_semanal" className="form-label">Pago Semanal</label>
+                            <input 
+                              type="number" 
+                              className="form-control" 
+                              name="financiamiento.pago_semanal" 
+                              value={formData.financiamiento.pago_semanal} 
+                              onChange={handleChange} 
+                              disabled 
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-3">
+                          <div className="mb-3">
+                            <label htmlFor="financiamiento.saldo_restante" className="form-label">Saldo Restante</label>
+                            <input 
+                              type="number" 
+                              className="form-control" 
+                              name="financiamiento.saldo_restante" 
+                              value={formData.financiamiento.saldo_restante} 
+                              onChange={handleChange} 
+                              disabled 
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {formData.forma_pago === "Contado" && (
+                  <div className="row mt-3">
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 </div>
+
+
+                {/*<div className="row mt-3">
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label htmlFor="fecha_inicio_servicio" className="form-label">Fecha Inicio Servicio</label>
+                      <input 
+                        type="date" 
+                        className="form-control" 
+                        name="fecha_inicio_servicio" 
+                        value={formData.fecha_inicio_servicio} 
+                        onChange={handleChange} 
+                      />
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label htmlFor="fecha_fin_servicio" className="form-label">Fecha Fin Servicio</label>
+                      <input 
+                        type="date" 
+                        className="form-control" 
+                        name="fecha_fin_servicio" 
+                        value={formData.fecha_fin_servicio} 
+                        onChange={handleChange} 
+                      />
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <label htmlFor="estado_servicio" className="form-label">Estado del Servicio</label>
+                      <select 
+                        className="form-select" 
+                        name="estado_servicio" 
+                        value={formData.estado_servicio} 
+                        onChange={handleChange}
+                      >
+                        {estadosServicio.map((estado) => (
+                          <option key={estado} value={estado}>{estado}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>*/}
 
                 <div className="d-print-none mt-4">
                   <div className="float-end">
-                    <button type="submit" className="btn btn-primary w-md waves-effect waves-light">Crear Cotización</button>
+                    <button 
+                      type="submit" 
+                      className="btn btn-primary w-md waves-effect waves-light"
+                    >
+                      Crear Cotización
+                    </button>
                   </div>
                 </div>
               </form>
