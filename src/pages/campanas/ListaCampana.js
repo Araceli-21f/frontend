@@ -138,7 +138,7 @@ const ListaCampana = () => {
                                 </div>
                             </div>
                             {/* Filtro por estado (4 columnas) */}
-                            <div className="col-md-3 mb-2 d-flex align-items-center">
+                            <div className="col-md-3 mb-2 ">
                                 <div className="input-group w-100 shadow-sm">
                                     {/* Ícono de filtro fuera del grupo, con fondo redondeado */}
                                     <span className="me-0 p-2 text-white bg-primary rounded-1 d-flex justify-content-center align-items-center">

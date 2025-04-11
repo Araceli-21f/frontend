@@ -102,8 +102,8 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
         ...formData,
         [name]: checked,
         // Recalcular IVA y precio de venta
-        iva: checked ? formData.subtotal * 0.19 : 0,
-        precio_venta: checked ? formData.subtotal * 1.19 : formData.subtotal
+        iva: checked ? formData.subtotal * 0.16 : 0,
+        precio_venta: checked ? formData.subtotal * 1.16 : formData.subtotal
       });
       return;
     }
@@ -142,7 +142,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
       
       // Calcular subtotal, IVA y precio_venta
       const subtotal = detalles.reduce((sum, item) => sum + (item.inversion || 0), 0);
-      const iva = formData.aplicaIva ? subtotal * 0.19 : 0;
+      const iva = formData.aplicaIva ? subtotal * 0.16 : 0;
       const precio_venta = subtotal + iva;
       
       // Si es financiado, recalcular saldo
@@ -193,7 +193,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
     
     // Recalcular totales
     const subtotal = detalles.reduce((sum, item) => sum + (item.inversion || 0), 0);
-    const iva = formData.aplicaIva ? subtotal * 0.19 : 0;
+    const iva = formData.aplicaIva ? subtotal * 0.16 : 0;
     const precio_venta = subtotal + iva;
     
     setFormData({ 
@@ -508,7 +508,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                         id="aplicaIvaCheck"
                       />
                       <label className="form-check-label" htmlFor="aplicaIvaCheck">
-                        Aplicar IVA (19%)
+                        Aplicar IVA (16%)
                       </label>
                     </div>
                   </div>
@@ -522,7 +522,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                           </tr>
                           {formData.aplicaIva && (
                             <tr>
-                              <th>IVA (19%):</th>
+                              <th>IVA (16):</th>
                               <td className="text-end">${formData.iva.toFixed(2)}</td>
                             </tr>
                           )}

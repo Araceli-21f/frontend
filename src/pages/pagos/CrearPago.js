@@ -19,7 +19,7 @@ const CrearPago = () => {
         fecha_pago: format(new Date(), 'yyyy-MM-dd'),
         monto_pago: 0,
         saldo_pendiente: 0,
-        tipo_pago: "Abono",
+        tipo_pago: "",
         metodo_pago: "Transferencia",
         referencia: "",
         observaciones: ""
@@ -53,7 +53,7 @@ const CrearPago = () => {
     useEffect(() => {
         if (formData.cliente_id) {
             const filtradas = cotizaciones.filter(cot => 
-                cot.cliente_id._id === formData.cliente_id
+                cot.cliente_id && cot.cliente_id._id === formData.cliente_id
             );
             setCotizacionesFiltradas(filtradas);
         } else {
@@ -65,11 +65,12 @@ const CrearPago = () => {
     useEffect(() => {
         if (formData.cotizacion_id) {
             const cotizacionSeleccionada = cotizaciones.find(c => c._id === formData.cotizacion_id);
-            if (cotizacionSeleccionada) {
-                setTotalCotizacion(cotizacionSeleccionada.total);
+            if (cotizacionSeleccionada && typeof cotizacionSeleccionada.total !== 'undefined') {
+                const total =cotizacionSeleccionada.total || 0;
+                setTotalCotizacion(total);
                 setFormData(prev => ({
                     ...prev,
-                    saldo_pendiente: cotizacionSeleccionada.total - prev.monto_pago
+                    saldo_pendiente: total - (prev.monto_pago || 0)
                 }));
             }
         }
@@ -187,7 +188,7 @@ const CrearPago = () => {
                                                 <option value="">Seleccione una cotización</option>
                                                 {cotizacionesFiltradas.map(cotizacion => (
                                                     <option key={cotizacion._id} value={cotizacion._id}>
-                                                        #{cotizacion.numero} - Total: ${cotizacion.total.toFixed(2)}
+                                                        #{cotizacion.numero || 'N/A'} - Total: ${(cotizacion.total || 0).toFixed(2)}
                                                     </option>
                                                 ))}
                                             </select>

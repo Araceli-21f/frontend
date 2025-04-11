@@ -88,22 +88,13 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
                 <span> Interacciones </span>
               </Link>
             </li>
-            
             <li>
-              <Link className="has-arrow waves-effect" onClick={toggleSubMenu}>
-                <i className="uil-chart-line"></i><span> Servicios</span>
-              </Link>
-              {isSubMenuOpen && (
-              <ul className="sub-menu">
-                <li>
               <Link to="/Campañas" className="waves-effect"><i className="uil-megaphone"></i><span> Campañas</span></Link>
             </li>
             <li>
               <Link to="/Lista_Eventos" className="waves-effect"><i className="uil-chart-line"></i><span>Eventos</span></Link>
             </li>
-              </ul>
-              )}
-            </li>
+            
             <li>
               <Link to="/Lista_cotizacion" className="waves-effect">
                 <i className="fas fa-file-invoice-dollar"></i>
@@ -113,7 +104,7 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
 
             <li>
               <Link to="/Lista_pagos" className="waves-effect">
-                <i className="bx bx-folder-open"></i>
+                <i className="fas fa-money-check-alt "></i>
                 <span> Pagos </span>
               </Link>
             </li>
@@ -127,8 +118,6 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
               <ul className="sub-menu">
                 <li><Link to="/Lista_clientes">Lista de Clientes</Link></li>
                 <li><Link to="/Estados_Cuenta">Estados Cuenta</Link></li>
-                <li><Link to="/Estados_factura">Estados de Factura </Link></li>
-                <li><Link to="/InvoicesDetail">Detalle Factura</Link></li>
               </ul>
               )}
             </li>
@@ -141,7 +130,6 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
                 {isSubMenuOpen3 && ( 
               <ul className="sub-menu">
               <li><Link to="/Lista_usuarios">Lista de Usuarios</Link></li>
-              <li><Link to="/Lista_nomina">Lista de Nomina</Link></li>
               <li>
               <Link to="/Filials" className="waves-effect">
                 <i className="bx bx-folder-open"></i>

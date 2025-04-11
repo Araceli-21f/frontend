@@ -152,7 +152,7 @@ const DetalleCotizacion = () => {
                         </div>
                         {cotizacion.aplicaIva && (
                           <div className="d-flex justify-content-between mb-2">
-                            <span>IVA (19%):</span>
+                            <span>IVA (16%):</span>
                             <span>{formatCurrency(cotizacion.iva)}</span>
                           </div>
                         )}
