@@ -1,5 +1,4 @@
-/* eslint-disable no-undef */
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import FullCalendar from "@fullcalendar/react";
 import { Link } from "react-router-dom";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -10,6 +9,9 @@ import Layout from "../../layouts/pages/layout";
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle";
 import TareaService from "../../services/TareaService";
 import ClienteService from "../../services/ClienteService";
+import CrearTarea from "../calendario/CrearTarea";
+import EditarTarea from "../calendario/EditarTarea";
+import VerTarea from "../calendario/VerTarea";
 
 const Calendario = () => {
   const [events, setEvents] = useState([]);
@@ -21,44 +23,75 @@ const Calendario = () => {
     cliente_id: "",
     descripcion: "",
     fecha_vencimiento: "",
-    estado: "pendiente",
-    responsable: "",
-    className: "bg-primary"
+    area: "datax", 
+    responsable: ""
   });
   
+  if (module.hot) {
+    module.hot.accept();
+  }
+
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [viewMode, setViewMode] = useState("edit");
   
   const modalRef = useRef(null);
-  const formRef = useRef(null);
   const calendarRef = useRef(null);
 
-  const tareaService = TareaService();
-  const clienteService = ClienteService();
+  const tareaService = useRef(TareaService());
+  const clienteService = useRef(ClienteService());
+
+  // Función para obtener el color según el área - MODIFICADA para ser más robusta
+  const getColorForArea = useCallback((area) => {
+    // Aseguramos que area existe y la convertimos a minúsculas para evitar problemas de case sensitivity
+    if (!area) return 'gray';
+    
+    const areaLower = String(area).toLowerCase();
+    let color;
+    
+    switch(areaLower) {
+      case 'datax': color = '#34c38f'; break;
+      case 'studiodesign': color = '#f46a6a'; break;
+      case 'generalsystech': color = '#50a5f1'; break;
+      case 'smartsite': color = '#f1b44c'; break;
+      default: color = 'gray';
+    }
+    
+    console.log(`Área: ${area}, Color asignado: ${color}`); 
+    return color;
+  }, []);
 
   // Cargar tareas y clientes al iniciar
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const tareas = await tareaService.obtenerTareas();
-        const clientesData = await clienteService.obtenerClientes();
+        const tareas = await tareaService.current.obtenerTareas();
+        const clientesData = await clienteService.current.obtenerClientes();
         
         setClientes(clientesData);
         
+        console.log("Datos de las tareas:", tareas);
         // Mapear tareas a eventos del calendario
-        const eventos = tareas.map(tarea => ({
-          id: tarea._id,
-          title: tarea.descripcion,
-          start: tarea.fecha_vencimiento,
-          className: getClassNameByEstado(tarea.estado),
-          extendedProps: {
-            cliente_id: tarea.cliente_id,
-            estado: tarea.estado,
-            responsable: tarea.responsable
-          }
-        }));
+        const eventos = tareas.map(tarea => {
+          // Añadimos logging para verificar cada tarea y su color asignado
+          const color = getColorForArea(tarea.area);
+          console.log(`Mapeando tarea: ${tarea._id}, Área: ${tarea.area}, Color: ${color}`);
+          
+          return {
+            id: tarea._id,
+            title: tarea.descripcion,
+            start: tarea.fecha_vencimiento,
+            backgroundColor: color,
+            borderColor: color,
+            textColor: '#000',
+            extendedProps: {
+              cliente_id: tarea.cliente_id,
+              area: tarea.area,
+              responsable: tarea.responsable
+            }
+          };
+        });
         
         setEvents(eventos);
       } catch (error) {
@@ -69,17 +102,7 @@ const Calendario = () => {
     };
     
     fetchData();
-  }, []);
-
-  // Función para obtener clase CSS según estado
-  const getClassNameByEstado = (estado) => {
-    switch(estado) {
-      case 'pendiente': return 'bg-warning';
-      case 'en progreso': return 'bg-info';
-      case 'completada': return 'bg-success';
-      default: return 'bg-primary';
-    }
-  };
+  }, [getColorForArea]);
 
   // Función para cerrar el modal
   const closeModal = () => {
@@ -98,9 +121,8 @@ const Calendario = () => {
       cliente_id: "",
       descripcion: "",
       fecha_vencimiento: info.dateStr,
-      estado: "pendiente",
-      responsable: "",
-      className: getClassNameByEstado("pendiente")
+      area: "datax", // Establecemos un valor por defecto para asegurar que siempre haya un área
+      responsable: ""
     });
     setModalMode("create");
     setViewMode("edit");
@@ -108,15 +130,17 @@ const Calendario = () => {
   };
 
   const handleEventClick = (info) => {
+    // Verificamos y extraemos la información correctamente
     const eventData = {
       id: info.event.id,
       cliente_id: info.event.extendedProps.cliente_id?._id || info.event.extendedProps.cliente_id,
       descripcion: info.event.title,
       fecha_vencimiento: info.event.startStr,
-      estado: info.event.extendedProps.estado,
-      responsable: info.event.extendedProps.responsable,
-      className: info.event.classNames[0] || getClassNameByEstado(info.event.extendedProps.estado)
+      area: info.event.extendedProps.area || "datax", // Valor por defecto si no hay área
+      responsable: info.event.extendedProps.responsable
     };
+    
+    console.log("Evento clickeado:", eventData);
     
     setNewEvent(eventData);
     setModalMode("edit");
@@ -124,69 +148,94 @@ const Calendario = () => {
     setShowModal(true);
   };
 
-  // Manejo del formulario
+  // Manejo de creación y edición de tareas - MODIFICADO
   const handleEventSubmit = async (e) => {
     e.preventDefault();
     
     if (!newEvent.descripcion.trim() || !newEvent.cliente_id || !newEvent.responsable) {
+      alert("Por favor complete todos los campos obligatorios");
       return;
     }
 
     try {
       setLoading(true);
       
+      // Aseguramos que el área siempre tenga un valor válido
+      const area = newEvent.area || "datax"; 
+      
       const tareaData = {
         cliente_id: newEvent.cliente_id,
         descripcion: newEvent.descripcion,
         fecha_vencimiento: newEvent.fecha_vencimiento,
-        estado: newEvent.estado,
+        area: area,
         responsable: newEvent.responsable
       };
 
+      console.log("Guardando tarea con datos:", tareaData);
+      
       let response;
       
       if (modalMode === "edit" && newEvent.id) {
-        response = await tareaService.actualizarTarea(newEvent.id, tareaData);
+        response = await tareaService.current.actualizarTarea(newEvent.id, tareaData);
       } else {
-        response = await tareaService.crearTarea(tareaData);
+        response = await tareaService.current.crearTarea(tareaData);
       }
 
-      // Actualizar el calendario
-      const updatedEvents = modalMode === "edit" 
-        ? events.map(event => 
+      console.log("Respuesta del servidor:", response);
+      
+      // Aseguramos que tenemos un área válida después de la respuesta
+      const responseArea = response.area || area;
+      
+      // Obtenemos el color basado en el área
+      const color = getColorForArea(responseArea);
+      console.log(`Color asignado después de guardar: ${color} para área: ${responseArea}`);
+
+      // Actualizar el calendario con el evento nuevo o modificado
+      if (modalMode === "edit") {
+        // Para edición, actualizamos el evento existente
+        setEvents(prevEvents => 
+          prevEvents.map(event => 
             event.id === newEvent.id 
               ? { 
                   ...event, 
                   title: response.descripcion,
                   start: response.fecha_vencimiento,
-                  className: getClassNameByEstado(response.estado),
+                  backgroundColor: color,
+                  borderColor: color,
+                  textColor: '#000',
                   extendedProps: {
                     cliente_id: response.cliente_id,
-                    estado: response.estado,
+                    area: responseArea,
                     responsable: response.responsable
                   }
                 } 
               : event
           )
-        : [
-            ...events, 
-            {
-              id: response._id,
-              title: response.descripcion,
-              start: response.fecha_vencimiento,
-              className: getClassNameByEstado(response.estado),
-              extendedProps: {
-                cliente_id: response.cliente_id,
-                estado: response.estado,
-                responsable: response.responsable
-              }
-            }
-          ];
+        );
+      } else {
+        // Para creación, añadimos un nuevo evento
+        const newCalendarEvent = {
+          id: response._id,
+          title: response.descripcion,
+          start: response.fecha_vencimiento,
+          backgroundColor: color,
+          borderColor: color,
+          textColor: '#000',
+          extendedProps: {
+            cliente_id: response.cliente_id,
+            area: responseArea,
+            responsable: response.responsable
+          }
+        };
+        
+        console.log("Nuevo evento a añadir:", newCalendarEvent);
+        setEvents(prevEvents => [...prevEvents, newCalendarEvent]);
+      }
 
-      setEvents(updatedEvents);
       closeModal();
     } catch (error) {
       console.error("Error al guardar tarea:", error);
+      alert("Ocurrió un error al guardar la tarea. Por favor intente nuevamente.");
     } finally {
       setLoading(false);
     }
@@ -198,11 +247,12 @@ const Calendario = () => {
 
     try {
       setLoading(true);
-      await tareaService.eliminarTarea(newEvent.id);
+      await tareaService.current.eliminarTarea(newEvent.id);
       setEvents(events.filter(event => event.id !== newEvent.id));
       closeModal();
     } catch (error) {
       console.error("Error al eliminar tarea:", error);
+      alert("Ocurrió un error al eliminar la tarea. Por favor intente nuevamente.");
     } finally {
       setLoading(false);
     }
@@ -214,6 +264,8 @@ const Calendario = () => {
       const modal = new bootstrap.Modal(modalRef.current, { keyboard: false });
       modal.show();
       
+      const currentModalRef = modalRef.current;
+
       const handleHidden = () => {
         setShowModal(false);
         setViewMode("edit");
@@ -222,12 +274,41 @@ const Calendario = () => {
       modalRef.current.addEventListener('hidden.bs.modal', handleHidden);
       
       return () => {
-        if (modalRef.current) {
-          modalRef.current.removeEventListener('hidden.bs.modal', handleHidden);
+        if (currentModalRef) {
+          currentModalRef.removeEventListener('hidden.bs.modal', handleHidden);
         }
       };
     }
   }, [showModal]);
+
+  // Manejo de cambio en el formulario
+  const handleInputChange = (field, value) => {
+    setNewEvent(prev => {
+      const updated = { ...prev, [field]: value };
+      
+      // Si cambia el área, mostrar el valor actualizado
+      if (field === 'area') {
+        console.log(`Área cambiada a: ${value}, color correspondiente: ${getColorForArea(value)}`);
+      }
+      
+      return updated;
+    });
+  };
+
+  // Obtener ícono según el área
+  const getIconForArea = (area) => {
+    if (!area) return 'mdi-help-circle';
+    
+    const areaLower = String(area).toLowerCase();
+    
+    switch(areaLower) {
+      case 'datax': return 'mdi-database';
+      case 'studiodesign': return 'mdi-vector-arrange-above';
+      case 'generalsystech': return 'mdi-server-network';
+      case 'smartsite': return 'mdi-checkbox-blank-circle';
+      default: return 'mdi-help-circle';
+    }
+  };
 
   return (
     <Layout>
@@ -244,9 +325,8 @@ const Calendario = () => {
                       cliente_id: "",
                       descripcion: "",
                       fecha_vencimiento: "",
-                      estado: "pendiente",
-                      responsable: "",
-                      className: getClassNameByEstado("pendiente")
+                      area: "datax", // Establecemos un valor por defecto
+                      responsable: ""
                     });
                     setModalMode("create");
                     setViewMode("edit");
@@ -269,15 +349,19 @@ const Calendario = () => {
                 </div>
                 
                 <div id="external-events" className="mt-2">
-                  <p className="text-muted">Leyenda de estados:</p>
-                  <div className="external-event bg-warning">
-                    <i className="mdi mdi-checkbox-blank-circle me-2 vertical-middle"></i>Pendiente
+                  <p className="text-muted">Leyenda de areas:</p>
+                  {/* Actualizado para mostrar los colores correctos en la leyenda */}
+                  <div className="external-event" style={{backgroundColor: getColorForArea('datax'), color: '#000', padding: '8px', marginBottom: '10px', borderRadius: '4px'}}>
+                    <i className="mdi mdi-database me-2 vertical-middle"></i>DataX
                   </div>
-                  <div className="external-event bg-info">
-                    <i className="mdi mdi-checkbox-blank-circle me-2 vertical-middle"></i>En progreso
+                  <div className="external-event" style={{backgroundColor: getColorForArea('studiodesign'), color: '#000', padding: '8px', marginBottom: '10px', borderRadius: '4px'}}>
+                    <i className="mdi mdi-vector-arrange-above me-2 vertical-middle"></i>StudioDesign
                   </div>
-                  <div className="external-event bg-success">
-                    <i className="mdi mdi-checkbox-blank-circle me-2 vertical-middle"></i>Completada
+                  <div className="external-event" style={{backgroundColor: getColorForArea('generalsystech'), color: '#000', padding: '8px', marginBottom: '10px', borderRadius: '4px'}}>
+                    <i className="mdi mdi-server-network me-2 vertical-middle"></i>GeneralSystech
+                  </div>
+                  <div className="external-event" style={{backgroundColor: getColorForArea('smartsite'), color: '#000', padding: '8px', marginBottom: '10px', borderRadius: '4px'}}>
+                    <i className="mdi mdi-checkbox-blank-circle me-2 vertical-middle"></i>SmartSite
                   </div>
                 </div>
               </div>
@@ -298,52 +382,16 @@ const Calendario = () => {
                     ref={calendarRef}
                     plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
                     initialView="dayGridMonth"
-                    events={events}
-                    dateClick={handleDateClick}
-                    eventClick={handleEventClick}
-                    height="calc(100vh - 100px)"
                     headerToolbar={{
                       left: "prev,next today",
                       center: "title",
                       right: "dayGridMonth,timeGridWeek,timeGridDay,listMonth"
                     }}
-                    editable={true}
-                    droppable={true}
-                    selectable={true}
-                    eventDrop={async (info) => {
-                      try {
-                        const tareaData = {
-                          cliente_id: info.event.extendedProps.cliente_id,
-                          descripcion: info.event.title,
-                          fecha_vencimiento: info.event.start,
-                          estado: info.event.extendedProps.estado,
-                          responsable: info.event.extendedProps.responsable
-                        };
-                        
-                        await tareaService.actualizarTarea(info.event.id, tareaData);
-                        
-                        setEvents(events.map(event => 
-                          event.id === info.event.id 
-                            ? { ...event, start: info.event.start } 
-                            : event
-                        ));
-                      } catch (error) {
-                        console.error("Error al actualizar fecha:", error);
-                        info.revert();
-                      }
-                    }}
-                    eventContent={(eventInfo) => {
-                      const cliente = clientes.find(c => c._id === eventInfo.event.extendedProps.cliente_id);
-                      const clienteNombre = cliente ? cliente.nombre : "Sin cliente";
-                      
-                      return (
-                        <div>
-                          <div><strong>{eventInfo.event.title}</strong></div>
-                          <div><small>{clienteNombre}</small></div>
-                          <div><small>Responsable: {eventInfo.event.extendedProps.responsable}</small></div>
-                        </div>
-                      );
-                    }}
+                    events={events}
+                    dateClick={handleDateClick}
+                    eventClick={handleEventClick}
+                    eventDisplay="block"
+                    eventTextColor="#000" // Cambiado a negro para mejor visibilidad
                   />
                 )}
               </div>
@@ -352,7 +400,7 @@ const Calendario = () => {
         </div>
       </div>
 
-      {/* Modal para crear/editar tareas */}
+      {/* Modal para crear/editar/ver tareas */}
       <div 
         ref={modalRef} 
         className="modal fade" 
@@ -375,150 +423,44 @@ const Calendario = () => {
             </div>
             
             <div className="modal-body p-4">
-              <form onSubmit={handleEventSubmit} ref={formRef} noValidate>
-                <div className="mb-3">
-                  <label className="form-label">Cliente</label>
-                  {viewMode === "view" ? (
-                    <input 
-                      className="form-control" 
-                      value={clientes.find(c => c._id === newEvent.cliente_id)?.nombre || "No especificado"} 
-                      readOnly 
-                    />
-                  ) : (
-                    <select
-                      className="form-select"
-                      value={newEvent.cliente_id}
-                      onChange={(e) => setNewEvent({...newEvent, cliente_id: e.target.value})}
-                      required
-                      disabled={loading || viewMode === "view"}
-                    >
-                      <option value="">Seleccionar cliente</option>
-                      {clientes.map(cliente => (
-                        <option key={cliente._id} value={cliente._id}>
-                          {cliente.nombre}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                </div>
-                
-                <div className="mb-3">
-                  <label className="form-label">Descripción</label>
-                  <input
-                    className="form-control"
-                    placeholder="Descripción de la tarea"
-                    value={newEvent.descripcion}
-                    onChange={(e) => setNewEvent({...newEvent, descripcion: e.target.value})}
-                    required
-                    readOnly={viewMode === "view"}
-                    disabled={loading}
-                  />
-                </div>
-                
-                <div className="mb-3">
-                  <label className="form-label">Fecha de vencimiento</label>
-                  <input
-                    type="datetime-local"
-                    className="form-control"
-                    value={newEvent.fecha_vencimiento}
-                    onChange={(e) => setNewEvent({...newEvent, fecha_vencimiento: e.target.value})}
-                    required
-                    readOnly={viewMode === "view"}
-                    disabled={loading}
-                  />
-                </div>
-                
-                <div className="mb-3">
-                  <label className="form-label">Estado</label>
-                  {viewMode === "view" ? (
-                    <input 
-                      className="form-control" 
-                      value={newEvent.estado.toUpperCase()} 
-                      readOnly 
-                    />
-                  ) : (
-                    <select
-                      className="form-select"
-                      value={newEvent.estado}
-                      onChange={(e) => setNewEvent({
-                        ...newEvent, 
-                        estado: e.target.value,
-                        className: getClassNameByEstado(e.target.value)
-                      })}
-                      required
-                      disabled={loading}
-                    >
-                      <option value="pendiente">Pendiente</option>
-                      <option value="en progreso">En progreso</option>
-                      <option value="completada">Completada</option>
-                    </select>
-                  )}
-                </div>
-                
-                <div className="mb-3">
-                  <label className="form-label">Responsable</label>
-                  <input
-                    className="form-control"
-                    placeholder="Nombre del responsable"
-                    value={newEvent.responsable}
-                    onChange={(e) => setNewEvent({...newEvent, responsable: e.target.value})}
-                    required
-                    readOnly={viewMode === "view"}
-                    disabled={loading}
-                  />
-                </div>
-                
-                <div className="row mt-2">
-                  <div className="col-6">
-                    {modalMode === "edit" && viewMode === "view" && (
-                      <button 
-                        type="button" 
-                        className="btn btn-primary" 
-                        onClick={() => setViewMode("edit")}
-                        disabled={loading}
-                      >
-                        Editar
-                      </button>
-                    )}
-                    
-                    {modalMode === "edit" && viewMode === "edit" && (
-                      <button 
-                        type="button" 
-                        className="btn btn-danger" 
-                        onClick={handleDeleteEvent}
-                        disabled={loading}
-                      >
-                        {loading ? "Eliminando..." : "Eliminar"}
-                      </button>
-                    )}
-                  </div>
-                  
-                  <div className="col-6 text-end">
-                    <button
-                      type="button"
-                      className="btn btn-light me-1"
-                      onClick={closeModal}
-                      disabled={loading}
-                    >
-                      Cancelar
-                    </button>
-                    
-                    {viewMode === "edit" && (
-                      <button 
-                        type="submit" 
-                        className="btn btn-success"
-                        disabled={loading}
-                      >
-                        {loading 
-                          ? "Guardando..." 
-                          : modalMode === "create" 
-                            ? "Crear Tarea" 
-                            : "Guardar Cambios"}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </form>
+              {modalMode === "create" && (
+                <CrearTarea 
+                  newEvent={newEvent}
+                  clientes={clientes}
+                  loading={loading}
+                  handleInputChange={handleInputChange}
+                  handleSubmit={handleEventSubmit}
+                  closeModal={closeModal}
+                  getColorForArea={getColorForArea}
+                  getIconForArea={getIconForArea}
+                />
+              )}
+              
+              {modalMode === "edit" && viewMode === "edit" && (
+                <EditarTarea 
+                  newEvent={newEvent}
+                  clientes={clientes}
+                  loading={loading}
+                  handleInputChange={handleInputChange}
+                  handleSubmit={handleEventSubmit}
+                  handleDelete={handleDeleteEvent}
+                  closeModal={closeModal}
+                  getColorForArea={getColorForArea}
+                  getIconForArea={getIconForArea}
+                />
+              )}
+              
+              {modalMode === "edit" && viewMode === "view" && (
+                <VerTarea 
+                  newEvent={newEvent}
+                  clientes={clientes}
+                  loading={loading}
+                  changeToEditMode={() => setViewMode("edit")}
+                  closeModal={closeModal}
+                  getColorForArea={getColorForArea}
+                  getIconForArea={getIconForArea}
+                />
+              )}
             </div>
           </div>
         </div>

@@ -14,6 +14,7 @@ import Cronograma from "../pages/Cronograma";
 import Calendario from "../pages/calendario/Calendario";
 import CrearTarea from "../pages/calendario/CrearTarea";
 import EditarTarea from "../pages/calendario/EditarTarea";
+import VerTarea from "../pages/calendario/VerTarea";
 
 import ListaCotizaciones from "../pages/cotizacion/Lista-cotizacion";
 import CrearCotizacion from "../pages/cotizacion/CrearCotizacion";
@@ -83,12 +84,14 @@ const AppRoutes = () => {
 
             <Route path="/Home" element={<Home />} />
             <Route path="/Tablero" element={<Tablero />}/>
-            <Route path="/Calendario" element={<Calendario />}/>
+            <Route path="/Cronograma" element={<Cronograma />}/>
 
             {/*Tarea*/}
-            <Route path="/Cronograma" element={<Cronograma />}/>
+            
+            <Route path="/Calendario" element={<Calendario />}/>
             <Route path="/EditarTarea" element={<EditarTarea />}/>
             <Route path="/CrearTarea" element={<CrearTarea />}/>
+            <Route path="/VerTarea" element={<VerTarea />}/>
 
             {/*Cotizacion*/}
             <Route path="/Lista_cotizacion" element={<ListaCotizaciones />}/>
@@ -152,7 +155,7 @@ const AppRoutes = () => {
            <Route path="/interaccions/editar/:id" element={<EditarInteraccions/>} />
 
             {/*Nota*/}
-           <Route path="/Nota" element={<Nota />}/>
+           <Route path="/Nota" element={<Nota/>}/>
            <Route path="/Nota/CrearNota" element={<CrearNota />} />
            <Route path="/Nota/ver/:id" element={<DetalleNota/>} />
            <Route path="/Nota/editar/:id" element={<EditarNota/>} />

@@ -1,192 +1,155 @@
-import React, { useState, useEffect } from "react";
-import { Modal, Form, Button, Alert, Spinner } from "react-bootstrap";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import React from "react";
 
-const CrearTarea = ({ show, onHide, mode, tarea, onSave, onDelete, obtenerClientes }) => {
-  const [formData, setFormData] = useState({
-    cliente_id: '',
-    descripcion: '',
-    fecha_vencimiento: new Date(),
-    estado: 'pendiente',
-    responsable: ''
-  });
-
-  const [clientes, setClientes] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState('');
-  const [alertType, setAlertType] = useState('success');
-
-  // Inicializar formulario al seleccionar una tarea
-  useEffect(() => {
-    if (tarea) {
-      setFormData({
-        cliente_id: tarea.cliente_id || '',
-        descripcion: tarea.descripcion || '',
-        fecha_vencimiento: tarea.fecha_vencimiento ? new Date(tarea.fecha_vencimiento) : new Date(),
-        estado: tarea.estado || 'pendiente',
-        responsable: tarea.responsable || '',
-        id: tarea.id || null
-      });
-    } else {
-      setFormData({
-        cliente_id: '',
-        descripcion: '',
-        fecha_vencimiento: new Date(),
-        estado: 'pendiente',
-        responsable: ''
-      });
-    }
-  }, [tarea]);
-
-  // Obtener clientes al montar
-  useEffect(() => {
-    const fetchClientes = async () => {
-      try {
-        setIsLoading(true);
-        const fetchedClientes = await obtenerClientes();
-        setClientes(fetchedClientes);
-      } catch (err) {
-        console.error("Error al obtener clientes:", err);
-        setAlertType("danger");
-        setAlertMessage("Error al cargar los clientes");
-        setShowAlert(true);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (obtenerClientes) {
-      fetchClientes();
-    }
-  }, [obtenerClientes]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleDateChange = (date) => {
-    setFormData(prev => ({ ...prev, fecha_vencimiento: date }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const tareaData = {
-      ...formData,
-      fecha_vencimiento: formData.fecha_vencimiento.toISOString()
-    };
-    onSave(tareaData);
-  };
-
+const CrearTarea = ({ 
+  newEvent, 
+  clientes, 
+  loading, 
+  handleInputChange, 
+  handleSubmit, 
+  closeModal,
+  getColorForArea,
+  getIconForArea
+}) => {
+  // Visualización previa del color según el área seleccionada
+  const currentColor = getColorForArea(newEvent.area);
+  
   return (
-    <Modal show={show} onHide={onHide} size="lg">
-      <Modal.Header closeButton>
-        <Modal.Title>{mode === "create" ? "Crear Nueva Tarea" : "Editar Tarea"}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        {showAlert && (
-          <Alert variant={alertType} onClose={() => setShowAlert(false)} dismissible>
-            {alertMessage}
-          </Alert>
-        )}
-
-        <Form onSubmit={handleSubmit}>
-          <Form.Group className="mb-3">
-            <Form.Label>Cliente</Form.Label>
-            <Form.Control
-              as="select"
-              name="cliente_id"
-              value={formData.cliente_id}
-              onChange={handleChange}
+    <form className="needs-validation" onSubmit={handleSubmit} noValidate>
+      <div className="row">
+        <div className="col-12">
+          <div className="mb-3">
+            <label className="form-label">Cliente</label>
+            <select 
+              className="form-select"
+              value={newEvent.cliente_id}
+              onChange={(e) => handleInputChange('cliente_id', e.target.value)}
               required
-              disabled={isLoading}
+              disabled={loading}
             >
-              <option value="">Seleccione un cliente</option>
-              {clientes.map(cliente => (
-                <option key={cliente.id} value={cliente.id}>
+              <option value="">Seleccionar cliente...</option>
+              {clientes.map((cliente) => (
+                <option key={cliente._id} value={cliente._id}>
                   {cliente.nombre}
                 </option>
               ))}
-            </Form.Control>
-            {isLoading && <Spinner animation="border" size="sm" className="ms-2" />}
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Descripción</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              name="descripcion"
-              value={formData.descripcion}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Fecha de Vencimiento</Form.Label>
-            <DatePicker
-              selected={formData.fecha_vencimiento}
-              onChange={handleDateChange}
-              showTimeSelect
-              timeFormat="HH:mm"
-              timeIntervals={15}
-              dateFormat="MMMM d, yyyy h:mm aa"
-              className="form-control"
-              required
-            />
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Estado</Form.Label>
-            <Form.Control
-              as="select"
-              name="estado"
-              value={formData.estado}
-              onChange={handleChange}
-            >
-              <option value="pendiente">Pendiente</option>
-              <option value="en progreso">En Progreso</option>
-              <option value="completada">Completada</option>
-            </Form.Control>
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Responsable</Form.Label>
-            <Form.Control
-              type="text"
-              name="responsable"
-              value={formData.responsable}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
-
-          <div className="d-flex justify-content-between">
-            <div>
-              {mode === "edit" && (
-                <Button
-                  variant="danger"
-                  onClick={() => onDelete(formData.id)}
-                >
-                  Eliminar
-                </Button>
-              )}
-            </div>
-            <div>
-              <Button variant="secondary" onClick={onHide} className="me-2">
-                Cancelar
-              </Button>
-              <Button variant="primary" type="submit">
-                {mode === "create" ? "Crear Tarea" : "Guardar Cambios"}
-              </Button>
-            </div>
+            </select>
+            <div className="invalid-feedback">Por favor selecciona un cliente</div>
           </div>
-        </Form>
-      </Modal.Body>
-    </Modal>
+        </div>
+
+        <div className="col-12">
+          <div className="mb-3">
+            <label className="form-label">Descripción</label>
+            <input
+              type="text"
+              className="form-control"
+              value={newEvent.descripcion}
+              onChange={(e) => handleInputChange('descripcion', e.target.value)}
+              required
+              disabled={loading}
+            />
+            <div className="invalid-feedback">Por favor ingresa una descripción</div>
+          </div>
+        </div>
+
+        <div className="col-12">
+          <div className="mb-3">
+            <label className="form-label">Fecha de vencimiento</label>
+            <input
+              type="datetime-local"
+              className="form-control"
+              value={newEvent.fecha_vencimiento}
+              onChange={(e) => handleInputChange('fecha_vencimiento', e.target.value)}
+              required
+              disabled={loading}
+            />
+            <div className="invalid-feedback">Por favor selecciona una fecha</div>
+          </div>
+        </div>
+
+        <div className="col-12">
+          <div className="mb-3">
+            <label className="form-label">Área</label>
+            <div className="mb-2">
+              <div className="color-preview" style={{
+                height: '20px',
+                width: '100%',
+                backgroundColor: currentColor,
+                borderRadius: '4px',
+                marginBottom: '10px'
+              }}></div>
+            </div>
+            <select 
+              className="form-select"
+              value={newEvent.area}
+              onChange={(e) => handleInputChange('area', e.target.value)}
+              required
+              disabled={loading}
+            >
+              <option value="datax" style={{backgroundColor: getColorForArea('datax')}}>
+                DataX
+              </option>
+              <option value="studiodesign" style={{backgroundColor: getColorForArea('studiodesign')}}>
+                StudioDesign
+              </option>
+              <option value="generalsystech" style={{backgroundColor: getColorForArea('generalsystech')}}>
+                GeneralSystech
+              </option>
+              <option value="smartsite" style={{backgroundColor: getColorForArea('smartsite')}}>
+                SmartSite
+              </option>
+            </select>
+            <div className="invalid-feedback">Por favor selecciona un área</div>
+          </div>
+        </div>
+
+        <div className="col-12">
+          <div className="mb-3">
+            <label className="form-label">Responsable</label>
+            <input
+              type="text"
+              className="form-control"
+              value={newEvent.responsable}
+              onChange={(e) => handleInputChange('responsable', e.target.value)}
+              required
+              disabled={loading}
+            />
+            <div className="invalid-feedback">Por favor ingresa un responsable</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="row mt-2">
+        <div className="col">
+          <div className="d-grid gap-2">
+            <button 
+              type="button" 
+              className="btn btn-light" 
+              onClick={closeModal}
+              disabled={loading}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+        <div className="col">
+          <div className="d-grid gap-2">
+            <button 
+              type="submit" 
+              className="btn btn-success" 
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Guardando...
+                </>
+              ) : "Guardar"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
   );
 };
 

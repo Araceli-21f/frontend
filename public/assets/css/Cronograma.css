@@ -9,6 +9,7 @@
   border-radius: 0.25rem;
 }
 
+
 /* Override de estilos de dhtmlx-gantt */
 .gantt_container {
   font-family: inherit !important;
@@ -60,4 +61,89 @@
 /* Scrollbar */
 .gantt_hor_scroll {
   scrollbar-width: thin;
+}
+
+
+
+/* Estilos para FullCalendar */
+
+/* Evento DataX - Naranja/Amarillo */
+.event-datax {
+  background-color: #f0ad4e !important; /* bg-warning */
+  border-color: #eea236 !important;
+  color: #fff !important;
+}
+
+/* Evento StudioDesign - Azul */
+.event-studiodesign {
+  background-color: #5bc0de !important; /* bg-info */
+  border-color: #46b8da !important;
+  color: #fff !important;
+}
+
+/* Evento GeneralSystech - Verde */
+.event-generalsystech {
+  background-color: #5cb85c !important; /* bg-success */
+  border-color: #4cae4c !important;
+  color: #fff !important;
+}
+
+/* Evento SmartSite - Rojo */
+.event-smartsite {
+  background-color: #d9534f !important; /* bg-danger */
+  border-color: #d43f3a !important;
+  color: #fff !important;
+}
+
+/* Evento por defecto - Azul primario */
+.event-default {
+  background-color: #337ab7 !important; /* bg-primary */
+  border-color: #2e6da4 !important;
+  color: #fff !important;
+}
+
+/* Estilos para la leyenda */
+.external-event.event-datax {
+  background-color: #f0ad4e !important;
+  color: #fff;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.external-event.event-studiodesign {
+  background-color: #5bc0de !important;
+  color: #fff;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.external-event.event-generalsystech {
+  background-color: #5cb85c !important;
+  color: #fff;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.external-event.event-smartsite {
+  background-color: #d9534f !important;
+  color: #fff;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+/* Asegurar que los eventos sean más visibles */
+.fc-daygrid-event {
+  padding: 3px 5px !important;
+  margin-bottom: 2px !important;
+}
+
+/* Asegurar que el contenido dentro del evento sea visible */
+.fc-event-title, .fc-event-time {
+  color: #fff !important;
+  font-weight: bold !important;
+}
+
+/* Hacer que los eventos ocupen todo el ancho de la celda */
+.fc-daygrid-event-harness {
+  width: 100% !important;
 }
