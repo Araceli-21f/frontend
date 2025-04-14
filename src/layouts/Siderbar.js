@@ -22,23 +22,26 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
       
       <div className="navbar-brand-box">
 
-        <Link to="/" className="logo logo-dark">
-          <span className="logo-sm">
-            <img src="/assets/images/logo-sm.png" alt="Logo pequeño" height="22" />
-          </span>
-          <span className="logo-lg">
-            <img src="/assets/images/logo-dark.png" alt="Logo oscuro" height="20" />
-          </span>
-        </Link>
 
         <Link to="/" className="logo logo-light">
+        <span className="logo-lg">
+            <img src="/assets/images/logo-light.png" alt="Logo claro" height="25" />
+          </span>
           <span className="logo-sm">
             <img src="/assets/images/logo-sm.png" alt="Logo pequeño" height="22" />
           </span>
-          <span className="logo-lg">
-            <img src="/assets/images/logo-light.png" alt="Logo claro" height="20" />
-          </span>
+          
         </Link>
+        <Link to="/" className="logo logo-dark">
+        <span className="logo-lg">
+            <img src="/assets/images/logo-dark.png" alt="Logo oscuro" height="25" />
+          </span>
+          <span className="logo-sm">
+            <img src="/assets/images/logo-sm-dark.png" alt="Logo pequeño" height="22" />
+          </span>
+
+        </Link>
+
       </div>
 
       <button 
