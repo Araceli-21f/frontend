@@ -1,28 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect  } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import authService from "../../services/authService";
+//import FilialService from "../../services/FilialService";
 
 const Register = () => {
   const [name, setName] = useState("");
   const [apellidos, setApellidos] = useState(""); // Nuevo estado para apellidos
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [area, setArea] = useState(''); 
+  //const [filial_id, setFilialId] = useState("");
+  //const [filiales, setFiliales] = useState([]); 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+    
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !apellidos || !email || !area || !password) {
+    if (!name || !apellidos || !email || !password) {
       setError("Todos los campos son obligatorios.");
       setMessage("");
       return;
     }
 
     try {
-      const data = await authService.register(name, apellidos, email, password, area);
+      const data = await authService.register(name, apellidos, email, password, );
       setMessage("Registro exitoso! Bienvenido a Minible.");
       setError("");
       console.log("Token: ", data.token);
@@ -88,21 +91,7 @@ const Register = () => {
                           placeholder="Ingresa tu email" 
                         />
                       </div>
-                      <div className="mb-3">
-                        <label className="form-label">Área/Departamento</label>
-                        <select 
-                          className="form-select"
-                          value={area}
-                          onChange={(e) => setArea(e.target.value)}
-                        >
-                          <option value="">Selecciona un área</option>
-                          <option value="Ventas">Ventas</option>
-                          <option value="Marketing">Marketing</option>
-                          <option value="TI">TI</option>
-                          <option value="Recursos Humanos">Recursos Humanos</option>
-                          <option value="Operaciones">Operaciones</option>
-                        </select>
-                      </div>
+                    
                       <div className="mb-3">
                         <label className="form-label">Contraseña</label>
                         <input 
