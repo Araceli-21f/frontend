@@ -3,31 +3,21 @@ import React from "react";
 const VerTarea = ({ 
   newEvent, 
   clientes, 
+  filiales,
   loading, 
   changeToEditMode, 
   closeModal,
-  getColorForArea,
-  getIconForArea
+  getColorForFilial,
+  getIconForFilial
 }) => {
   // Buscar el cliente
   const cliente = clientes.find(c => c._id === newEvent.cliente_id);
   const clienteNombre = cliente ? cliente.nombre : "Sin cliente";
   
-  // Función para formatear el nombre del área para mostrar
-  const formatAreaName = (area) => {
-    if (!area) return "Sin área";
-    
-    const areaLower = String(area).toLowerCase();
-    
-    switch(areaLower) {
-      case 'datax': return 'DataX';
-      case 'studiodesign': return 'StudioDesign';
-      case 'generalsystech': return 'GeneralSystech';
-      case 'smartsite': return 'SmartSite';
-      default: return area;
-    }
-  };
-
+  // Buscar la filial
+  const filial = filiales.find(f => f._id === newEvent.filial_id);
+  const filialNombre = filial ? filial.nombre_filial : "Sin filial";
+  
   // Formatear la fecha para mostrar
   const formatDate = (dateString) => {
     if (!dateString) return "Sin fecha";
@@ -65,17 +55,17 @@ const VerTarea = ({
       </div>
       
       <div className="mb-3">
-        <h6 className="text-muted">Área:</h6>
+        <h6 className="text-muted">Filial:</h6>
         <div 
-          className="p-2 text-dark" // Cambiado a text-dark para mejor contraste
+          className="p-2 text-dark"
           style={{ 
-            backgroundColor: getColorForArea(newEvent.area),
+            backgroundColor: filial ? getColorForFilial(filial.nombre_filial) : '#6c757d',
             borderRadius: '4px',
             display: 'inline-block'
           }}
         >
-          <i className={`mdi ${getIconForArea(newEvent.area)} me-2`}></i>
-          {formatAreaName(newEvent.area)}
+          <i className={`mdi ${filial ? getIconForFilial(filial.nombre_filial) : 'mdi-help-circle'} me-2`}></i>
+          {filialNombre}
         </div>
       </div>
       

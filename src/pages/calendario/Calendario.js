@@ -9,6 +9,8 @@ import Layout from "../../layouts/pages/layout";
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle";
 import TareaService from "../../services/TareaService";
 import ClienteService from "../../services/ClienteService";
+import FilialService from "../../services/FilialService";
+import UserService from "../../services/UserService";
 import CrearTarea from "../calendario/CrearTarea";
 import EditarTarea from "../calendario/EditarTarea";
 import VerTarea from "../calendario/VerTarea";
@@ -16,6 +18,8 @@ import VerTarea from "../calendario/VerTarea";
 const Calendario = () => {
   const [events, setEvents] = useState([]);
   const [clientes, setClientes] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
+  const [filiales, setFiliales] = useState([]);
   const [loading, setLoading] = useState(false);
   
   const [newEvent, setNewEvent] = useState({ 
@@ -23,13 +27,11 @@ const Calendario = () => {
     cliente_id: "",
     descripcion: "",
     fecha_vencimiento: "",
-    area: "datax", 
-    responsable: ""
+    filial_id: "", 
+    estado: "pendiente", 
+    usuario_id: "",
+ 
   });
-  
-  if (module.hot) {
-    module.hot.accept();
-  }
 
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState("create");
@@ -40,55 +42,75 @@ const Calendario = () => {
 
   const tareaService = useRef(TareaService());
   const clienteService = useRef(ClienteService());
-
-  // Función para obtener el color según el área - MODIFICADA para ser más robusta
-  const getColorForArea = useCallback((area) => {
-    // Aseguramos que area existe y la convertimos a minúsculas para evitar problemas de case sensitivity
-    if (!area) return 'gray';
-    
-    const areaLower = String(area).toLowerCase();
-    let color;
-    
-    switch(areaLower) {
-      case 'datax': color = '#34c38f'; break;
-      case 'studiodesign': color = '#f46a6a'; break;
-      case 'generalsystech': color = '#50a5f1'; break;
-      case 'smartsite': color = '#f1b44c'; break;
-      default: color = 'gray';
-    }
-    
-    console.log(`Área: ${area}, Color asignado: ${color}`); 
-    return color;
+  const filialService = useRef(FilialService());
+  const userService = useRef(UserService());
+  // Función para obtener el color según la filial
+  const getColorForFilial = useCallback((nombre_filial) => {
+    const colors = {
+      'DataX': '#34c38f',      // Verde
+      'StudioDesign': '#f46a6a', // Rojo
+      'GeneralSystech': '#50a5f1', // Azul
+      'SmartSite': '#f1b44c'    // Amarillo
+    };
+    return colors[nombre_filial] || '#cccccc';
   }, []);
 
-  // Cargar tareas y clientes al iniciar
+  // Función para obtener ícono según la filial
+  const getIconForFilial = useCallback((nombre_filial) => {
+    const icons = {
+      'DataX': 'mdi-database',
+      'StudioDesign': 'mdi-vector-arrange-above',
+      'GeneralSystech': 'mdi-server-network',
+      'SmartSite': 'mdi-checkbox-blank-circle'
+    };
+    return icons[nombre_filial] || 'mdi-help-circle';
+  }, []);
+
+  // Cargar datos iniciales
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const tareas = await tareaService.current.obtenerTareas();
-        const clientesData = await clienteService.current.obtenerClientes();
+        const [tareas, clientesData, filialesData, usuariosData] = await Promise.all([
+          tareaService.current.obtenerTareas(),
+          clienteService.current.obtenerClientes(),
+          filialService.current.obtenerFilials(), // Faltaba esta coma
+          userService.current.obtenerUsuarios() 
+        ]);
         
         setClientes(clientesData);
+        setFiliales(filialesData);
+        setUsuarios(usuariosData);
+  
         
-        console.log("Datos de las tareas:", tareas);
+        // Crear mapa de filiales para fácil acceso
+        const filialesMap = {};
+        filialesData.forEach(filial => {
+          filialesMap[filial._id] = filial.nombre_filial;
+        });
+        
+        const usuariosMap = {};
+        usuariosData.forEach(usuario => {
+          usuariosMap[usuario._id] = usuario;
+        });
+
         // Mapear tareas a eventos del calendario
         const eventos = tareas.map(tarea => {
-          // Añadimos logging para verificar cada tarea y su color asignado
-          const color = getColorForArea(tarea.area);
-          console.log(`Mapeando tarea: ${tarea._id}, Área: ${tarea.area}, Color: ${color}`);
-          
+          const nombreFilial = filialesMap[tarea.filial_id] || 'Desconocida';
+          const usuario = usuariosMap[tarea.usuario_id] || {};
           return {
             id: tarea._id,
             title: tarea.descripcion,
             start: tarea.fecha_vencimiento,
-            backgroundColor: color,
-            borderColor: color,
+            backgroundColor: getColorForFilial(nombreFilial),
+            borderColor: getColorForFilial(nombreFilial),
             textColor: '#000',
             extendedProps: {
               cliente_id: tarea.cliente_id,
-              area: tarea.area,
-              responsable: tarea.responsable
+              filial_id: tarea.filial_id,
+              nombre_filial: nombreFilial,
+              estado: tarea.estado,
+              usuario_id: tarea.usuario_id,
             }
           };
         });
@@ -102,7 +124,7 @@ const Calendario = () => {
     };
     
     fetchData();
-  }, [getColorForArea]);
+  }, [getColorForFilial]);
 
   // Función para cerrar el modal
   const closeModal = () => {
@@ -121,8 +143,10 @@ const Calendario = () => {
       cliente_id: "",
       descripcion: "",
       fecha_vencimiento: info.dateStr,
-      area: "datax", // Establecemos un valor por defecto para asegurar que siempre haya un área
-      responsable: ""
+      filial_id: filiales[0]?._id || "",
+      estado: "pendiente",
+      usuario_id: "",
+  
     });
     setModalMode("create");
     setViewMode("edit");
@@ -130,17 +154,15 @@ const Calendario = () => {
   };
 
   const handleEventClick = (info) => {
-    // Verificamos y extraemos la información correctamente
     const eventData = {
       id: info.event.id,
       cliente_id: info.event.extendedProps.cliente_id?._id || info.event.extendedProps.cliente_id,
-      descripcion: info.event.title,
+      descripcion: info.event.title.split(' (Asignada a:')[0], // Extraer solo la descripción
       fecha_vencimiento: info.event.startStr,
-      area: info.event.extendedProps.area || "datax", // Valor por defecto si no hay área
-      responsable: info.event.extendedProps.responsable
+      filial_id: info.event.extendedProps.filial_id,
+      estado: info.event.extendedProps.estado || "pendiente",
+      usuario_id: info.event.extendedProps.usuario_id
     };
-    
-    console.log("Evento clickeado:", eventData);
     
     setNewEvent(eventData);
     setModalMode("edit");
@@ -148,11 +170,11 @@ const Calendario = () => {
     setShowModal(true);
   };
 
-  // Manejo de creación y edición de tareas - MODIFICADO
+  // Manejo de creación y edición de tareas
   const handleEventSubmit = async (e) => {
     e.preventDefault();
     
-    if (!newEvent.descripcion.trim() || !newEvent.cliente_id || !newEvent.responsable) {
+    if (!newEvent.descripcion.trim() || !newEvent.filial_id ) {
       alert("Por favor complete todos los campos obligatorios");
       return;
     }
@@ -160,19 +182,15 @@ const Calendario = () => {
     try {
       setLoading(true);
       
-      // Aseguramos que el área siempre tenga un valor válido
-      const area = newEvent.area || "datax"; 
-      
       const tareaData = {
-        cliente_id: newEvent.cliente_id,
+        cliente_id: newEvent.cliente_id || null,
         descripcion: newEvent.descripcion,
         fecha_vencimiento: newEvent.fecha_vencimiento,
-        area: area,
-        responsable: newEvent.responsable
+        filial_id: newEvent.filial_id,
+        estado: newEvent.estado,
+        usuario_id: newEvent.usuario_id,
       };
 
-      console.log("Guardando tarea con datos:", tareaData);
-      
       let response;
       
       if (modalMode === "edit" && newEvent.id) {
@@ -181,55 +199,37 @@ const Calendario = () => {
         response = await tareaService.current.crearTarea(tareaData);
       }
 
-      console.log("Respuesta del servidor:", response);
-      
-      // Aseguramos que tenemos un área válida después de la respuesta
-      const responseArea = response.area || area;
-      
-      // Obtenemos el color basado en el área
-      const color = getColorForArea(responseArea);
-      console.log(`Color asignado después de guardar: ${color} para área: ${responseArea}`);
+      // Obtener nombre de la filial para el color
+      const filial = filiales.find(f => f._id === response.filial_id);
+      const nombreFilial = filial ? filial.nombre_filial : 'Desconocida';
+      const usuario = usuarios.find(u => u._id === response.usuario_id) || {};
 
-      // Actualizar el calendario con el evento nuevo o modificado
+      // Actualizar el calendario
+       const updatedEvent = {
+        id: response._id,
+        title: `${response.descripcion} (Asignada a: ${usuario.nombre || 'Sin asignar'})`,
+        start: response.fecha_vencimiento,
+        backgroundColor: getColorForFilial(nombreFilial),
+        borderColor: getColorForFilial(nombreFilial),
+        textColor: '#000',
+        extendedProps: {
+          cliente_id: response.cliente_id,
+          filial_id: response.filial_id,
+          nombre_filial: nombreFilial,
+          estado: response.estado,
+          usuario_id: response.usuario_id,
+          usuario_nombre: usuario.nombre || 'Sin asignar'
+        }
+      };
+
       if (modalMode === "edit") {
-        // Para edición, actualizamos el evento existente
         setEvents(prevEvents => 
           prevEvents.map(event => 
-            event.id === newEvent.id 
-              ? { 
-                  ...event, 
-                  title: response.descripcion,
-                  start: response.fecha_vencimiento,
-                  backgroundColor: color,
-                  borderColor: color,
-                  textColor: '#000',
-                  extendedProps: {
-                    cliente_id: response.cliente_id,
-                    area: responseArea,
-                    responsable: response.responsable
-                  }
-                } 
-              : event
+            event.id === newEvent.id ? updatedEvent : event
           )
         );
       } else {
-        // Para creación, añadimos un nuevo evento
-        const newCalendarEvent = {
-          id: response._id,
-          title: response.descripcion,
-          start: response.fecha_vencimiento,
-          backgroundColor: color,
-          borderColor: color,
-          textColor: '#000',
-          extendedProps: {
-            cliente_id: response.cliente_id,
-            area: responseArea,
-            responsable: response.responsable
-          }
-        };
-        
-        console.log("Nuevo evento a añadir:", newCalendarEvent);
-        setEvents(prevEvents => [...prevEvents, newCalendarEvent]);
+        setEvents(prevEvents => [...prevEvents, updatedEvent]);
       }
 
       closeModal();
@@ -283,31 +283,7 @@ const Calendario = () => {
 
   // Manejo de cambio en el formulario
   const handleInputChange = (field, value) => {
-    setNewEvent(prev => {
-      const updated = { ...prev, [field]: value };
-      
-      // Si cambia el área, mostrar el valor actualizado
-      if (field === 'area') {
-        console.log(`Área cambiada a: ${value}, color correspondiente: ${getColorForArea(value)}`);
-      }
-      
-      return updated;
-    });
-  };
-
-  // Obtener ícono según el área
-  const getIconForArea = (area) => {
-    if (!area) return 'mdi-help-circle';
-    
-    const areaLower = String(area).toLowerCase();
-    
-    switch(areaLower) {
-      case 'datax': return 'mdi-database';
-      case 'studiodesign': return 'mdi-vector-arrange-above';
-      case 'generalsystech': return 'mdi-server-network';
-      case 'smartsite': return 'mdi-checkbox-blank-circle';
-      default: return 'mdi-help-circle';
-    }
+    setNewEvent(prev => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -325,8 +301,10 @@ const Calendario = () => {
                       cliente_id: "",
                       descripcion: "",
                       fecha_vencimiento: "",
-                      area: "datax", // Establecemos un valor por defecto
-                      responsable: ""
+                      filial_id: filiales[0]?._id || "",
+                      estado: "pendiente",
+                      usuario_id: "",
+                    
                     });
                     setModalMode("create");
                     setViewMode("edit");
@@ -349,20 +327,23 @@ const Calendario = () => {
                 </div>
                 
                 <div id="external-events" className="mt-2">
-                  <p className="text-muted">Leyenda de areas:</p>
-                  {/* Actualizado para mostrar los colores correctos en la leyenda */}
-                  <div className="external-event" style={{backgroundColor: getColorForArea('datax'), color: '#000', padding: '8px', marginBottom: '10px', borderRadius: '4px'}}>
-                    <i className="mdi mdi-database me-2 vertical-middle"></i>DataX
-                  </div>
-                  <div className="external-event" style={{backgroundColor: getColorForArea('studiodesign'), color: '#000', padding: '8px', marginBottom: '10px', borderRadius: '4px'}}>
-                    <i className="mdi mdi-vector-arrange-above me-2 vertical-middle"></i>StudioDesign
-                  </div>
-                  <div className="external-event" style={{backgroundColor: getColorForArea('generalsystech'), color: '#000', padding: '8px', marginBottom: '10px', borderRadius: '4px'}}>
-                    <i className="mdi mdi-server-network me-2 vertical-middle"></i>GeneralSystech
-                  </div>
-                  <div className="external-event" style={{backgroundColor: getColorForArea('smartsite'), color: '#000', padding: '8px', marginBottom: '10px', borderRadius: '4px'}}>
-                    <i className="mdi mdi-checkbox-blank-circle me-2 vertical-middle"></i>SmartSite
-                  </div>
+                  <p className="text-muted">Leyenda de filiales:</p>
+                  {filiales.map(filial => (
+                    <div 
+                      key={filial._id}
+                      className="external-event" 
+                      style={{
+                        backgroundColor: getColorForFilial(filial.nombre_filial),
+                        color: '#000', 
+                        padding: '8px', 
+                        marginBottom: '10px', 
+                        borderRadius: '4px'
+                      }}
+                    >
+                      <i className={`mdi ${getIconForFilial(filial.nombre_filial)} me-2 vertical-middle`}></i>
+                      {filial.nombre_filial}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -391,7 +372,7 @@ const Calendario = () => {
                     dateClick={handleDateClick}
                     eventClick={handleEventClick}
                     eventDisplay="block"
-                    eventTextColor="#000" // Cambiado a negro para mejor visibilidad
+                    eventTextColor="#000"
                   />
                 )}
               </div>
@@ -427,12 +408,11 @@ const Calendario = () => {
                 <CrearTarea 
                   newEvent={newEvent}
                   clientes={clientes}
+                  filiales={filiales}
                   loading={loading}
                   handleInputChange={handleInputChange}
                   handleSubmit={handleEventSubmit}
                   closeModal={closeModal}
-                  getColorForArea={getColorForArea}
-                  getIconForArea={getIconForArea}
                 />
               )}
               
@@ -440,13 +420,12 @@ const Calendario = () => {
                 <EditarTarea 
                   newEvent={newEvent}
                   clientes={clientes}
+                  filiales={filiales}
                   loading={loading}
                   handleInputChange={handleInputChange}
                   handleSubmit={handleEventSubmit}
                   handleDelete={handleDeleteEvent}
                   closeModal={closeModal}
-                  getColorForArea={getColorForArea}
-                  getIconForArea={getIconForArea}
                 />
               )}
               
@@ -454,11 +433,10 @@ const Calendario = () => {
                 <VerTarea 
                   newEvent={newEvent}
                   clientes={clientes}
+                  filiales={filiales}
                   loading={loading}
                   changeToEditMode={() => setViewMode("edit")}
                   closeModal={closeModal}
-                  getColorForArea={getColorForArea}
-                  getIconForArea={getIconForArea}
                 />
               )}
             </div>
