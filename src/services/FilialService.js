@@ -6,7 +6,7 @@ const FilialService = () => {
     const [error, setError] = useState(null);
     const baseURL = 'http://localhost:8000/Filiales';
 
-    const obtenerFiliales = useCallback(async () => {
+    const obtenerFilials = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
@@ -80,7 +80,7 @@ const FilialService = () => {
     return {
         loading,
         error,
-        obtenerFiliales,
+        obtenerFilials,
         crearFilial,
         obtenerFilialPorId,
         actualizarFilial,
