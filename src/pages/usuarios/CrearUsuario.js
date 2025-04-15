@@ -94,26 +94,10 @@ const CrearUsuario = ({ onUsuarioCreado }) => {
             isValid = false;
         }
 
-<<<<<<< HEAD
-  return (
-    <Layout>
-      <div className="row">
-        <div className="col">
-          <div className="card p-4">
-          <div className="invoice-title d-flex justify-content-between align-items-center">
-            <h3 className="font-size-h4">Crear Usuario</h3>
-          <div className="mb-6">
-            <img src="/assets/images/logo-dark.png" alt="logo" height="25" className="logo-dark" />  
-            <img src="/assets/images/logo-light.png" alt="logo" height="25" className="logo-light" />
-           </div>
-         </div>
-            <hr className="my-3"/>
-=======
         if (!formData.filial_id) {
             newErrors.filial_id = "Seleccione una filial";
             isValid = false;
         }
->>>>>>> 784029194dd0f603bc39bbd3e08b412b20f5d08a
 
         setErrors(newErrors);
         return isValid;

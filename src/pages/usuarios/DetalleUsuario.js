@@ -55,26 +55,6 @@ const DetalleUsuario = ({ entidad }) => {
       loadingMessage="Cargando datos..."
       errorMessage={error?.message}
     >
-<<<<<<< HEAD
-    <Layout>
-      <div className="row">
-        <div className="col-lg-12">
-          <div className="card">
-            <div className="card-body">
-              <div className="invoice-title">
-                <h4 className="float-end font-size-16">Usuario   #{user?._id}</h4>
-                <div className="text-muted">
-                  <h3 className="font-size-h4 mb-1">Detalles del Usuario</h3>
-                </div>
-              </div>
-
-              <hr className="my-3" />
-
-              <div className="row">
-                {/* Columna para la Foto */}
-                <div className="col-md-4">
-                  <div className="text-center">
-=======
       <Layout>
         <div className="row">
           <div className="col-lg-12">
@@ -83,7 +63,6 @@ const DetalleUsuario = ({ entidad }) => {
                 <div className="invoice-title">
                   <h4 className="float-end font-size-16">Usuario #{user?._id}</h4>
                   <div className="mb-4">
->>>>>>> 784029194dd0f603bc39bbd3e08b412b20f5d08a
                     <img
                       src="/assets/images/logo-dark.png"
                       alt="logo"
