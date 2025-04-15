@@ -15,7 +15,7 @@ const Lista_usuarios = () => {
     const [users, setUsers] = useState([]);
     const [filiales, setFiliales] = useState([]);
     const { loading: userLoading, error: userError, obtenerUsuarios, eliminarUsuario } = UserService();
-    const { loading: filialLoading, error: filialError, obtenerFiliales } = FilialService();
+    const { loading: filialLoading, error: filialError, obtenerFilials } = FilialService();
 
     const loading = userLoading || filialLoading;
     const error = userError || filialError;
@@ -32,7 +32,7 @@ const Lista_usuarios = () => {
             try {
                 const [fetchedUsers, fetchedFiliales] = await Promise.all([
                     obtenerUsuarios(),
-                    obtenerFiliales()
+                    obtenerFilials()
                 ]);
                 
                 console.log("Datos de usuarios:", fetchedUsers);
@@ -45,7 +45,7 @@ const Lista_usuarios = () => {
             }
         };
         fetchData();
-    }, [obtenerUsuarios, obtenerFiliales]);
+    }, [obtenerUsuarios, obtenerFilials]);
 
     // Crear mapa de filiales para búsqueda rápida
     const filialMap = {};

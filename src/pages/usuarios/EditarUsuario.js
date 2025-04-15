@@ -9,7 +9,7 @@ const EditarUsuario = ({ entidad }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { obtenerUsuarioPorId, actualizarUsuario } = UserService();
-  const { obtenerFiliales } = FilialService();
+  const { obtenerFilials } = FilialService();
   
   const [user, setUser] = useState({
     name: "", 
@@ -33,7 +33,7 @@ const EditarUsuario = ({ entidad }) => {
       try {
         const [foundUser, filialesData] = await Promise.all([
           obtenerUsuarioPorId(id),
-          obtenerFiliales()
+          obtenerFilials()
         ]);
         
         if (!foundUser) throw new Error("Usuario no encontrado");

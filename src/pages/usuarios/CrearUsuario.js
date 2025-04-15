@@ -8,7 +8,7 @@ import FilialService from "../../services/FilialService";
 const CrearUsuario = ({ onUsuarioCreado }) => {
     const navigate = useNavigate();
     const { crearUsuario } = UserService();
-    const { obtenerFiliales, loading: loadingFiliales, error: errorFiliales } = FilialService();
+    const { obtenerFilials, loading: loadingFiliales, error: errorFiliales } = FilialService();
     
     const [formData, setFormData] = useState({ 
         name: "", 
@@ -41,7 +41,7 @@ const CrearUsuario = ({ onUsuarioCreado }) => {
     useEffect(() => {
         const cargarFiliales = async () => {
             try {
-                const data = await obtenerFiliales();
+                const data = await obtenerFilials();
                 setFiliales(data);
             } catch (error) {
                 console.error("Error cargando filiales:", error);
@@ -51,7 +51,7 @@ const CrearUsuario = ({ onUsuarioCreado }) => {
             }
         };
         cargarFiliales();
-    }, [obtenerFiliales]);
+    }, [obtenerFilials]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;

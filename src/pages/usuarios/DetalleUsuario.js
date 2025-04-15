@@ -8,7 +8,7 @@ import FilialService from "../../services/FilialService";
 const DetalleUsuario = ({ entidad }) => {
   const { id } = useParams();
   const { error: userError, obtenerUsuarioPorId } = UserService();
-  const { error: filialError, obtenerFiliales } = FilialService();
+  const { error: filialError, obtenerFilials } = FilialService();
   
   const [user, setUser] = useState(null);
   const [filiales, setFiliales] = useState([]);
@@ -21,7 +21,7 @@ const DetalleUsuario = ({ entidad }) => {
       try {
         const [userData, filialesData] = await Promise.all([
           obtenerUsuarioPorId(id),
-          obtenerFiliales()
+          obtenerFilials()
         ]);
         
         console.log("Datos del usuario obtenidos:", userData);
