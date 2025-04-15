@@ -7,28 +7,80 @@ import BotonesAccion from "../../components/BotonesAccion";
 import AlertComponent from '../../components/AlertasComponent';
 import LoadingError from "../../components/LoadingError";
 import UserService from "../../services/UserService";
+import FilialService from "../../services/FilialService";
 
 const Lista_usuarios = () => {
     const [alert, setAlert] = useState(null);
     const navigate = useNavigate();
     const [users, setUsers] = useState([]);
-    const { loading, error, obtenerUsuarios, eliminarUsuario } = UserService();
+    const [filiales, setFiliales] = useState([]);
+    const { loading: userLoading, error: userError, obtenerUsuarios, eliminarUsuario } = UserService();
+    const { loading: filialLoading, error: filialError, obtenerFiliales } = FilialService();
 
-    //Manda un hook de busqueda y filtrar
+    const loading = userLoading || filialLoading;
+    const error = userError || filialError;
+
+    // Manda un hook de busqueda y filtrar
     const {
         searchTerm, filterType, filterValue,
         handleSearchChange, handleFilterTypeChange, handleFilterValueChange
     } = useSearchFilter("rol");
 
+    // Obtiene filiales y usuarios
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [fetchedUsers, fetchedFiliales] = await Promise.all([
+                    obtenerUsuarios(),
+                    obtenerFiliales()
+                ]);
+                
+                console.log("Datos de usuarios:", fetchedUsers);
+                console.log("Datos de filiales:", fetchedFiliales);
+                
+                setUsers(fetchedUsers);
+                setFiliales(fetchedFiliales);
+            } catch (err) {
+                console.error("Error al obtener datos:", err);
+            }
+        };
+        fetchData();
+    }, [obtenerUsuarios, obtenerFiliales]);
+
+    // Crear mapa de filiales para búsqueda rápida
+    const filialMap = {};
+    filiales.forEach(filial => {
+        filialMap[filial._id] = filial.nombre_filial;
+    });
+
     const filteredUsuarios = users.filter((user) => {
         const nombre = user.name || ''; 
         const matchesSearch = nombre.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesFilter = filterValue === "Todos" || user[filterType] === filterValue;
+        
+        // Obtener nombre de filial para el usuario actual
+        const userFilialName = user.filial_id ? filialMap[user.filial_id] : null;
+        
+        const matchesFilter = filterValue === "Todos" || 
+            (filterType === "filial" ? 
+                (userFilialName ? userFilialName === filterValue : false) : 
+                user[filterType] === filterValue);
+        
         return matchesSearch && matchesFilter;
     });
-    const filterOptions = ["Todos", ...new Set(users.map((user) => user[filterType]))];
+    
+    const filterOptions = ["Todos"];
+    if (filterType === "filial") {
+        // Obtener nombres únicos de filiales que existen en usuarios
+        const filialesEnUsuarios = users
+            .map(user => user.filial_id ? filialMap[user.filial_id] : null)
+            .filter(name => name !== null);
+        
+        filterOptions.push(...new Set(filialesEnUsuarios));
+    } else {
+        filterOptions.push(...new Set(users.map(user => user[filterType])));
+    }
 
-    //Manda un hook de busqueda y filtrar
+    // Manda un hook de paginación
     const { current: currentusers, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredUsuarios, 5);
 
     //Obtiene a los usuarios
@@ -55,8 +107,8 @@ const Lista_usuarios = () => {
             console.error("Error al eliminar usuario:", err);
         }
     };
-    //confirma la eliminacion
-    const handleConfirmDelete = (id) => {
+     //confirma la eliminacion
+     const handleConfirmDelete = (id) => {
         handleDelete(id);
         setAlert(null);
     };
@@ -74,7 +126,6 @@ const Lista_usuarios = () => {
             console.error('Usuario no encontrado');
         }
     };
-
     return (
         <LoadingError
           loading={loading}
@@ -94,17 +145,16 @@ const Lista_usuarios = () => {
                 />
             )}
             <div className="card p-3">
-                <h2 className="mb-3 ">Lista de Usuarios</h2>
+                <h2 className="mb-3">Lista de Usuarios</h2>
 
                 <div className="col-md">
                     <div className="row">
-                        {/* Barra de búsqueda (4 columnas) */}
                         <div className="col-md-4 mb-2">
                             <div className="input-group shadow-sm">
                                 <input
                                     type="text"
                                     className="form-control pe-5"
-                                    placeholder="Buscar Cliente ..."
+                                    placeholder="Buscar Usuario ..."
                                     value={searchTerm}
                                     onChange={handleSearchChange}
                                 />
@@ -114,24 +164,21 @@ const Lista_usuarios = () => {
                             </div>
                         </div>
                         <div className="col-md-4 mb-2 d-flex align-items-center">
-                        <div className="input-group w-100 shadow-sm">
-                            {/* Ícono de filtro fuera del grupo, con fondo redondeado */}
-                            <span className="me-0 p-2 text-white bg-primary rounded-1 d-flex justify-content-center align-items-center">
-                                <i className="uil-filter fs-6"></i>
-                            </span>
-                             {/* Select de tipo de filtro */}
-                             <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
-                                 <option value="rol">Filtrar por Rol</option>
-                                 <option value="area">Filtrar por Área</option>
-                             </select>
-                             {/* Select dinámico de valores */}
-                             <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
-                                {filterOptions.map(option => (
-                                <option key={option} value={option}>{option}</option>
-                                ))}
+                            <div className="input-group w-100 shadow-sm">
+                                <span className="me-0 p-2 text-white bg-primary rounded-1 d-flex justify-content-center align-items-center">
+                                    <i className="uil-filter fs-6"></i>
+                                </span>
+                                <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
+                                    <option value="rol">Filtrar por Rol</option>
+                                    <option value="filial">Filtrar por Filial</option>
                                 </select>
-                             </div>
-                         </div>
+                                <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
+                                    {filterOptions.map((option, index) => (
+                                        <option key={`${option}-${index}`} value={option}>{option}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
                         <div className="col-md-4 mb-2">
                             <div className="input-group">
                                 <Link to="/usuarios/CrearUsuario" className="input-daterange input-group btn btn-outline-success waves-effect waves-light">
@@ -152,7 +199,7 @@ const Lista_usuarios = () => {
                                     <th>Apellido</th>
                                     <th>Email</th>
                                     <th>Rol</th>
-                                    <th>Área</th>
+                                    <th>Filial</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -164,9 +211,9 @@ const Lista_usuarios = () => {
                                         <td>{user.apellidos}</td>
                                         <td>{user.email}</td>
                                         <td>{user.rol_user}</td>
-                                        <td>{user.area}</td>
+                                        <td>{user.filial_id ? filialMap[user.filial_id] || 'Filial no encontrada' : 'Sin filial'}</td>
                                         <td>
-                                            <BotonesAccion 
+                                        <BotonesAccion 
                                             id={user._id} 
                                             entidad="usuario"
                                             onDelete={handleDelete} 
@@ -179,7 +226,8 @@ const Lista_usuarios = () => {
                         </table>
                     </div>
                 </div>
-                {/* Paginacion */}
+                
+                {/* Paginación */}
                 <div className="d-flex justify-content-between align-items-center mt-3">
                     <button
                         className="btn btn-secondary shadow-sm"
@@ -201,7 +249,7 @@ const Lista_usuarios = () => {
             <br />
         </Layout>
         </LoadingError>
-      );
+    );
 };
 
 export default Lista_usuarios;
