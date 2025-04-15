@@ -1,15 +1,13 @@
 import React, { useState, useEffect  } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import authService from "../../services/authService";
-//import FilialService from "../../services/FilialService";
+
 
 const Register = () => {
   const [name, setName] = useState("");
-  const [apellidos, setApellidos] = useState(""); // Nuevo estado para apellidos
+  const [apellidos, setApellidos] = useState(""); 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  //const [filial_id, setFilialId] = useState("");
-  //const [filiales, setFiliales] = useState([]); 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
