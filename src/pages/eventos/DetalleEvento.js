@@ -38,8 +38,8 @@ const DetalleEvento = () => {
                   <div className="invoice-title">
                     <div className="d-flex justify-content-between align-items-start mb-3">
                       <div className="mb-2">
-                        <img src="/assets/images/logo-dark.png" alt="logo" height="20" className="logo-dark"/>
-                        <img src="/assets/images/logo-light.png" alt="logo" height="20" className="logo-light"/>
+                        <img src="/assets/images/logo-dark.png" alt="logo" height="25" className="logo-dark"/>
+                        <img src="/assets/images/logo-light.png" alt="logo" height="25" className="logo-light"/>
                       </div>
                       <div>
                         <h4 className="font-size-16 mb-1">Evento: {evento._id}</h4>
@@ -120,7 +120,7 @@ const DetalleEvento = () => {
                         <button onClick={() => window.print()} className="btn btn-success waves-effect waves-light me-1">
                           <i className="fa fa-print"></i> Imprimir
                         </button>
-                        <Link to="/eventos" className="btn btn-secondary waves-effect waves-light ms-2">
+                        <Link to="/Lista_Eventos" className="btn btn-secondary waves-effect waves-light ms-2">
                           Volver a Eventos
                         </Link>
                       </div>

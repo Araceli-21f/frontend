@@ -99,12 +99,12 @@ const CrearCliente = ({ onClienteCreado }) => {
         <div className="col">
           <div className="card p-4">
           <div className="invoice-title d-flex justify-content-between align-items-center">
-            <h3><i className="font-size-h4"/>Agregar Cliente</h3>
-            <div className="mb-4">
-               <img src="/assets/images/logo-dark.png" alt="logo" height="20" className="logo-dark" />
-               <img src="/assets/images/logo-light.png" alt="logo" height="20" className="logo-light" />
-              </div>
+            <h3 className="font-size-h4">Crear Cliente</h3>
+            <div className="mb-6">
+              <img src="/assets/images/logo-dark.png" alt="logo" height="25" className="logo-dark" />  
+              <img src="/assets/images/logo-light.png" alt="logo" height="25" className="logo-light" />
              </div>
+            </div>
             <hr className="my-3"/>
 
             <form onSubmit={handleSubmit}>

@@ -85,6 +85,14 @@ const filterOptions = ["Todos", ...new Set(cotizaciones.map((cotizacion) => coti
     return `${day}-${month}-${year}`;
 };
 
+// Formatear moneda
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('es-MX', {
+            style: 'currency',
+            currency: 'MXN'
+        }).format(amount);
+    };
+
   return (
     <LoadingError
       loading={loading}
@@ -123,24 +131,24 @@ const filterOptions = ["Todos", ...new Set(cotizaciones.map((cotizacion) => coti
               </div>
             </div>
             {/* Filtro por tipo (2 columnas) */}
-            <div className="col-md-2 mb-2">
-              <div className="input-group">
-                <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
-                  <option value="forma_pago">Filtrar Forma Pago</option>
-                  <option value="filial">Filtrar Filial</option>
-                </select>
-              </div>
-            </div>
-            {/* Filtro por valor (2 columnas) */}
-            <div className="col-md-2 mb-2">
-              <div className="input-group">
-                <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
-                  {filterOptions.map(option => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
+            <div className="col-md-4 mb-2 ">
+              <div className="input-group w-100 shadow-sm">
+               {/* Ícono de filtro fuera del grupo, con fondo redondeado */}
+                <span className="me-0 p-2 text-white bg-primary rounded-1 d-flex justify-content-center align-items-center">
+                 <i className="uil-filter fs-6"></i>
+                                </span>
+                                    {/* Select de tipo de filtro */}
+                                    <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
+                                        <option value="estado">Filtrar por ...</option>
+                                    </select>
+                                    {/* Select dinámico de valores */}
+                                    <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
+                                        {filterOptions.map(option => (
+                                            <option key={option} value={option}>{option}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
             {/* Crear Cotización Button (4 columnas) */}
             <div className="col-md-4 mb-2">
               <div className="input-group">
@@ -157,7 +165,6 @@ const filterOptions = ["Todos", ...new Set(cotizaciones.map((cotizacion) => coti
             <table className="table table-centered table-striped table-bordered">
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>Nombre de Cotizacion</th>
                   <th>Filial</th>
                   <th>Cliente</th>
@@ -170,13 +177,12 @@ const filterOptions = ["Todos", ...new Set(cotizaciones.map((cotizacion) => coti
               <tbody>
                 {currentCotizaciones.map((cotizacion) => (
                   <tr key={cotizacion._id}>
-                    <td>{cotizacion._id}</td>                    
                     <td>{cotizacion.nombre_cotizacion}</td>
                     <td>{cotizacion.filial_id?.nombre_filial}</td>
                     <td>{cotizacion.cliente_id?.nombre}</td>
                     <td>{formatDate(cotizacion.fecha_cotizacion)}</td>
                     <td>{cotizacion.forma_pago}</td>
-                    <td>{cotizacion.precio_venta}</td>
+                    <td className="text-end">{formatCurrency(cotizacion.precio_venta)}</td>
                     <td>
                       <BotonesAccion
                         id={cotizacion._id}

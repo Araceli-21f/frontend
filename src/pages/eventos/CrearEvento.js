@@ -67,7 +67,7 @@ const CrearEvento = ({ onEventoCreado }) => {
             setAlertType("success");
             setAlertMessage("Evento creado exitosamente.");
             setShowAlert(true);
-            navigate(`/eventos`);
+            navigate(`/Lista_Eventos`);
             setFormData({
                 nombre: "", 
                 descripcion: "", 
@@ -79,7 +79,7 @@ const CrearEvento = ({ onEventoCreado }) => {
             setMostrarSelectorClientes(false);
             if (onEventoCreado) {
                 onEventoCreado(formData);
-                navigate(`/eventos`);
+                navigate(`/Lista_Eventos`);
             }
         } catch (error) {
             console.error("Error al crear el evento:", error);
@@ -99,10 +99,13 @@ const CrearEvento = ({ onEventoCreado }) => {
                 <div className="col-lg-12">
                     <div className="card">
                         <div className="card-body">
-                            <h2 className="float-left font-size-h4">Nuevo Evento</h2>
-                            <div className="invoice-title d-flex flex-column align-items-center">
-                                <img src="/assets/images/logo-dark.png" alt="logo" height="20" className="logo-dark ms-auto" />
-                            </div>
+                        <div className="invoice-title d-flex justify-content-between align-items-center">
+                            <h3 className="font-size-h4">Agregar Evento</h3>
+                             <div className="mb-6">
+                            <img src="/assets/images/logo-dark.png" alt="logo" height="25" className="logo-dark" />  
+                            <img src="/assets/images/logo-light.png" alt="logo" height="25" className="logo-light" />
+                             </div>
+                             </div>
                             <hr className="my-4" />
 
                             <form onSubmit={handleSubmit}>
@@ -142,7 +145,7 @@ const CrearEvento = ({ onEventoCreado }) => {
                                 </div>
 
                                 <div className="mb-3">
-                                    <label className="form-label">Seleccionar Clientes</label>
+                                    <label className="form-label">Seleccionar Clientes: </label>
                                     <button type="button" className="btn btn-outline-info mb-2" onClick={toggleSelectorClientes}>
                                         {mostrarSelectorClientes ? 'Ocultar Clientes' : 'Mostrar Clientes'}
                                     </button>

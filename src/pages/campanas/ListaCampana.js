@@ -190,7 +190,6 @@ const ListaCampana = () => {
                             <table className="table table-centered table-striped table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
                                         <th>Nombre</th>
                                         <th>Fecha Inicio</th>
                                         <th>Fecha Fin</th>
@@ -201,7 +200,6 @@ const ListaCampana = () => {
                                 <tbody>
                                     {currentCampanas.map((campana) => (
                                         <tr key={campana._id}>
-                                            <td>{campana._id}</td>
                                             <td>{campana.nombre}</td>
                                             <td>{new Date(campana.fecha_inicio).toLocaleDateString()}</td>
                                             <td>{new Date(campana.fecha_fin).toLocaleDateString()}</td>

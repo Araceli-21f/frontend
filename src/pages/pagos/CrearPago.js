@@ -134,7 +134,7 @@ const CrearPago = () => {
             });
             
             // Redirigir después de 2 segundos
-            setTimeout(() => navigate("/pagos"), 2000);
+            setTimeout(() => navigate("/Lista_pagos"), 2000);
         } catch (error) {
             console.error("Error al registrar el pago:", error);
             setAlertType("error");
@@ -153,10 +153,13 @@ const CrearPago = () => {
                 <div className="col-lg-12">
                     <div className="card">
                         <div className="card-body">
-                            <h2 className="float-left font-size-h4">Registrar Nuevo Pago</h2>
-                            <div className="invoice-title d-flex flex-column align-items-center">
-                                <img src="/assets/images/logo-dark.png" alt="logo" height="20" className="logo-dark ms-auto" />
-                            </div>
+                        <div className="invoice-title d-flex justify-content-between align-items-center">
+                            <h3 className="font-size-h4">Crear un Pago</h3>
+                             <div className="mb-6">
+                            <img src="/assets/images/logo-dark.png" alt="logo" height="25" className="logo-dark" />  
+                            <img src="/assets/images/logo-light.png" alt="logo" height="25" className="logo-light" />
+                             </div>
+                             </div>
                             <hr className="my-4" />
 
                             <form onSubmit={handleSubmit}>
@@ -284,7 +287,7 @@ const CrearPago = () => {
 
                                 <div className="d-print-none mt-4">
                                     <div className="float-end">
-                                        <button type="button" className="btn btn-secondary me-2" onClick={() => navigate('/pagos')}>
+                                        <button type="button" className="btn btn-secondary me-2" onClick={() => navigate('/Lista_pagos')}>
                                             Cancelar
                                         </button>
                                         <button type="submit" className="btn btn-primary w-md waves-effect waves-light">

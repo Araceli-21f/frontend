@@ -18,7 +18,6 @@ const DetalleInteraccion = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Obtener interacción
         const foundInteraccion = await obtenerInteraccionPorId(id);
         if (!foundInteraccion) {
           setNotFound(true);
@@ -26,7 +25,6 @@ const DetalleInteraccion = () => {
         }
         setInteraccion(foundInteraccion);
 
-        // Obtener cliente asociado si existe
         if (foundInteraccion.cliente_id) {
           const clienteData = await obtenerClientePorId(foundInteraccion.cliente_id);
           setCliente(clienteData);
@@ -40,7 +38,6 @@ const DetalleInteraccion = () => {
     fetchData();
   }, [id]);
 
-  // Función para formatear fecha y hora
   const formatDateTime = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -53,7 +50,6 @@ const DetalleInteraccion = () => {
     });
   };
 
-  // Estilo para el estado
   const getEstadoStyle = (estado) => {
     switch(estado) {
       case 'completada': return 'badge bg-success';
@@ -96,60 +92,72 @@ const DetalleInteraccion = () => {
         <div className="row">
           <div className="col">
             <div className="card p-4">
-              <div className="invoice-title">
-                <h4 className="float-end font-size-16">Interacción #{interaccion._id}</h4>
-                <div className="mb-4">
-                  <img src="/assets/images/logo-dark.png" alt="logo" height="20" className="logo-dark"/>
-                  <img src="/assets/images/logo-light.png" alt="logo" height="20" className="logo-light" />
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                  <h4 className="mb-1">Detalles de la Interacción</h4>
+                  <small className="text-muted">ID: #{interaccion._id}</small>
                 </div>
-                <div className="text-muted">
-                  <h4 className="font-size-h4 mb-1">Detalles de la Interacción</h4>
-                </div>
-              </div>
-              <hr className="my-4"/>
-
-              <div className="row">
-                {/* Columna para la Información Principal */}
-                <div className="col-md-8">
-                  <div className="text-muted">
-                    <h5 className="font-size-20 mb-3">Información Básica:</h5>
-                    <p className="font-size-16 mb-2">
-                      Cliente:{interaccion.cliente_id?.nombre}
-                    </p>
-                    <p className="font-size-16 mb-2">
-                      Tipo: <span className="badge bg-primary">{interaccion.tipo_interaccion}</span>
-                    </p>
-                    <p className="font-size-16 mb-2">
-                      Fecha y Hora: {formatDateTime(interaccion.fecha)}
-                    </p>
-                    <p className="font-size-16 mb-2">
-                      Responsable: {interaccion.responsable}
-                    </p>
-                    <p className="font-size-16 mb-2">
-                      Estado: <span className={getEstadoStyle(interaccion.estado)}>
-                        {interaccion.estado}
-                      </span>
-                    </p>
-
-                    <p className="font-size-16 mb-2">
-                        Descripción: {interaccion.descripcion}
-                    </p>  
-                  </div>             
+                <span className={`${getEstadoStyle(interaccion.estado)} px-3 py-2 rounded`}>
+                  {interaccion.estado.toUpperCase()}
+                </span>
               </div>
 
-              <div className="d-print-none mt-4">
-                <div className="float-end">
-                  <Link
-                    to="/ListaInteraccions"
-                    className="btn btn-secondary w-md waves-effect waves-light">
-                    Volver al Listado
-                  </Link>
+              <div className="row mb-4">
+                <div className="col-md-6">
+                  <div className="detail-item mb-3">
+                    <h6 className="text-muted mb-1">Cliente</h6>
+                    <p className="mb-0">
+                      {cliente ? (
+                        <Link to={`/clientes/${cliente._id}`} className="text-primary">
+                          {cliente.nombre}
+                        </Link>
+                      ) : (
+                        <span className="text-muted">No asignado</span>
+                      )}
+                    </p>
+                  </div>
+                  
+                  <div className="detail-item mb-3">
+                    <h6 className="text-muted mb-1">Tipo de Interacción</h6>
+                    <span className="badge bg-primary bg-opacity-10 text-primary">
+                      {interaccion.tipo_interaccion}
+                    </span>
+                  </div>
                 </div>
+                
+                <div className="col-md-6">
+                  <div className="detail-item mb-3">
+                    <h6 className="text-muted mb-1">Fecha y Hora</h6>
+                    <p className="mb-0">{formatDateTime(interaccion.fecha)}</p>
+                  </div>
+                  
+                  <div className="detail-item mb-3">
+                    <h6 className="text-muted mb-1">Responsable</h6>
+                    <p className="mb-0">{interaccion.responsable}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <h6 className="text-muted mb-2">Descripción</h6>
+                <div className="p-3 bg-light rounded">
+                  {interaccion.descripcion || 
+                   <span className="text-muted">No hay descripción disponible</span>}
+                </div>
+              </div>
+
+              <div className="d-flex justify-content-end mt-4">
+                <Link
+                  to="/ListaInteraccions"
+                  className="btn btn-outline-secondary me-2"
+                >
+                  <i className="fas fa-arrow-left me-2"></i>Volver
+                </Link>
+                
               </div>
             </div>
           </div>
         </div>
-       </div>
       </Layout>
     </LoadingError>
   );

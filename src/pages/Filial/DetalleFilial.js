@@ -42,7 +42,7 @@ const DetalleFilial= () => {
                   </div>
                 </div>
                 <div className="text-muted">
-                  <h4 className="font-size-h4 mb-1">Detalle del Filials</h4>
+                  <h4 className="font-size-h4 mb-1">Detalle del Area</h4>
                 </div>
 
                 <hr className="my-4" />
@@ -50,7 +50,7 @@ const DetalleFilial= () => {
                 <div className="row">
                   <div className="col-sm-6">
                     <div className="text-muted">
-                      <h5>Filial: </h5>
+                      <h5>Area: </h5>
                       <p className="font-size-16 mb-4">{filial?.nombre_filial}</p>
                     </div>
                   </div>

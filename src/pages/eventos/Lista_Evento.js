@@ -181,7 +181,6 @@ const ListaEventos = () => {
                             <table className="table table-centered table-striped table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
                                         <th>Nombre</th>
                                         <th>Fecha</th>
                                         <th>Ubicación</th>
@@ -191,7 +190,6 @@ const ListaEventos = () => {
                                 <tbody>
                                     {currentEventos.map((evento) => (
                                         <tr key={evento._id}>
-                                            <td>{evento._id}</td>
                                             <td>{evento.nombre}</td>
                                             <td>{new Date(evento.fecha).toLocaleDateString()}</td>
                                             <td>{evento.ubicacion}</td>

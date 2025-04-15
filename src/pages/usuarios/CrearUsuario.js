@@ -91,12 +91,12 @@ const CrearUsuario = ({ onUsuarioCreado }) => {
         <div className="col">
           <div className="card p-4">
           <div className="invoice-title d-flex justify-content-between align-items-center">
-            <h3 className="font-size-h4">Agregar Usuario</h3>
-            <div className="mb-4">
-               <img src="/assets/images/logo-dark.png" alt="logo" height="20" className="logo-dark" />
-               <img src="/assets/images/logo-light.png" alt="logo" height="20" className="logo-light" />
-              </div>
-             </div>
+            <h3 className="font-size-h4">Crear Usuario</h3>
+          <div className="mb-6">
+            <img src="/assets/images/logo-dark.png" alt="logo" height="25" className="logo-dark" />  
+            <img src="/assets/images/logo-light.png" alt="logo" height="25" className="logo-light" />
+           </div>
+         </div>
             <hr className="my-3"/>
 
             <form onSubmit={handleSubmit}>

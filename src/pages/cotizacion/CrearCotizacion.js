@@ -270,10 +270,13 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
         <div className="col-lg-12">
           <div className="card">
             <div className="card-body">
-              <h2 className="float-left font-size-h4">Nueva Cotización</h2>
-              <div className="invoice-title d-flex flex-column align-items-center">
-                <img src="/assets/images/logo-dark.png" alt="logo" height="20" className="logo-dark ms-auto" />
+            <div className="invoice-title d-flex justify-content-between align-items-center">
+              <h3 className="font-size-h4">Crear una Cotizacion</h3>
+              <div className="mb-6">
+                <img src="/assets/images/logo-dark.png" alt="logo" height="25" className="logo-dark" />  
+                <img src="/assets/images/logo-light.png" alt="logo" height="25" className="logo-light" />
               </div>
+             </div>
               <hr className="my-4" />
 
               <form onSubmit={handleSubmit}>

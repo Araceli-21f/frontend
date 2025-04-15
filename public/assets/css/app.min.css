@@ -15,7 +15,8 @@ body[data-sidebar-size=sm]
 .navbar-header .vertical-menu-btn{display:block}
 .navbar-header .vertical-menu-btn{display:none}.app-search{margin-left:10px}
 .navbar-brand-box{padding:0 1.5rem;width:200px;position:fixed;z-index:1;background-color:var(--bs-sidebar-bg)}
-.logo{line-height:70px}.logo .logo-sm{display:none}
+.logo{line-height:70px}
+.logo .logo-sm{display:none}
 .logo-dark{display:none}
 .logo-light{display:block}
 .app-search{padding:calc(32px / 2) 0}
@@ -24,9 +25,13 @@ body[data-sidebar-size=sm]
 .megamenu-list li{position:relative;padding:5px 0px} 
 .megamenu-list li a{color:var(--bs-body-color)}
 
-@media(max-width: 991.98px){.navbar-brand-box{width:auto}#page-topbar{left:0}#page-topbar .navbar-header .navbar-brand-box{display:inline-block;position:relative}
+@media(max-width: 991.98px){
+  .navbar-brand-box{width:auto}
+#page-topbar{left:0}
+#page-topbar .navbar-header .navbar-brand-box{display:inline-block;position:relative}
 #page-topbar .navbar-header .vertical-menu-btn{display:inline-block}
-.logo span.logo-lg{display:none}.logo span.logo-sm{display:inline-block}}
+.logo span.logo-lg{display:none}
+.logo span.logo-sm{display:inline-block}}
 .page-content{padding:calc(70px + 1.25rem) calc(1.25rem / 2) 60px calc(1.25rem / 2)}
 .header-item{height:70px;box-shadow:none !important;color:var(--bs-header-item-color);border:0;border-radius:0px}
 .header-item:hover{color:var(--bs-header-item-color)}.header-profile-user{height:36px;width:36px;background-color:var(--bs-tertiary-bg);padding:3px}
@@ -42,13 +47,15 @@ body[data-topbar=dark] .navbar-header .dropdown .show.header-item{background-col
 body[data-topbar=dark] .navbar-header .waves-effect .waves-ripple{background:rgba(255,255,255,.4)}
 body[data-topbar=dark] .header-profile-user{background-color:rgba(255,255,255,.25)}
 body[data-topbar=dark] .noti-icon i{color:var(--bs-header-item-color)}
-body[data-topbar=dark] .logo-dark{display:block}
+body[data-topbar=dark] .logo-dark{display:none}
 body[data-topbar=dark] .logo-light{display:none}
 body[data-topbar=dark] .app-search .form-control{background-color:var(--bs-header-dark-bg);color:#fff}
 body[data-topbar=dark] .app-search span,
 body[data-topbar=dark] .app-search input.form-control::-webkit-input-placeholder{color:rgba(255,255,255,.5)}
-body[data-sidebar=dark] .navbar-brand-box .logo-dark{display:none}
-body[data-sidebar=dark] .navbar-brand-box .logo-light{display:block}
+body[data-sidebar=dark] .navbar-brand-box .logo-dark{display:block}
+body[data-sidebar=dark] .navbar-brand-box .logo-light{display:none}
+[data-bs-theme=dark] [data-layout=vertical][data-sidebar=light] .navbar-brand-box .logo-light{display:block}
+[data-bs-theme=dark] [data-layout=vertical][data-sidebar=light] .navbar-brand-box .logo-dark{display:none}
 @media(max-width: 600px){
   .navbar-header .dropdown{position:static}
   .navbar-header .dropdown .dropdown-menu{left:10px !important;right:10px !important}}
@@ -62,8 +69,12 @@ body[data-layout-size=boxed][data-sidebar-size=small] #page-topbar{max-width:114
 body[data-layout-size=boxed][data-sidebar-size=small] .footer{max-width:calc(1300px - 160px)}
 [data-bs-theme=dark] [data-layout=vertical][data-sidebar=light] .navbar-brand-box .logo-light{display:block}
 [data-bs-theme=dark] [data-layout=vertical][data-sidebar=light] .navbar-brand-box .logo-dark{display:none}
+
 body[data-topbar=light] .header-profile-user{background-color:var(--bs-white)}
-body[data-topbar=colored] .header-profile-user{background-color:rgba(255,255,255,.05)}.page-title-box{padding-bottom:1.25rem}.page-title-box .breadcrumb{background-color:rgba(0,0,0,0);padding:0}.page-title-box h4{font-weight:600;font-size:18px !important}
+body[data-topbar=colored] .header-profile-user{background-color:rgba(255,255,255,.05)}
+.page-title-box{padding-bottom:1.25rem}
+.page-title-box .breadcrumb{background-color:rgba(0,0,0,0);padding:0}
+.page-title-box h4{font-weight:600;font-size:18px !important}
 @media(max-width: 575.98px){
   .page-title-box .page-title-right{display:none}}
   .footer{bottom:0;padding:20px calc(1.25rem / 2);position:absolute;right:0;color:var(--bs-footer-color);left:200px;height:60px;box-shadow:0 0px 4px rgba(15,34,58,.12)}
@@ -75,7 +86,8 @@ body[data-topbar=colored] .header-profile-user{background-color:rgba(255,255,255
 .right-bar .right-bar-toggle{background-color:#313544;height:24px;width:24px;line-height:24px;color:#f5f6f8;text-align:center;border-radius:50%}
 .right-bar .right-bar-toggle:hover{background-color:#373c4d}
 .rightbar-overlay{background-color:rgba(34,37,47,.55);position:absolute;left:0;right:0;top:0;bottom:0;display:none;z-index:9998;transition:all .2s ease-out}
-.right-bar-enabled .right-bar{right:0}.right-bar-enabled .rightbar-overlay{display:block}
+.right-bar-enabled .right-bar{right:0}
+.right-bar-enabled .rightbar-overlay{display:block}
 
 @media(max-width: 575.98px){.right-bar{overflow:auto}.right-bar .slimscroll-menu{height:auto !important}}
 
@@ -257,10 +269,17 @@ body[data-layout=horizontal] #page-topbar{left:0}
 
 @media(min-width: 992px){body[data-layout=horizontal] #page-topbar{padding:0 calc(1.25rem / 2)}}
 body[data-layout=horizontal] .navbar-brand-box{position:relative;width:auto;display:block;background-color:rgba(0,0,0,0)}
-@media(min-width: 992px){body[data-layout=horizontal] .navbar-brand-box{padding-left:0}}
-@media(min-width: 992px){body[data-layout=horizontal] .topnav{margin-top:24px;margin-bottom:-16px;border-radius:4px}body[data-layout=horizontal] .navbar-header{padding:0 calc(1.25rem / 2)}}
-@media(min-width: 1200px){body[data-layout=horizontal] .container-fluid,body[data-layout=horizontal] .navbar-header{max-width:85%}}
-@media(min-width: 992px){.topnav .dropdown-item{padding:.5rem 1.5rem;min-width:180px}.topnav .dropdown.mega-dropdown 
+@media(min-width: 992px){
+  body[data-layout=horizontal] .navbar-brand-box{padding-left:0}}
+@media(min-width: 992px){
+  body[data-layout=horizontal] .topnav{margin-top:24px;margin-bottom:-16px;border-radius:4px}
+  body[data-layout=horizontal] .navbar-header{padding:0 calc(1.25rem / 2)}}
+@media(min-width: 1200px){
+  body[data-layout=horizontal] .container-fluid,
+  body[data-layout=horizontal] .navbar-header{max-width:85%}}
+@media(min-width: 992px){
+  .topnav .dropdown-item{padding:.5rem 1.5rem;min-width:180px}
+  .topnav .dropdown.mega-dropdown 
 .mega-dropdown-menu{left:0px;right:auto}
 .topnav .dropdown .dropdown-menu{margin-top:0;border-radius:0 0 var(--bs-border-radius) var(--bs-border-radius)}
 .topnav .dropdown .dropdown-menu .arrow-down::after{right:15px;transform:rotate(-135deg) translateY(-50%);position:absolute}

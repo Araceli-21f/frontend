@@ -54,24 +54,24 @@ const CrearFilial = ({ onFilialCreado }) => {
         <div className="col">
           <div className="card p-4">
           <div className="invoice-title d-flex justify-content-between align-items-center">
-            <h3 className="font-size-h4">Agregar Filial</h3>
-            <div className="mb-4">
-               <img src="/assets/images/logo-dark.png" alt="logo" height="20" className="logo-dark" />
-               <img src="/assets/images/logo-light.png" alt="logo" height="20" className="logo-light" />
-              </div>
+           <h3 className="font-size-h4">Agregar Area</h3>
+            <div className="mb-6">
+              <img src="/assets/images/logo-dark.png" alt="logo" height="25" className="logo-dark" />  
+              <img src="/assets/images/logo-light.png" alt="logo" height="25" className="logo-light" />
              </div>
+           </div>
             <hr className="my-3"/>
 
             <form onSubmit={handleSubmit}>
                 <div className="col-md-6 ">
                   <div className="mb-2 ">
-                    <label className="form-label "><i className="uil-user"/> Nombre Filial:</label>
+                    <label className="form-label "><i className="uil-user"/> Nombre Area:</label>
                     <input type="text" name="nombre_filial" value={formData.nombre_filial} onChange={handleChange} required className="form-control shadow-sm" />
                   </div>
                 </div>
                 <div className="col-md-6">
                   <div className="mb-2">
-                    <label className="form-label"><i className="uil-user"/> descripcion:</label>
+                    <label className="form-label"><i className="uil-user"/> Descripcion:</label>
                     <input type="text" name="descripcion_filial" value={formData.descripcion_filial} onChange={handleChange} required className="form-control shadow-sm" />
                   </div>
                 </div>

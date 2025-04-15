@@ -53,8 +53,13 @@ const EditarFilial = () => {
           <div className="col-lg-12">
             <div className="card">
               <div className="card-body">
-                <h2 className="font-size-h4 mb-4">Editar Filial</h2>
-
+              <div className="invoice-title d-flex justify-content-between align-items-center">
+              <h3 className="font-size-h4">Editar Area</h3>
+               <div className="mb-6">
+                <img src="/assets/images/logo-dark.png" alt="logo" height="25" className="logo-dark" />  
+                <img src="/assets/images/logo-light.png" alt="logo" height="25" className="logo-light" />
+              </div>
+                </div>
                 <hr className="my-4" />
 
                 <form onSubmit={handleSubmit}>
@@ -62,7 +67,7 @@ const EditarFilial = () => {
 
                     {/* Nombre y Descripción */}
                     <div className="col-md-8 mb-3">
-                      <label className="form-label fw-bold">Filial:</label>
+                      <label className="form-label fw-bold">Area:</label>
                       <input name="nombre_filial" value={filial.nombre_filial} onChange={handleChange} className="form-control bg-light" />
                     </div>
                     <div className="col-md-8 mb-3">

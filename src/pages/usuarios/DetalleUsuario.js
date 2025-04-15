@@ -43,20 +43,6 @@ const DetalleUsuario = ({ entidad }) => {
             <div className="card-body">
               <div className="invoice-title">
                 <h4 className="float-end font-size-16">Usuario   #{user?._id}</h4>
-                <div className="mb-4">
-                  <img
-                    src="/assets/images/logo-dark.png"
-                    alt="logo"
-                    height="20"
-                    className="logo-dark"
-                  />
-                  <img
-                    src="/assets/images/logo-light.png"
-                    alt="logo"
-                    height="20"
-                    className="logo-light"
-                  />
-                </div>
                 <div className="text-muted">
                   <h3 className="font-size-h4 mb-1">Detalles del Usuario</h3>
                 </div>

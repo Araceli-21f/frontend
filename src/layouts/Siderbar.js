@@ -63,12 +63,12 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
               </Link>
             </li>
 
-            <li>
+            {/*<li>
               <Link to="/Tablero" className="waves-effect">
                 <i className="fas fa-tasks"></i>
                 <span> Tablero</span>
               </Link>
-            </li>
+            </li>*/}
 
             <li>
               <Link to="/Calendario" className="waves-effect">

@@ -224,7 +224,7 @@ const DetallePago = () => {
                   {/* Acciones */}
                   <div className="d-flex justify-content-between align-items-center mt-4">
                     <div>
-                      <Link to="/pagos" className="btn btn-primary mb-2">
+                      <Link to="/Lista_pagos" className="btn btn-primary mb-2">
                         <i className="bx bx-arrow-back me-1"></i>  Volver
                       </Link>
 

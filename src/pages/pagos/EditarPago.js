@@ -328,7 +328,7 @@ const EditarPago = () => {
                       <button 
                         type="button" 
                         className="btn btn-secondary w-md waves-effect waves-light ms-2"
-                        onClick={() => navigate(`/pagos/ver/${id}`)}
+                        onClick={() => navigate(`/Lista_pagos`)}
                       >
                         <i className="mdi mdi-close me-1"></i> Cancelar
                       </button>

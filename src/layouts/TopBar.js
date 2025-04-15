@@ -132,7 +132,7 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar }) => {
             </div>
           </div>
 
-          <div className="dropdown d-inline-block">
+          {/*<div className="dropdown d-inline-block">
             <button
               type="button"
               className="btn header-item noti-icon waves-effect"
@@ -263,7 +263,7 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar }) => {
                 </div>
               </div>
             </div>
-          </div>
+          </div>*/}
 
           <div className="dropdown d-inline-block">
         <button
@@ -277,9 +277,6 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar }) => {
             src="/assets/images/users/avatar-4.jpg"
             alt="Header Avatar"
           />
-          <span className="d-none d-xl-inline-block ms-1 fw-medium font-size-15">
-            Marcus
-          </span>
           <i className="uil-angle-down d-none d-xl-inline-block font-size-15"></i>
         </button>
         
@@ -289,26 +286,19 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar }) => {
         >
           <a className="dropdown-item" href="/Profile">
             <i className="uil uil-user-circle font-size-18 align-middle text-muted me-1"></i>
-            <span className="align-middle">View Profile</span>
-          </a>
-          <a className="dropdown-item" href="#wallet" onClick={(e) => { e.preventDefault(); /* tu lógica aquí */ }}>
-            <i className="uil uil-wallet font-size-18 align-middle me-1 text-muted"></i>
-            <span className="align-middle">My Wallet</span>
+            <span className="align-middle">Perfil</span>
           </a>
           <a className="dropdown-item d-block" href="#settings" onClick={(e) => { e.preventDefault(); /* tu lógica aquí */ }}>
             <i className="uil uil-cog font-size-18 align-middle me-1 text-muted"></i>
-            <span className="align-middle">Settings</span>
-            <span className="badge bg-success-subtle text-success rounded-pill mt-1 ms-2">
-              03
-            </span>
+            <span className="align-middle">Configuraciones</span>
           </a>
           <a className="dropdown-item" href="#lock" onClick={(e) => { e.preventDefault(); /* tu lógica aquí */ }}>
             <i className="uil uil-lock-alt font-size-18 align-middle me-1 text-muted"></i>
-            <span className="align-middle">Lock screen</span>
+            <span className="align-middle">Bloqueo Pantalla</span>
           </a>
           <a className="dropdown-item" href="/logout">
             <i className="uil uil-sign-out-alt font-size-18 align-middle me-1 text-muted"></i>
-            <span className="align-middle">Sign out</span>
+            <span className="align-middle">Cerrar Sección</span>
           </a>
         </div>
       </div>
