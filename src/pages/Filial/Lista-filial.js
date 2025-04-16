@@ -142,7 +142,7 @@ const ListaFiliales = () => {
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Area</th>
+                                    <th>Nombre Filial</th>
                                     <th>Descripción</th>
                                     <th>Acciones</th>
                                 </tr>

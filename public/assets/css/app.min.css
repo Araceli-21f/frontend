@@ -260,11 +260,14 @@ body[data-sidebar=colored][data-sidebar-size=sm] .vertical-menu #sidebar-menu ul
 [data-bs-theme=dark] body[data-layout=vertical] .logo-light{display:none}
 
 .topnav{background:var(--bs-topnav-bg);padding:0 calc(1.25rem / 2);box-shadow:0 2px 4px rgba(15,34,58,.12);left:0;right:0;z-index:100}
-.topnav .topnav-menu{margin:0;padding:0}.topnav .navbar-nav .nav- a{font-size:14.5px;position:relative;padding:1rem 1.3rem;color:var(--bs-menu-item-color)}
-.topnav .navbar-nav .nav-a i{font-size:15px}.topnav .navbar-nav .nav-a:focus,.topnav .navbar-nav .nav-a:hover{color:#5b73e8;background-color:rgba(0,0,0,0)}
+.topnav .topnav-menu{margin:0;padding:0}
+.topnav .navbar-nav .nav- a{font-size:14.5px;position:relative;padding:1rem 1.3rem;color:var(--bs-menu-item-color)}
+.topnav .navbar-nav .nav-a i{font-size:15px}
+.topnav .navbar-nav .nav-a:focus,.topnav .navbar-nav .nav-a:hover{color:#5b73e8;background-color:rgba(0,0,0,0)}
 .topnav .navbar-nav .dropdown-item{color:var(--bs-menu-item-color)}
 .topnav .navbar-nav .dropdown-item.active,.topnav .navbar-nav .dropdown-item:hover{color:#5b73e8;background-color:rgba(0,0,0,0)}
-.topnav .navbar-nav .nav-item .nav-a.active{color:#5b73e8}.topnav .navbar-nav .dropdown.active>a{color:var(--bs-menu-item-active-color);background-color:rgba(0,0,0,0)}
+.topnav .navbar-nav .nav-item .nav-a.active{color:#5b73e8}
+.topnav .navbar-nav .dropdown.active>a{color:var(--bs-menu-item-active-color);background-color:rgba(0,0,0,0)}
 body[data-layout=horizontal] #page-topbar{left:0}
 
 @media(min-width: 992px){body[data-layout=horizontal] #page-topbar{padding:0 calc(1.25rem / 2)}}
@@ -303,7 +306,7 @@ body[data-layout=horizontal] .navbar-brand-box{position:relative;width:auto;disp
   .topnav .dropdown .dropdown-menu.dropdown-mega-menu-xl .row{margin:0px}
   .topnav .dropdown .dropdown-item{position:relative;background-color:rgba(0,0,0,0)}
   .topnav .dropdown .dropdown-item.active,.topnav .dropdown 
-.dropdown-item:active{color:#5b73e8}.topnav .arrow-down::after{right:15px;position:absolute}}
+.dropdown-item:active{color:#5b73e8}.topnav .arrow-down::after{right:30px;position:absolute}}
 
 @media(min-width: 992px){
 body[data-layout=horizontal][data-topbar=light] .navbar-brand-box .logo-dark{display:none}
