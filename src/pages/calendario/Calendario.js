@@ -21,22 +21,26 @@ const Calendario = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [filiales, setFiliales] = useState([]);
   const [loading, setLoading] = useState(false);
-  
-  const [newEvent, setNewEvent] = useState({ 
+  const [filters, setFilters] = useState({
+    filial_id: "",
+    usuario_id: "",
+    estado: ""
+  });
+
+  const [newEvent, setNewEvent] = useState({
     id: null,
     cliente_id: "",
     descripcion: "",
-    fecha_vencimiento: "",
-    filial_id: "", 
-    estado: "pendiente", 
-    usuario_id: "",
- 
+    fecha_creacion: new Date().toISOString().split('T')[0],
+    fecha_vencimiento: new Date().toISOString().split('T')[0],
+    filial_id: "",
+    estado: "pendiente",
+    usuario_id: ""
   });
-
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [viewMode, setViewMode] = useState("edit");
-  
+
   const modalRef = useRef(null);
   const calendarRef = useRef(null);
 
@@ -44,13 +48,14 @@ const Calendario = () => {
   const clienteService = useRef(ClienteService());
   const filialService = useRef(FilialService());
   const userService = useRef(UserService());
+
   // Función para obtener el color según la filial
   const getColorForFilial = useCallback((nombre_filial) => {
     const colors = {
-      'DataX': '#34c38f',      // Verde
+      'DataX': '#34c38f',       // Verde
       'StudioDesign': '#f46a6a', // Rojo
       'GeneralSystech': '#50a5f1', // Azul
-      'SmartSite': '#f1b44c'    // Amarillo
+      'SmartSite': '#f1b44c'     // Amarillo
     };
     return colors[nombre_filial] || '#cccccc';
   }, []);
@@ -66,6 +71,17 @@ const Calendario = () => {
     return icons[nombre_filial] || 'mdi-help-circle';
   }, []);
 
+  // Función para filtrar eventos
+  const filterEvents = useCallback((events, filters) => {
+    return events.filter(event => {
+      return (
+        (filters.filial_id === "" || event.extendedProps.filial_id === filters.filial_id) &&
+        (filters.usuario_id === "" || event.extendedProps.usuario_id === filters.usuario_id) &&
+        (filters.estado === "" || event.extendedProps.estado === filters.estado)
+      );
+    });
+  }, []);
+
   // Cargar datos iniciales
   useEffect(() => {
     const fetchData = async () => {
@@ -74,47 +90,61 @@ const Calendario = () => {
         const [tareas, clientesData, filialesData, usuariosData] = await Promise.all([
           tareaService.current.obtenerTareas(),
           clienteService.current.obtenerClientes(),
-          filialService.current.obtenerFilials(), // Faltaba esta coma
-          userService.current.obtenerUsuarios() 
+          filialService.current.obtenerFilials(),
+          userService.current.obtenerUsuarios()
         ]);
-        
+
         setClientes(clientesData);
         setFiliales(filialesData);
         setUsuarios(usuariosData);
-  
-        
+
         // Crear mapa de filiales para fácil acceso
         const filialesMap = {};
         filialesData.forEach(filial => {
           filialesMap[filial._id] = filial.nombre_filial;
         });
-        
+
         const usuariosMap = {};
         usuariosData.forEach(usuario => {
           usuariosMap[usuario._id] = usuario;
         });
 
-        // Mapear tareas a eventos del calendario
-        const eventos = tareas.map(tarea => {
-          const nombreFilial = filialesMap[tarea.filial_id] || 'Desconocida';
-          const usuario = usuariosMap[tarea.usuario_id] || {};
-          return {
-            id: tarea._id,
-            title: tarea.descripcion,
-            start: tarea.fecha_vencimiento,
-            backgroundColor: getColorForFilial(nombreFilial),
-            borderColor: getColorForFilial(nombreFilial),
-            textColor: '#000',
-            extendedProps: {
-              cliente_id: tarea.cliente_id,
-              filial_id: tarea.filial_id,
-              nombre_filial: nombreFilial,
-              estado: tarea.estado,
-              usuario_id: tarea.usuario_id,
-            }
-          };
-        });
-        
+
+    // Mapear tareas a eventos del calendario
+  // Mapear tareas a eventos del calendario
+  const eventos = tareas.map(tarea => {
+    const nombreFilial = filialesMap[tarea.filial_id] || 'Desconocida';
+    const usuario = usuariosMap[tarea.usuario_id] || {};
+    const borderColor = tarea.estado === 'completada' ? '#28a745' :
+                        tarea.estado === 'en progreso' ? '#ffc107' : '#dc3545';
+
+    const startDate = new Date(tarea.fecha_creacion);
+    const endDate = new Date(tarea.fecha_vencimiento);
+
+    // Format dates as 'YYYY-MM-DD'
+    const startStr = startDate.toISOString().split('T')[0];
+    const endStr = endDate.toISOString().split('T')[0];
+
+    return {
+      id: tarea._id,
+      title: `${tarea.descripcion} (${usuario.name || 'Sin asignar'})`,
+      start: startStr,
+      end: endStr,
+      backgroundColor: getColorForFilial(nombreFilial),
+      borderColor: borderColor,
+      textColor: '#000',
+      allDay: true,
+      display: 'block',
+      extendedProps: {
+        cliente_id: tarea.cliente_id,
+        filial_id: tarea.filial_id,
+        estado: tarea.estado,
+        usuario_id: tarea.usuario_id,
+        usuario_nombre: usuario.name || 'Sin asignar'
+      }
+    };
+  });
+
         setEvents(eventos);
       } catch (error) {
         console.error("Error al cargar datos:", error);
@@ -122,7 +152,7 @@ const Calendario = () => {
         setLoading(false);
       }
     };
-    
+
     fetchData();
   }, [getColorForFilial]);
 
@@ -138,15 +168,17 @@ const Calendario = () => {
 
   // Manejo de eventos del calendario
   const handleDateClick = (info) => {
-    setNewEvent({ 
+    const clickedDate = new Date(info.date);
+    const localDateString = clickedDate.toISOString().split('T')[0];
+    setNewEvent({
       id: null,
       cliente_id: "",
       descripcion: "",
-      fecha_vencimiento: info.dateStr,
+      fecha_creacion: localDateString,
+      fecha_vencimiento: localDateString,
       filial_id: filiales[0]?._id || "",
       estado: "pendiente",
-      usuario_id: "",
-  
+      usuario_id: ""
     });
     setModalMode("create");
     setViewMode("edit");
@@ -154,45 +186,96 @@ const Calendario = () => {
   };
 
   const handleEventClick = (info) => {
+    const startDate = info.event.start ? new Date(info.event.start).toISOString().split('T')[0] : '';
+
+    let endDate;
+    if (info.event.end) {
+      const endDateObj = new Date(info.event.end);
+      endDateObj.setDate(endDateObj.getDate() - 1); // Subtract one day
+      endDate = endDateObj.toISOString().split('T')[0];
+    } else {
+      endDate = startDate;
+    }
     const eventData = {
       id: info.event.id,
       cliente_id: info.event.extendedProps.cliente_id?._id || info.event.extendedProps.cliente_id,
-      descripcion: info.event.title.split(' (Asignada a:')[0], // Extraer solo la descripción
-      fecha_vencimiento: info.event.startStr,
-      filial_id: info.event.extendedProps.filial_id,
+      descripcion: info.event.title.split(' (')[0],
+       fecha_creacion: startDate,
+      fecha_vencimiento: endDate, 
       estado: info.event.extendedProps.estado || "pendiente",
       usuario_id: info.event.extendedProps.usuario_id
     };
-    
+
     setNewEvent(eventData);
     setModalMode("edit");
     setViewMode("view");
     setShowModal(true);
   };
 
+  // Manejo de cambio de fecha por arrastre
+  const handleEventDrop = async (info) => {
+    try {
+      const startDate = new Date(info.event.start);
+      const endDate = info.event.end ? new Date(info.event.end) : new Date(info.event.start);
+
+       // Format dates consistently as YYYY-MM-DD
+      const formattedStartDate = startDate.toISOString().split('T')[0];
+      const formattedEndDate = endDate.toISOString().split('T')[0];
+
+      await tareaService.current.actualizarTarea(info.event.id, {
+      fecha_creacion: formattedStartDate,
+      fecha_vencimiento: formattedEndDate
+      });
+    } catch (error) {
+      console.error("Error al actualizar fecha:", error);
+      info.revert();
+    }
+  };
+
+  // Manejo de cambio de duración por redimensionamiento
+  const handleEventResize = async (info) => {
+    try {
+      const endDate = new Date(info.event.end);
+      const formattedEndDate = endDate.toISOString().split('T')[0];
+    
+      await tareaService.current.actualizarTarea(info.event.id, {
+        fecha_vencimiento: formattedEndDate
+      });
+    } catch (error) {
+      console.error("Error al actualizar duración:", error);
+      info.revert();
+    }
+  };
+
   // Manejo de creación y edición de tareas
   const handleEventSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!newEvent.descripcion.trim() || !newEvent.filial_id ) {
+
+    if (!newEvent.descripcion.trim() || !newEvent.filial_id) {
       alert("Por favor complete todos los campos obligatorios");
       return;
     }
 
     try {
       setLoading(true);
-      
+
+      const formattedStartDate = new Date(newEvent.fecha_creacion).toISOString().split('T')[0];
+      const endDateObj = new Date(newEvent.fecha_vencimiento);
+      endDateObj.setDate(endDateObj.getDate() + 1);
+      const formattedEndDate = endDateObj.toISOString().split('T')[0];
+
       const tareaData = {
         cliente_id: newEvent.cliente_id || null,
         descripcion: newEvent.descripcion,
-        fecha_vencimiento: newEvent.fecha_vencimiento,
+        fecha_creacion: formattedStartDate,
+        fecha_vencimiento: formattedEndDate,
         filial_id: newEvent.filial_id,
         estado: newEvent.estado,
-        usuario_id: newEvent.usuario_id,
+        usuario_id: newEvent.usuario_id
       };
 
       let response;
-      
+
       if (modalMode === "edit" && newEvent.id) {
         response = await tareaService.current.actualizarTarea(newEvent.id, tareaData);
       } else {
@@ -203,28 +286,32 @@ const Calendario = () => {
       const filial = filiales.find(f => f._id === response.filial_id);
       const nombreFilial = filial ? filial.nombre_filial : 'Desconocida';
       const usuario = usuarios.find(u => u._id === response.usuario_id) || {};
+      const borderColor = response.estado === 'completada' ? '#28a745' :
+                          response.estado === 'en progreso' ? '#ffc107' : '#dc3545';
 
-      // Actualizar el calendario
-       const updatedEvent = {
+      const updatedEvent = {
         id: response._id,
-        title: `${response.descripcion} (Asignada a: ${usuario.nombre || 'Sin asignar'})`,
-        start: response.fecha_vencimiento,
+        title: `${response.descripcion} (${usuario.name || 'Sin asignar'})`,      
+        start: response.fecha_creacion,
+        end: formattedEndDate,
         backgroundColor: getColorForFilial(nombreFilial),
-        borderColor: getColorForFilial(nombreFilial),
-        textColor: '#000',
+        borderColor: borderColor,
+        allDay: true,
+        display: 'block',
+        textColor: '#000000',
         extendedProps: {
           cliente_id: response.cliente_id,
           filial_id: response.filial_id,
           nombre_filial: nombreFilial,
           estado: response.estado,
           usuario_id: response.usuario_id,
-          usuario_nombre: usuario.nombre || 'Sin asignar'
+          usuario_nombre: usuario.name || 'Sin asignar'
         }
       };
 
       if (modalMode === "edit") {
-        setEvents(prevEvents => 
-          prevEvents.map(event => 
+        setEvents(prevEvents =>
+          prevEvents.map(event =>
             event.id === newEvent.id ? updatedEvent : event
           )
         );
@@ -263,16 +350,16 @@ const Calendario = () => {
     if (modalRef.current && showModal) {
       const modal = new bootstrap.Modal(modalRef.current, { keyboard: false });
       modal.show();
-      
+
       const currentModalRef = modalRef.current;
 
       const handleHidden = () => {
         setShowModal(false);
         setViewMode("edit");
       };
-      
+
       modalRef.current.addEventListener('hidden.bs.modal', handleHidden);
-      
+
       return () => {
         if (currentModalRef) {
           currentModalRef.removeEventListener('hidden.bs.modal', handleHidden);
@@ -286,6 +373,14 @@ const Calendario = () => {
     setNewEvent(prev => ({ ...prev, [field]: value }));
   };
 
+  // Manejo de cambio en los filtros
+  const handleFilterChange = (field, value) => {
+    setFilters(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Filtrar eventos según los filtros aplicados
+  const filteredEvents = filterEvents(events, filters);
+
   return (
     <Layout>
       <div className="container-fluid mt-4 min-vh-100 d-flex flex-column">
@@ -293,18 +388,18 @@ const Calendario = () => {
           <div className="col-lg-3">
             <div className="card h-100">
               <div className="card-body text-center">
-                <button 
-                  className="btn btn-primary w-100 mb-3" 
+                <button
+                  className="btn btn-primary w-100 mb-3"
                   onClick={() => {
-                    setNewEvent({ 
+                    setNewEvent({
                       id: null,
                       cliente_id: "",
                       descripcion: "",
-                      fecha_vencimiento: "",
+                      fecha_creacion: new Date().toISOString().split('T')[0],
+                      fecha_vencimiento: new Date().toISOString().split('T')[0],
                       filial_id: filiales[0]?._id || "",
                       estado: "pendiente",
-                      usuario_id: "",
-                    
+                      usuario_id: ""
                     });
                     setModalMode("create");
                     setViewMode("edit");
@@ -314,7 +409,54 @@ const Calendario = () => {
                 >
                   {loading ? "Cargando..." : "Crear Nueva Tarea"}
                 </button>
-                
+
+                {/* Filtros */}
+                <div className="mb-3">
+                  <label className="form-label">Filtrar por Filial</label>
+                  <select
+                    className="form-select"
+                    value={filters.filial_id}
+                    onChange={(e) => handleFilterChange('filial_id', e.target.value)}
+                  >
+                    <option value="">Todas las filiales</option>
+                    {filiales.map(filial => (
+                      <option key={filial._id} value={filial._id}>
+                        {filial.nombre_filial}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Filtrar por Usuario</label>
+                  <select
+                    className="form-select"
+                    value={filters.usuario_id}
+                    onChange={(e) => handleFilterChange('usuario_id', e.target.value)}
+                  >
+                    <option value="">Todos los usuarios</option>
+                    {usuarios.map(usuario => (
+                      <option key={usuario._id} value={usuario._id} >
+                        {usuario.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Filtrar por Estado</label>
+                  <select
+                    className="form-select"
+                    value={filters.estado}
+                    onChange={(e) => handleFilterChange('estado', e.target.value)}
+                  >
+                    <option value="">Todos los estados</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="en progreso">En progreso</option>
+                    <option value="completada">Completada</option>
+                  </select>
+                </div>
+
                 <div className="row justify-content-center mt-3">
                   <Link to="/" className="mb-3 d-block auth-logo">
                     <img
@@ -325,18 +467,18 @@ const Calendario = () => {
                     />
                   </Link>
                 </div>
-                
+
                 <div id="external-events" className="mt-2">
                   <p className="text-muted">Leyenda de filiales:</p>
                   {filiales.map(filial => (
-                    <div 
+                    <div
                       key={filial._id}
-                      className="external-event" 
+                      className="external-event"
                       style={{
                         backgroundColor: getColorForFilial(filial.nombre_filial),
-                        color: '#000', 
-                        padding: '8px', 
-                        marginBottom: '10px', 
+                        color: '#000',
+                        padding: '8px',
+                        marginBottom: '10px',
                         borderRadius: '4px'
                       }}
                     >
@@ -368,11 +510,32 @@ const Calendario = () => {
                       center: "title",
                       right: "dayGridMonth,timeGridWeek,timeGridDay,listMonth"
                     }}
-                    events={events}
+                    timeZone="local"
+                    firstDay={1} 
+                    events={filteredEvents}
                     dateClick={handleDateClick}
                     eventClick={handleEventClick}
+                    eventDrop={handleEventDrop}
+                    eventResize={handleEventResize}
+                    editable={true}
                     eventDisplay="block"
+                    displayEventEnd={false} // No es necesario mostrar la hora de finalización en vista de día completo
                     eventTextColor="#000"
+                    slotMinTime="00:00:00"
+                    slotMaxTime="24:00:00" // Asegúrate de que abarque todo el día si es necesario
+                    dayMaxEventRows={3}
+                    eventDidMount={({ event, el }) => {
+                      const filial = filiales.find(f => f._id === event.extendedProps.filial_id);
+                      new bootstrap.Tooltip(el, {
+                        title: `
+                          <strong>${event.title}</strong><br>
+                          Filial: ${filial?.nombre_filial || 'N/A'}<br>
+                          Estado: ${event.extendedProps.estado}
+                        `,
+                        html: true,
+                        placement: 'top'
+                      });
+                    }}
                   />
                 )}
               </div>
@@ -382,45 +545,47 @@ const Calendario = () => {
       </div>
 
       {/* Modal para crear/editar/ver tareas */}
-      <div 
-        ref={modalRef} 
-        className="modal fade" 
-        id="event-modal" 
-        tabIndex="-1" 
+      <div
+        ref={modalRef}
+        className="modal fade"
+        id="event-modal"
+        tabIndex="-1"
         aria-hidden="true"
       >
-        <div className="modal-dialog modal-dialog-centered">
+        <div className="modal-dialog modal-dialog-centered modal-lg">
           <div className="modal-content">
             <div className="modal-header py-3 px-4 border-bottom-0">
               <h5 className="modal-title">
                 {modalMode === "create" ? "Crear Tarea" : viewMode === "view" ? "Detalles de Tarea" : "Editar Tarea"}
               </h5>
-              <button 
-                type="button" 
-                className="btn-close" 
+              <button
+                type="button"
+                className="btn-close"
                 onClick={closeModal}
                 disabled={loading}
               ></button>
             </div>
-            
+
             <div className="modal-body p-4">
               {modalMode === "create" && (
-                <CrearTarea 
+                <CrearTarea
                   newEvent={newEvent}
                   clientes={clientes}
                   filiales={filiales}
+                  usuarios={usuarios}
                   loading={loading}
                   handleInputChange={handleInputChange}
                   handleSubmit={handleEventSubmit}
                   closeModal={closeModal}
                 />
               )}
-              
+
               {modalMode === "edit" && viewMode === "edit" && (
-                <EditarTarea 
+                <EditarTarea
                   newEvent={newEvent}
                   clientes={clientes}
                   filiales={filiales}
+                  usuarios={usuarios}
                   loading={loading}
                   handleInputChange={handleInputChange}
                   handleSubmit={handleEventSubmit}
@@ -428,12 +593,13 @@ const Calendario = () => {
                   closeModal={closeModal}
                 />
               )}
-              
+
               {modalMode === "edit" && viewMode === "view" && (
-                <VerTarea 
+                <VerTarea
                   newEvent={newEvent}
                   clientes={clientes}
                   filiales={filiales}
+                  usuarios={usuarios}
                   loading={loading}
                   changeToEditMode={() => setViewMode("edit")}
                   closeModal={closeModal}

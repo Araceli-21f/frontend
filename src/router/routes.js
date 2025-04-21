@@ -4,6 +4,9 @@ import Login from "../layouts/Auth/Login";
 import Register from "../layouts/Auth/Register";
 import ResetPassword from "../layouts/Auth/ResetPassword";
 import RecoverPassword from "../layouts/Auth/RecoverPassword";
+import PantallaBloqueo from "../layouts/Auth/PantallaBloqueo";
+
+
 import Profile from "../layouts/Auth/Profile";
 
 import Home from "../pages/Home";
@@ -92,6 +95,7 @@ const AppRoutes = () => {
             <Route path="/Register" element={<Register />} />   
             <Route path="/ResetPassword" element={<ResetPassword />}/>
             <Route path="/RecoverPassword" element={<RecoverPassword />}/>
+            <Route path="/PantallaBloqueo" element={<PantallaBloqueo />}/>
 
             {/*Inicio*/}
             <Route path="/Profile" element={<Profile/>}/>

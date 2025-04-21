@@ -4,29 +4,48 @@ const EditarTarea = ({
   newEvent = {}, 
   clientes = [], 
   filiales = [],
+  usuarios = [],
   loading = false, 
   handleInputChange = () => {}, 
   handleSubmit = () => {}, 
   handleDelete = () => {},
-  closeModal = () => {},
-  getColorForFilial = () => '#6c757d',
-  getIconForFilial = () => 'mdi-help-circle'
+  closeModal = () => {}
 }) => {
   // Manejo seguro de valores
   const safeEvent = {
     cliente_id: newEvent.cliente_id || '',
     descripcion: newEvent.descripcion || '',
+    fecha_creacion: newEvent.fecha_creacion || '',
     fecha_vencimiento: newEvent.fecha_vencimiento || '',
     filial_id: newEvent.filial_id || '',
-    responsable: newEvent.responsable || '',
+    usuario_id: newEvent.usuario_id || '',
     estado: newEvent.estado || 'pendiente'
   };
 
   // Obtener la filial seleccionada de manera segura
   const selectedFilial = filiales.find(f => f._id === safeEvent.filial_id);
-  const currentColor = selectedFilial ? 
-    getColorForFilial(selectedFilial.nombre_filial) : 
-    '#6c757d';
+  
+  // Colores según estado
+  const getColorForEstado = (estado) => {
+    const colors = {
+      'pendiente': '#dc3545',
+      'en progreso': '#ffc107',
+      'completada': '#28a745'
+    };
+    return colors[estado] || '#6c757d';
+  };
+
+  // Función para manejar cambios en las fechas con formato consistente
+  const handleDateChange = (field, value) => {
+    // Asegurarse de que el valor sea una fecha válida
+    if (value) {
+      // Formatear como YYYY-MM-DD
+      const formattedDate = new Date(value).toISOString().split('T')[0];
+      handleInputChange(field, formattedDate);
+    } else {
+      handleInputChange(field, '');
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit}>
@@ -62,34 +81,35 @@ const EditarTarea = ({
           />
         </div>
 
-        {/* Campo Fecha */}
-        <div className="col-12 mb-3">
+        {/* Campo Fecha de Inicio */}
+        <div className="col-md-6 mb-3">
+          <label className="form-label">Fecha de inicio*</label>
+          <input
+            type="date"
+            className="form-control"
+            value={safeEvent.fecha_creacion ? safeEvent.fecha_creacion.split('T')[0] : ''}
+            onChange={(e) => handleDateChange('fecha_creacion', e.target.value)}
+            required
+            disabled={loading}
+          />
+        </div>
+
+        {/* Campo Fecha de Vencimiento */}
+        <div className="col-md-6 mb-3">
           <label className="form-label">Fecha de vencimiento*</label>
           <input
-            type="datetime-local"
+            type="date"
             className="form-control"
-            value={safeEvent.fecha_vencimiento}
-            onChange={(e) => handleInputChange('fecha_vencimiento', e.target.value)}
+            value={safeEvent.fecha_vencimiento ? safeEvent.fecha_vencimiento.split('T')[0] : ''}
+            onChange={(e) => handleDateChange('fecha_vencimiento', e.target.value)}
             required
             disabled={loading}
           />
         </div>
 
         {/* Campo Filial */}
-        <div className="col-12 mb-3">
+        <div className="col-md-6 mb-3">
           <label className="form-label">Filial*</label>
-          <div className="mb-2 d-flex align-items-center">
-            <div 
-              className="color-preview me-2"
-              style={{
-                width: '20px',
-                height: '20px',
-                backgroundColor: currentColor,
-                borderRadius: '4px'
-              }}
-            ></div>
-            <small>{selectedFilial?.nombre_filial || 'No seleccionada'}</small>
-          </div>
           <select 
             className="form-select"
             value={safeEvent.filial_id}
@@ -106,31 +126,41 @@ const EditarTarea = ({
           </select>
         </div>
 
-        {/* Campo Responsable */}
-        <div className="col-12 mb-3">
-          <label className="form-label">Responsable*</label>
-          <input
-            type="text"
-            className="form-control"
-            value={safeEvent.responsable}
-            onChange={(e) => handleInputChange('responsable', e.target.value)}
-            required
-            disabled={loading}
-          />
-        </div>
-
         {/* Campo Estado */}
-        <div className="col-12 mb-4">
+        <div className="col-md-6 mb-3">
           <label className="form-label">Estado</label>
           <select
             className="form-select"
             value={safeEvent.estado}
             onChange={(e) => handleInputChange('estado', e.target.value)}
             disabled={loading}
+            style={{
+              backgroundColor: getColorForEstado(safeEvent.estado),
+              color: safeEvent.estado === 'en progreso' ? '#000' : '#fff',
+              fontWeight: 'bold'
+            }}
           >
             <option value="pendiente">Pendiente</option>
             <option value="en progreso">En progreso</option>
             <option value="completada">Completada</option>
+          </select>
+        </div>
+
+        {/* Campo Usuario Asignado */}
+        <div className="col-12 mb-3">
+          <label className="form-label">Asignar a</label>
+          <select
+            className="form-select"
+            value={safeEvent.usuario_id}
+            onChange={(e) => handleInputChange('usuario_id', e.target.value)}
+            disabled={loading}
+          >
+            <option value="">Sin asignar</option>
+            {Array.isArray(usuarios) && usuarios.map((usuario) => (
+              <option key={usuario._id} value={usuario._id}>
+                {usuario.name || 'Sin nombre'}
+              </option>
+            ))}
           </select>
         </div>
       </div>
