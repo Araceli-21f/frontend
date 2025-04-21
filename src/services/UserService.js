@@ -1,10 +1,36 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback,useRef } from 'react';
 import axios from 'axios';
 
 const UserService = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const baseURL = 'http://localhost:8000/users';
+    const cancelTokenSource = useRef(axios.CancelToken.source()); 
+      // Función genérica para manejar errores
+      const handleError = (err) => {
+        if (!axios.isCancel(err)) {
+            const errorMessage = err.response?.data?.message || err.message;
+            setError(errorMessage);
+        }
+        setLoading(false);
+        throw err;
+    };
+
+    const subirFotoPerfil = useCallback(async (formData) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await axios.post(`${baseURL}/upload-photo`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+                cancelToken: cancelTokenSource.current.token
+            });
+            return response.data;
+        } catch (err) {
+            return handleError(err);
+        } finally {
+            setLoading(false);
+        }
+    }, [baseURL]);
 
     const obtenerUsuarios = useCallback(async () => {
         setLoading(true);
@@ -84,6 +110,7 @@ const UserService = () => {
         obtenerUsuarioPorId,
         actualizarUsuario,
         eliminarUsuario,
+        subirFotoPerfil
     };
 };
 

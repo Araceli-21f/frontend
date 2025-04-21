@@ -1,10 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import UserService from "../services/UserService";
+
 
 const TopBar = ({ toggleSidebar, toggleRightSidebar }) => {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showAppsDropdown, setShowAppsDropdown] = useState(false);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const userService = UserService();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      setLoading(true);
+      try {
+        const fetchedUsers = await userService.obtenerUsuarios();
+        if (fetchedUsers.length > 0) {
+          setUser(fetchedUsers[0]); 
+        }
+      } catch (err) {
+        setError(err.message || "Error al cargar el usuario en TopBar");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [userService]);
 
   return (
     <header id="page-topbar">
@@ -108,32 +132,19 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar }) => {
               <div className="px-sm-2">
                 <div className="row g-0">
                   <div className="col">
-                    <Link to="#" className="dropdown-icon-item">
-                      <img src="/assets/images/brands/github.png" alt="Github" />
-                      <span>GitHub</span>
+                    <Link to="/Calendario" className="dropdown-icon-item">
+                    <i className="far fa-calendar-alt"></i>
+                    <span>Calendario</span>
                     </Link>
                   </div>
                   <div className="col">
-                    <Link to="#" className="dropdown-icon-item">
-                      <img src="/assets/images/brands/bitbucket.png" alt="bitbucket" />
-                      <span>Bitbucket</span>
+                    <Link to="/Cronograma" className="dropdown-icon-item">
+                    <i className="uil-chart-growth-alt "></i>
+                    <span>Cronograma</span>
                     </Link>
                   </div>
                 </div>
-                <div className="row g-0">
-                  <div className="col">
-                    <Link to="#" className="dropdown-icon-item">
-                      <img src="/assets/images/brands/dropbox.png" alt="dropbox" />
-                      <span>Dropbox</span>
-                    </Link>
-                  </div>
-                  <div className="col">
-                    <Link to="#" className="dropdown-icon-item">
-                      <img src="/assets/images/brands/mail_chimp.png" alt="mail_chimp" />
-                      <span>Mail Chimp</span>
-                    </Link>
-                  </div>
-                </div>
+                
               </div>
             </div>
           </div>
@@ -148,10 +159,11 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar }) => {
               aria-label="Menú de usuario"
             >
               <img
-                className="rounded-circle header-profile-user"
-                src="/assets/images/users/avatar-4.jpg"
-                alt="Avatar del usuario"
+                 className="rounded-circle header-profile-user"
+                 src={user?.foto_user || "/assets/images/users/user-default.png"}
+                 alt="Foto de perfil"
               />
+              
               <i className="uil-angle-down d-none d-xl-inline-block font-size-15"></i>
             </button>
             

@@ -70,19 +70,9 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
               </Link>
             </li>*/}
 
-            <li>
-              <Link to="/Calendario" className="waves-effect">
-                <i className="far fa-calendar-alt"></i>
-                <span> Calendario</span>
-              </Link>
-            </li>
+            
 
-            <li>
-              <Link to="/Cronograma" className="waves-effect">
-                <i className="uil-chart-growth-alt "></i>
-                <span> Cronograma</span>
-              </Link>
-            </li>
+          
 
 
             <li>
@@ -111,7 +101,12 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
                 <span> Pagos</span>
               </Link>
             </li>
-
+            <li>
+              <Link to="/ListaNota" className="waves-effect">
+                <i className="uil-chart-growth-alt "></i>
+                <span> Nota</span>
+              </Link>
+            </li>
             <li>
               <Link className="has-arrow waves-effect" onClick={toggleSubMenu2}>
                 <i className="fas fa-users"></i>

@@ -7,7 +7,9 @@ import RecoverPassword from "../layouts/Auth/RecoverPassword";
 import PantallaBloqueo from "../layouts/Auth/PantallaBloqueo";
 
 
-import Profile from "../layouts/Auth/Profile";
+import Profile from "../pages/Perfil/Profile";
+import EditarPerfil from "../pages/Perfil/EditarPerfil";
+
 
 import Home from "../pages/Home";
 import Tablero from "../pages/Tablero";
@@ -97,8 +99,9 @@ const AppRoutes = () => {
             <Route path="/RecoverPassword" element={<RecoverPassword />}/>
             <Route path="/PantallaBloqueo" element={<PantallaBloqueo />}/>
 
-            {/*Inicio*/}
+            {/*Perfil*/}
             <Route path="/Profile" element={<Profile/>}/>
+            <Route path="/Perfil/editar/:id" element={<EditarPerfil/>}/>
 
             <Route path="/Home" element={<Home />} />
 
@@ -190,8 +193,8 @@ const AppRoutes = () => {
             {/*Nota*/}
            <Route path="/Nota" element={<Nota/>}/>
            <Route path="/Nota/CrearNota" element={<CrearNota/>}/>
-           <Route path="/Nota/ver/:id" element={<DetalleNota/>}/>
-           <Route path="/Nota/editar/:id" element={<EditarNota/>}/>
+           <Route path="/Notas/ver/:id" element={<DetalleNota/>}/>
+           <Route path="/Notas/editar/:id" element={<EditarNota/>}/>
 
             </Routes>
         </Router>
