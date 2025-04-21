@@ -5,6 +5,7 @@ import Grafica2 from "./graficos/grafica2";
 import Card1 from "./cards/card1";
 import Grafica3 from "./graficos/grafica3";
 import Card2 from "./cards/card2";
+import CardUsuario from "./cards/cardUsuario";
 
 const Home = () => {
 
@@ -46,7 +47,7 @@ const Home = () => {
 
     </div>
     <div className="col-lg-5">
-
+      <CardUsuario/>
     </div>
 
 

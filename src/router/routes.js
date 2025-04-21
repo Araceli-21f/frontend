@@ -79,6 +79,8 @@ import Grafica3 from "../pages/graficos/grafica3";
 import Card1 from "../pages/cards/card1";
 import Card2 from "../pages/cards/card2";
 import CardInteraccion from "../pages/cards/CardInteraccion";
+import CardUsuario from "../pages/cards/cardUsuario";
+import CardTarea from "../pages/cards/cardTarea";
 
 const AppRoutes = () => {
     return (
@@ -103,7 +105,9 @@ const AppRoutes = () => {
 
             <Route path="/card1" element={<Card1 />}/>
             <Route path="/card2" element={<Card2 />}/>
-            <Route path="/cardinteraciones" element={<CardInteraccion />}/>
+            <Route path="/cardUsuario" element={<CardUsuario />}/>
+            <Route path="/cardTarea" element={<CardTarea />}/>
+
 
             <Route path="/Tablero" element={<Tablero />}/>
 
