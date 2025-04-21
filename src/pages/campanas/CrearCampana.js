@@ -71,7 +71,7 @@ const CrearCampana = ({ onCampanaCreada }) => {
             setAlertType("success");
             setAlertMessage("Campaña creada exitosamente.");
             setShowAlert(true);
-            navigate(`/campanas`);
+            navigate(`/Campanas`);
             setFormData({
                 nombre: "", descripcion: "", fecha_inicio: new Date().toISOString().split('T')[0], fecha_fin: "",  estado: "activa", clientes: [],
             });
@@ -79,7 +79,7 @@ const CrearCampana = ({ onCampanaCreada }) => {
             setMostrarSelectorClientes(false);
             if (onCampanaCreada) {
                 onCampanaCreada(formData);
-                navigate(`/campanas`);
+                navigate(`/Campanas`);
             }
         } catch (error) {
             console.error("Error al crear la campaña:", error);
@@ -102,8 +102,9 @@ const CrearCampana = ({ onCampanaCreada }) => {
                         <div className="invoice-title d-flex justify-content-between align-items-center">
                             <h3 className="font-size-h4">Agregar Campaña</h3>
                              <div className="mb-6">
-                            <img src="/assets/images/logo-dark.png" alt="logo" height="25" className="logo-dark" />  
                             <img src="/assets/images/logo-light.png" alt="logo" height="25" className="logo-light" />
+                            <img src="/assets/images/logo-dark.png" alt="logo" height="25" className="logo-dark" />  
+
                              </div>
                              </div>
                               <hr className="my-3"/>

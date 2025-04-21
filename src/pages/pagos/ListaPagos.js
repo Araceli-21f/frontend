@@ -153,7 +153,7 @@ const ListaPagos = () => {
                                         value={searchTerm} 
                                         onChange={handleSearchChange}
                                     />
-                                    <button type="button" className="btn btn-primary" style={{ marginLeft: '2px' }}>
+                                    <button type="button" className="btn btn-purple" style={{ marginLeft: '2px' }}>
                                         <i className="uil-search"></i>
                                     </button>
                                 </div>
@@ -162,7 +162,7 @@ const ListaPagos = () => {
                             {/* Filtro por tipo/metodo */}
                             <div className="col-md-3 mb-2 d-flex align-items-center">
                                 <div className="input-group w-100 shadow-sm">
-                                    <span className="me-0 p-2 text-white bg-primary rounded-1 d-flex justify-content-center align-items-center">
+                                    <span className="me-0 p-2 text-white bg-purple rounded-1 d-flex justify-content-center align-items-center">
                                         <i className="uil-filter fs-6"></i>
                                     </span>
                                     <select 
@@ -186,7 +186,7 @@ const ListaPagos = () => {
                             </div>
                             
                             {/* Filtro por fechas */}
-                            <div className="col-md-3 mb-2">
+                           {/* <div className="col-md-3 mb-2">
                                 <div className="input-daterange input-group shadow-sm">
                                     <input
                                         type="date" 
@@ -211,7 +211,7 @@ const ListaPagos = () => {
                                         <i className="mdi mdi-filter-variant"></i>
                                     </button>
                                 </div>
-                            </div>
+                            </div>*/}
                             
                             {/* Botón crear nuevo pago */}
                             <div className="col-md-3 mb-2">
@@ -253,7 +253,7 @@ const ListaPagos = () => {
                                             <td>
                                                 <span className={`badge ${
                                                     pago.tipo_pago === 'Anticipo' ? 'bg-info-subtle text-info' :
-                                                    pago.tipo_pago === 'Abono' ? 'bg-primary-subtle text-primary' :
+                                                    pago.tipo_pago === 'Abono' ? 'bg-purple-subtle text-purple' :
                                                     'bg-secondary-subtle text-secondary'
                                                 }`}>
                                                     {pago.tipo_pago}

@@ -5,62 +5,106 @@ import AlertComponent from "../../components/AlertasComponent";
 import CotizacionService from "../../services/CotizacionService";
 import ClienteService from "../../services/ClienteService";
 import FilialService from "../../services/FilialService";
+import UserService from "../../services/UserService";
 
 const CrearCotizacion = ({ onCotizacionCreada }) => {
   const navigate = useNavigate();
   const { crearCotizacion } = CotizacionService();
   const { obtenerClientes } = ClienteService();
   const { obtenerFilials } = FilialService();
+  const { obtenerUsuarios } = UserService();
   
+  // Estados del modelo
+  const estadosCotizacion = ["Borrador", "Enviada", "Aprobada", "Completada", "Cancelada"];  
+  const estadosServicio = ["Pendiente", "En Proceso", "Completado", "Cancelado"];
+  const formasPago = ["Contado", "Financiado"];
+  const metodosPago = ["Efectivo", "Transferencia", "Tarjeta Débito", "Tarjeta Crédito", "Cheque", "Depósito"];
+
   const [formData, setFormData] = useState({
+    // Información básica
     nombre_cotizacion: "",
     fecha_cotizacion: new Date().toISOString().split('T')[0],
-    validoHasta: "",
+    valido_hasta: "",
+    
+    // Estados
     estado: "Borrador",
+    estado_servicio: "Pendiente",
+    
+    // Configuración
     aplicaIva: true,
+    forma_pago: "",
+    metodo_pago: "Efectivo",
+    
+    // Relaciones
     cliente_id: "",
-    vendedor: "",
+    vendedor_id: "",
     filial_id: "",
+    creado_por: "",
+    actualizado_por: "",
+    
+    // Detalles técnicos
     detalles: [{
-      descripcion: "",
-      costo_materiales: 0,
-      costo_mano_obra: 0,
+      descripcion: "", 
+      costo_materiales: 0, 
+      costo_mano_obra: 0, 
       utilidad_esperada: 0,
-      inversion: 0
+      inversion_total: 0,
+      precio_venta: 0
     }],
+    
+    // Totales
     subtotal: 0,
     iva: 0,
     precio_venta: 0,
-    forma_pago: "",
+    
+    // Financiamiento
     financiamiento: {
-      anticipo_solicitado: 0,
-      plazo_semanas: 0,
-      pago_semanal: 0,
+      anticipo_solicitado: 0, 
+      plazo_semanas: 0,  
+      pago_semanal: 0,  
       saldo_restante: 0,
+      tasa_interes: 0.34,
+      fecha_inicio: null,
+      fecha_termino: null,
+      pagos_ids: []
     },
-    metodo_pago: "Efectivo",
-    estado_servicio: "Pendiente"
+    
+    // Seguimiento
+    fecha_inicio_servicio: null,
+    fecha_fin_servicio: null,
+    
+    // Referencias
+    pago_contado_id: null
   });
 
   const [clientes, setClientes] = useState([]);
   const [filials, setFilials] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
   const [showAlert, setShowAlert] = useState(false);
   const [alertType, setAlertType] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
-  
-  const formasPago = ["Contado", "Financiado"];
-  const metodosPago = ["Efectivo", "Transferencia", "Tarjeta", "Cheque"];
-  const estados = ["Borrador", "Enviada", "Aprobada", "Completada", "Cancelada"];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [fetchedClientes, fetchedFilials] = await Promise.all([
+        const [fetchedClientes, fetchedFilials, fetchedUsuarios] = await Promise.all([
           obtenerClientes(),
-          obtenerFilials()
+          obtenerFilials(),
+          obtenerUsuarios()
         ]);
+        
         setClientes(fetchedClientes);
         setFilials(fetchedFilials);
+        setUsuarios(fetchedUsuarios);
+        
+        if (fetchedUsuarios.length > 0) {
+          setFormData(prev => ({
+            ...prev,
+            vendedor_id: fetchedUsuarios[0]._id,
+            creado_por: fetchedUsuarios[0]._id,
+            actualizado_por: fetchedUsuarios[0]._id
+          }));
+        }
       } catch (err) {
         console.error("Error al obtener datos:", err);
         setAlertType("error");
@@ -69,34 +113,178 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
       }
     };
     fetchData();
-  }, [obtenerClientes, obtenerFilials]);
+  }, [obtenerClientes, obtenerFilials, obtenerUsuarios]);
 
   const calcularTotales = (detalles, aplicaIva, formaPago, financiamiento) => {
-    // Calcular subtotal sumando (inversión + utilidad) de cada item
-    const subtotal = detalles.reduce((sum, item) => {
-      const inversion = Number(item.costo_materiales) + Number(item.costo_mano_obra);
-      const precioConUtilidad = inversion * (1 + (Number(item.utilidad_esperada) || 0)/100);
-      return sum + precioConUtilidad;
-    }, 0);
+    const detallesValidos = detalles || [];
+    const aplicaIvaValido = aplicaIva !== undefined ? aplicaIva : true;
+    
+    // Calcular detalles primero
+    const detallesCalculados = detallesValidos.map(item => {
+      const inversion = Number(item.costo_materiales || 0) + Number(item.costo_mano_obra || 0);
+      const precio = inversion * (1 + (Number(item.utilidad_esperada || 0)/100));
+      return {
+        ...item,
+        inversion_total: inversion,
+        precio_venta: precio
+      };
+    });
 
-    const iva = aplicaIva ? subtotal * 0.16 : 0;
+    // Calcular subtotal
+    const subtotal = detallesCalculados.reduce((sum, item) => sum + item.precio_venta, 0);
+    const iva = aplicaIvaValido ? subtotal * 0.16 : 0;
     let precio_venta = subtotal + iva;
 
-    // Aplicar cargo financiero si es financiado
-    let nuevoFinanciamiento = { ...financiamiento };
+    // Manejar financiamiento
+    let nuevoFinanciamiento = { 
+      ...(financiamiento || {}),
+      tasa_interes: 0.34 
+    };
+
     if (formaPago === "Financiado") {
       const cargoFinanciero = precio_venta * 0.34;
       precio_venta += cargoFinanciero;
       
-      // Recalcular saldos
-      const saldo = precio_venta - (nuevoFinanciamiento.anticipo_solicitado || 0);
-      nuevoFinanciamiento.saldo_restante = saldo > 0 ? saldo : 0;
-      nuevoFinanciamiento.pago_semanal = nuevoFinanciamiento.plazo_semanas > 0 
-        ? saldo / nuevoFinanciamiento.plazo_semanas 
-        : 0;
+      const anticipo = Math.min(
+        Number(nuevoFinanciamiento.anticipo_solicitado) || 0,
+        precio_venta
+      );
+      
+      const plazo = Math.max(Number(nuevoFinanciamiento.plazo_semanas) || 1, 1);
+      const saldo = precio_venta - anticipo;
+      
+      nuevoFinanciamiento = {
+        ...nuevoFinanciamiento,
+        anticipo_solicitado: anticipo,
+        plazo_semanas: plazo,
+        saldo_restante: Math.max(saldo, 0),
+        pago_semanal: plazo > 0 ? saldo / plazo : 0
+      };
     }
 
-    return { subtotal, iva, precio_venta, financiamiento: nuevoFinanciamiento };
+    return {
+      detalles: detallesCalculados,
+      subtotal: parseFloat(subtotal.toFixed(2)),
+      iva: parseFloat(iva.toFixed(2)),
+      precio_venta: parseFloat(precio_venta.toFixed(2)),
+      financiamiento: formaPago === "Financiado" ? nuevoFinanciamiento : undefined
+    };
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Validación de fechas
+      const fechaCotizacion = new Date(formData.fecha_cotizacion);
+      const fechaValidoHasta = new Date(formData.valido_hasta);
+      
+      if (fechaValidoHasta <= fechaCotizacion) {
+        throw new Error("La fecha de validez debe ser posterior a la fecha de cotización");
+      }
+
+      // Validación de estados
+      if (!estadosCotizacion.includes(formData.estado)) {
+        throw new Error(`Estado no válido. Use uno de: ${estadosCotizacion.join(", ")}`);
+      }
+
+      if (!estadosServicio.includes(formData.estado_servicio)) {
+        throw new Error(`Estado de servicio no válido. Use uno de: ${estadosServicio.join(", ")}`);
+      }
+      
+      // Validaciones básicas
+      if (!formData.nombre_cotizacion) {
+        throw new Error("El nombre de la cotización es requerido");
+      }
+  
+      if (!formData.cliente_id) {
+        throw new Error("Debe seleccionar un cliente");
+      }
+  
+      if (!formData.filial_id) {
+        throw new Error("Debe seleccionar una filial");
+      }
+  
+      if (!formData.vendedor_id) {
+        throw new Error("Debe seleccionar un vendedor");
+      }
+  
+      if (!formData.detalles.some(d => d.descripcion.trim() !== "")) {
+        throw new Error("Debe agregar al menos un detalle con descripción");
+      }
+  
+      if (!formData.forma_pago) {
+        throw new Error("Debe seleccionar una forma de pago");
+      }
+  
+      // Validación de fechas de servicio si está en proceso o completado
+      if (formData.estado_servicio === "EnProceso" && !formData.fecha_inicio_servicio) {
+        throw new Error("Debe especificar fecha de inicio cuando el servicio está en proceso");
+      }
+      
+      if (formData.estado_servicio === "Completado" && !formData.fecha_fin_servicio) {
+        throw new Error("Debe especificar fecha de finalización cuando el servicio está completado");
+      }
+
+      // Preparar datos para enviar
+      const dataToSend = {
+        ...formData,
+        fecha_cotizacion: new Date(formData.fecha_cotizacion),
+        valido_hasta: new Date(formData.valido_hasta),
+        fecha_inicio_servicio: formData.fecha_inicio_servicio ? new Date(formData.fecha_inicio_servicio) : null,
+        fecha_fin_servicio: formData.fecha_fin_servicio ? new Date(formData.fecha_fin_servicio) : null,
+        
+        // Campos calculados que el backend maneja
+        subtotal: undefined,
+        iva: undefined,
+        precio_venta: undefined,
+        estado: formData.estado|| 'Borrador',
+        estado_servicio:formData.estado_servicio ||"Pendiente",
+
+        detalles: formData.detalles.map(item => ({
+          descripcion: item.descripcion,
+          costo_materiales: item.costo_materiales,
+          costo_mano_obra: item.costo_mano_obra,
+          utilidad_esperada: item.utilidad_esperada,
+          inversion_total: undefined, // El backend lo calcula
+          precio_venta: undefined    // El backend lo calcula
+        })),
+        
+        // Limpiar financiamiento si no aplica
+        ...(formData.forma_pago !== "Financiado" ? { financiamiento: undefined } : {
+          financiamiento: {
+            anticipo_solicitado: formData.financiamiento.anticipo_solicitado,
+            plazo_semanas: formData.financiamiento.plazo_semanas,
+            tasa_interes: 0.34,
+            ...(formData.financiamiento.fecha_inicio && {
+              fecha_inicio: new Date(formData.financiamiento.fecha_inicio)
+            })
+          }
+        }),
+        
+        pago_contado_id: undefined // Se crea después
+      };
+
+      // Enviar datos
+      const response = await crearCotizacion(dataToSend);
+      
+      // Manejar respuesta exitosa
+      setAlertType("success");
+      setAlertMessage("Cotización creada exitosamente");
+      setShowAlert(true);
+      
+      setTimeout(() => navigate(`/cotizaciones/ver/${response._id}`), 2000);
+      
+    } catch (error) {
+      console.error("Error al crear cotización:", error);
+      setAlertType("error");
+      setAlertMessage(
+        error.response?.data?.error || 
+        error.response?.data?.message || 
+        error.message || 
+        "Error al crear la cotización"
+      );
+      setShowAlert(true);
+    }
   };
 
   const handleChange = (e, index) => {
@@ -122,7 +310,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
       const field = name.split('.')[1];
       const newFinanciamiento = {
         ...formData.financiamiento,
-        [field]: Number(value) || 0
+        [field]: type === 'number' ? Number(value) || 0 : value
       };
       
       const nuevosTotales = calcularTotales(
@@ -142,14 +330,10 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
       // Manejo de detalles
       const detalles = formData.detalles.map((item, i) => {
         if (i === index) {
-          const updatedItem = { 
+          return { 
             ...item, 
             [name]: type === 'number' ? Number(value) || 0 : value 
           };
-          updatedItem.inversion = 
-            Number(updatedItem.costo_materiales || 0) + 
-            Number(updatedItem.costo_mano_obra || 0);
-          return updatedItem;
         }
         return item;
       });
@@ -163,13 +347,17 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
       
       setFormData(prev => ({ 
         ...prev,
-        detalles, 
-        ...nuevosTotales
+        detalles: nuevosTotales.detalles,
+        subtotal: nuevosTotales.subtotal,
+        iva: nuevosTotales.iva,
+        precio_venta: nuevosTotales.precio_venta,
+        financiamiento: nuevosTotales.financiamiento || prev.financiamiento
       }));
     } else {
       setFormData(prev => ({ 
         ...prev, 
-        [name]: type === 'number' ? Number(value) || 0 : value 
+        [name]: type === 'number' ? Number(value) || 0 : value,
+        actualizado_por: usuarios[0]?._id || "" // Actualizar quién modificó
       }));
     }
   };
@@ -184,7 +372,8 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
           costo_materiales: 0, 
           costo_mano_obra: 0, 
           utilidad_esperada: 0,
-          inversion: 0 
+          inversion_total: 0,
+          precio_venta: 0
         }
       ]
     }));
@@ -202,62 +391,12 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
     
     setFormData(prev => ({ 
       ...prev,
-      detalles, 
-      ...nuevosTotales
+      detalles: nuevosTotales.detalles,
+      subtotal: nuevosTotales.subtotal,
+      iva: nuevosTotales.iva,
+      precio_venta: nuevosTotales.precio_venta,
+      financiamiento: nuevosTotales.financiamiento || prev.financiamiento
     }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // Validación básica
-      if (!formData.detalles.some(d => d.descripcion.trim() !== "")) {
-        throw new Error("Debe agregar al menos un detalle con descripción");
-      }
-
-      if (formData.forma_pago === "Financiado") {
-        if (!formData.financiamiento.plazo_semanas || formData.financiamiento.plazo_semanas <= 0) {
-          throw new Error("El plazo de financiamiento debe ser mayor a 0 semanas");
-        }
-        if (formData.financiamiento.anticipo_solicitado > formData.precio_venta) {
-          throw new Error("El anticipo no puede ser mayor al precio total");
-        }
-      }
-
-      // Preparar datos para enviar
-      const dataToSend = {
-        ...formData,
-        // Eliminar campos calculados que el backend recalculará
-        subtotal: undefined,
-        iva: undefined,
-        precio_venta: undefined,
-        detalles: formData.detalles.map(item => ({
-          descripcion: item.descripcion,
-          costo_materiales: item.costo_materiales,
-          costo_mano_obra: item.costo_mano_obra,
-          utilidad_esperada: item.utilidad_esperada
-        }))
-      };
-
-      const response = await crearCotizacion(dataToSend);
-      
-      setAlertType("success");
-      setAlertMessage("Cotización creada exitosamente.");
-      setShowAlert(true);
-      
-      if (onCotizacionCreada) {
-        onCotizacionCreada(response);
-      }
-      
-      // Redirigir después de 2 segundos
-      setTimeout(() => navigate(`/cotizaciones/ver/${response._id}`), 2000);
-      
-    } catch (error) {
-      console.error("Error al crear la cotización:", error);
-      setAlertType("error");
-      setAlertMessage(error.message || "Error al crear la cotización.");
-      setShowAlert(true);
-    }
   };
 
   const handleAlertClose = () => {
@@ -292,6 +431,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                         value={formData.nombre_cotizacion} 
                         onChange={handleChange} 
                         required 
+                        maxLength="100"
                       />
                     </div>
                   </div>
@@ -314,8 +454,8 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                       <input
                         type="date" 
                         className="form-control" 
-                        name="validoHasta" 
-                        value={formData.validoHasta} 
+                        name="valido_hasta" 
+                        value={formData.valido_hasta} 
                         onChange={handleChange} 
                         required
                       />
@@ -323,9 +463,39 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                   </div>
                 </div>
 
-                {/* Sección de relaciones */}
+                {/* Sección de estados y pagos */}
                 <div className="row mb-4">
-                  <div className="col-md-4">
+                  <div className="col-md-3">
+                    <div className="mb-3">
+                      <label className="form-label">Estado Cotización</label>
+                      <select 
+                        className="form-select" 
+                        name="estado" 
+                        value={formData.estado} 
+                        onChange={handleChange}
+                      >
+                        {estadosCotizacion.map((estado) => (
+                          <option key={estado} value={estado}>{estado}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="col-md-3">
+                    <div className="mb-3">
+                      <label className="form-label">Estado Servicio</label>
+                      <select 
+                        className="form-select" 
+                        name="estado_servicio" 
+                        value={formData.estado_servicio} 
+                        onChange={handleChange}
+                      >
+                        {estadosServicio.map((estado) => (
+                          <option key={estado} value={estado}>{estado}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="col-md-3">
                     <div className="mb-3">
                       <label className="form-label">Forma de Pago *</label>
                       <select 
@@ -342,7 +512,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                       </select>
                     </div>
                   </div>
-                  <div className="col-md-4">
+                  <div className="col-md-3">
                     <div className="mb-3">
                       <label className="form-label">Método de Pago *</label>
                       <select 
@@ -358,23 +528,43 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                       </select>
                     </div>
                   </div>
-                  <div className="col-md-4">
-                    <div className="mb-3">
-                      <label className="form-label">Estado</label>
-                      <select 
-                        className="form-select" 
-                        name="estado" 
-                        value={formData.estado} 
-                        onChange={handleChange}
-                      >
-                        {estados.map((estado) => (
-                          <option key={estado} value={estado}>{estado}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
                 </div>
 
+                {/* Fechas de servicio */}
+                {(formData.estado_servicio === "EnProceso" || formData.estado_servicio === "Completado") && (
+                  <div className="row mb-4">
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Fecha Inicio Servicio</label>
+                        <input
+                          type="date"
+                          className="form-control"
+                          name="fecha_inicio_servicio"
+                          value={formData.fecha_inicio_servicio || ""}
+                          onChange={handleChange}
+                          required={formData.estado_servicio === "EnProceso"}
+                        />
+                      </div>
+                    </div>
+                    {formData.estado_servicio === "Completado" && (
+                      <div className="col-md-6">
+                        <div className="mb-3">
+                          <label className="form-label">Fecha Fin Servicio</label>
+                          <input
+                            type="date"
+                            className="form-control"
+                            name="fecha_fin_servicio"
+                            value={formData.fecha_fin_servicio || ""}
+                            onChange={handleChange}
+                            required
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Relaciones */}
                 <div className="row mb-4">
                   <div className="col-md-4">
                     <div className="mb-3">
@@ -417,14 +607,20 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                   <div className="col-md-4">
                     <div className="mb-3">
                       <label className="form-label">Vendedor *</label>
-                      <input 
-                        type="text" 
-                        className="form-control" 
-                        name="vendedor" 
-                        value={formData.vendedor} 
+                      <select 
+                        className="form-select" 
+                        name="vendedor_id" 
+                        value={formData.vendedor_id} 
                         onChange={handleChange} 
-                        required 
-                      />
+                        required
+                      >
+                        <option value="">Seleccione un vendedor</option>
+                        {usuarios.map((usuario) => (
+                          <option key={usuario._id} value={usuario._id}>
+                            {usuario.name} {usuario.apellidos}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>
@@ -441,6 +637,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                           <th>Costo Mano Obra*</th>
                           <th>Utilidad (%)</th>
                           <th>Inversión Total</th>
+                          <th>Precio Venta</th>
                           <th>Acciones</th>
                         </tr>
                       </thead>
@@ -455,6 +652,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                                 value={item.descripcion} 
                                 onChange={(e) => handleChange(e, index)} 
                                 required 
+                                maxLength="200"
                               />
                             </td>
                             <td>
@@ -497,7 +695,15 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                               <input 
                                 type="number" 
                                 className="form-control" 
-                                value={item.inversion.toFixed(2)} 
+                                value={(item.inversion_total || 0).toFixed(2)}
+                                disabled 
+                              />
+                            </td>
+                            <td>
+                              <input 
+                                type="number" 
+                                className="form-control" 
+                                value={(item.precio_venta || 0).toFixed(2)}
                                 disabled 
                               />
                             </td>
@@ -548,17 +754,17 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                         <tbody>
                           <tr>
                             <th>Subtotal:</th>
-                            <td className="text-end">${formData.subtotal.toFixed(2)}</td>
+                            <td className="text-end">${(formData.subtotal || 0).toFixed(2)}</td>
                           </tr>
                           {formData.aplicaIva && (
                             <tr>
                               <th>IVA (16%):</th>
-                              <td className="text-end">${formData.iva.toFixed(2)}</td>
+                              <td className="text-end">${(formData.iva || 0).toFixed(2)}</td>
                             </tr>
                           )}
                           <tr className="border-top">
                             <th>Total:</th>
-                            <td className="text-end fw-bold">${formData.precio_venta.toFixed(2)}</td>
+                            <td className="text-end fw-bold">${(formData.precio_venta || 0).toFixed(2)}</td>
                           </tr>
                         </tbody>
                       </table>
@@ -566,8 +772,8 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                   </div>
                 </div>
                 
-                {/* Sección de financiamiento (solo si es financiado) */}
-                {formData.forma_pago === "Financiado" && (
+                {/* Sección de financiamiento */}
+                {formData.forma_pago === "Financiado" && formData.financiamiento && (
                   <div className="row mt-3 border-top pt-3 mb-4">
                     <div className="col-md-12">
                       <h5>Datos de Financiamiento</h5>    
@@ -609,7 +815,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                             <input 
                               type="number" 
                               className="form-control" 
-                              value={formData.financiamiento.pago_semanal.toFixed(2)} 
+                              value={(formData.financiamiento.pago_semanal || 0).toFixed(2)} 
                               disabled 
                             />
                           </div>
@@ -622,6 +828,20 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                               className="form-control" 
                               value={formData.financiamiento.saldo_restante.toFixed(2)} 
                               disabled 
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="row mt-2">
+                        <div className="col-md-6">
+                          <div className="mb-3">
+                            <label className="form-label">Fecha Inicio Financiamiento</label>
+                            <input
+                              type="date"
+                              className="form-control"
+                              name="financiamiento.fecha_inicio"
+                              value={formData.financiamiento.fecha_inicio || ""}
+                              onChange={handleChange}
                             />
                           </div>
                         </div>

@@ -126,7 +126,7 @@ const ListaClientes = () => {
              value={searchTerm}
              onChange={handleSearchChange}
            />
-           <button type="button" className="btn btn-primary" style={{ marginLeft: '2px' }}>
+           <button type="button" className="btn btn-purple" style={{ marginLeft: '2px' }}>
              <i className="uil-search"></i>
            </button>
          </div>
@@ -135,7 +135,7 @@ const ListaClientes = () => {
        <div className="col-md-4 mb-2 d-flex align-items-center">
        <div className="input-group w-100 shadow-sm">
        {/* Ícono de filtro fuera del grupo, con fondo redondeado */}
-        <span className="me-0 p-2 text-white bg-primary rounded-1 d-flex justify-content-center align-items-center">
+        <span className="me-0 p-2 text-white bg-purple rounded-1 d-flex justify-content-center align-items-center">
          <i className="uil-filter fs-6"></i>
         </span>
         {/* Select de tipo de filtro */}

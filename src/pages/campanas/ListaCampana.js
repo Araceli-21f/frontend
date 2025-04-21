@@ -121,7 +121,7 @@ const ListaCampana = () => {
                     />
                 )}
                 <div className="card p-3">
-                    <h2 className="mb-3 "><i className="fa fa-fw fa-bars"/> Lista de Campañas</h2>
+                    <h2 className="mb-3 "> Lista de Campañas</h2>
 
                     <div className="col-lg">
                         <div className="row">
@@ -132,7 +132,7 @@ const ListaCampana = () => {
                                         type="text" className="form-control pe-4" placeholder="Buscar Campaña .."
                                         value={searchTerm} onChange={handleSearchChange}
                                     />
-                                    <button type="button" className="btn btn-primary" style={{ marginLeft: '2px' }}>
+                                    <button type="button" className="btn btn-purple" style={{ marginLeft: '2px' }}>
                                         <i className="uil-search"></i>
                                     </button>
                                 </div>
@@ -141,7 +141,7 @@ const ListaCampana = () => {
                             <div className="col-md-3 mb-2 ">
                                 <div className="input-group w-100 shadow-sm">
                                     {/* Ícono de filtro fuera del grupo, con fondo redondeado */}
-                                    <span className="me-0 p-2 text-white bg-primary rounded-1 d-flex justify-content-center align-items-center">
+                                    <span className="me-0 p-2 text-white bg-purple rounded-1 d-flex justify-content-center align-items-center">
                                         <i className="uil-filter fs-6"></i>
                                     </span>
                                     {/* Select de tipo de filtro */}
@@ -168,7 +168,7 @@ const ListaCampana = () => {
                                         value={dateRanges.fecha_fin} onChange={(e) => handleDateChange("fecha_fin", e.target.value)}    
                                     />
                                     <button
-                                        type="button" className="btn btn-primary"
+                                        type="button" className="btn btn-purple"
                                         style={{ marginLeft: "2px" }} onClick={handleDateFilter}>
                                         <i className="mdi mdi-filter-variant"></i>
                                     </button>

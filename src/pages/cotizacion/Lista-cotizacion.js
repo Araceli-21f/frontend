@@ -37,10 +37,14 @@ const filterOptions = ["Todos", ...new Set(cotizaciones.map((cotizacion) => coti
   useEffect(() => {
     const fetchCotizaciones = async () => {
       try {
+        console.log("Obteniendo cotizaciones...");
         const fetchedCotizaciones = await obtenerCotizaciones();
+        console.log("Datos recibidos:", fetchedCotizaciones); // Verifica la estructura de datos
         setCotizaciones(fetchedCotizaciones);
       } catch (err) {
         console.error("Error al obtener Cotizaciones:", err);
+        // Agrega más detalles del error
+        console.error("Error completo:", err.response?.data || err.message);
       }
     };
     fetchCotizaciones();
@@ -111,7 +115,7 @@ const filterOptions = ["Todos", ...new Set(cotizaciones.map((cotizacion) => coti
         />
       )}
       <div className="card p-3">
-        <h2 className="mb-3"><i className="fa fa-fw fa-bars" /> Lista de Cotizaciones</h2>
+        <h2 className="mb-3"> Lista de Cotizaciones</h2>
 
         <div className="col-md-10">
           <div className="row">
@@ -125,7 +129,7 @@ const filterOptions = ["Todos", ...new Set(cotizaciones.map((cotizacion) => coti
                   value={searchTerm}
                   onChange={handleSearchChange}
                 />
-                <button type="button" className="btn btn-primary" style={{ marginLeft: '2px' }}>
+                <button type="button" className="btn btn-purple" style={{ marginLeft: '2px' }}>
                   <i className="uil-search"></i>
                 </button>
               </div>
@@ -134,7 +138,7 @@ const filterOptions = ["Todos", ...new Set(cotizaciones.map((cotizacion) => coti
             <div className="col-md-4 mb-2 ">
               <div className="input-group w-100 shadow-sm">
                {/* Ícono de filtro fuera del grupo, con fondo redondeado */}
-                <span className="me-0 p-2 text-white bg-primary rounded-1 d-flex justify-content-center align-items-center">
+                <span className="me-0 p-2 text-white bg-purple rounded-1 d-flex justify-content-center align-items-center">
                  <i className="uil-filter fs-6"></i>
                                 </span>
                                     {/* Select de tipo de filtro */}

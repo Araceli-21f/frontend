@@ -59,7 +59,7 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
             <li>
               <Link to="/Home" className="waves-effect">
                 <i className="uil-home-alt"></i>
-                <span> Inicio </span>
+                <span> Inicio</span>
               </Link>
             </li>
 
@@ -73,14 +73,14 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
             <li>
               <Link to="/Calendario" className="waves-effect">
                 <i className="far fa-calendar-alt"></i>
-                <span> Calendario </span>
+                <span> Calendario</span>
               </Link>
             </li>
 
             <li>
               <Link to="/Cronograma" className="waves-effect">
                 <i className="uil-chart-growth-alt "></i>
-                <span> Cronograma </span>
+                <span> Cronograma</span>
               </Link>
             </li>
 
@@ -88,27 +88,27 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
             <li>
               <Link to="/ListaInteraccions" className="waves-effect">
                 <i className="bx bx-folder-open"></i>
-                <span> Interacciones </span>
+                <span> Interacciones</span>
               </Link>
             </li>
             <li>
-              <Link to="/Campañas" className="waves-effect"><i className="uil-megaphone"></i><span> Campañas</span></Link>
+              <Link to="/Campanas" className="waves-effect"><i className="uil-megaphone"></i><span> Campañas</span></Link>
             </li>
             <li>
-              <Link to="/Lista_Eventos" className="waves-effect"><i className="uil-chart-line"></i><span>Eventos</span></Link>
+              <Link to="/Lista_Eventos" className="waves-effect"><i className="bx bx-calendar-event"></i><span> Eventos</span></Link>
             </li>
             
             <li>
               <Link to="/Lista_cotizacion" className="waves-effect">
-                <i className="fas fa-file-invoice-dollar"></i>
-                <span> Cotizaciones </span>
+                <i className="bx bx-food-menu"></i>
+                <span> Cotizaciones</span>
               </Link>
             </li>
 
             <li>
               <Link to="/Lista_pagos" className="waves-effect">
-                <i className="fas fa-money-check-alt "></i>
-                <span> Pagos </span>
+                <i className="bx bx-dollar-circle"></i>
+                <span> Pagos</span>
               </Link>
             </li>
 
@@ -119,24 +119,35 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
               </Link>
               {isSubMenuOpen2 && (
               <ul className="sub-menu">
-                <li><Link to="/Lista_clientes">Lista de Clientes</Link></li>
-                <li><Link to="/Estados_Cuenta">Estados Cuenta</Link></li>
+                <li>
+                  <Link to="/Lista_clientes">
+                  <i className="bx bx-group"></i>
+                  <span> Lista Clientes</span>                  </Link></li>
+                <li>
+                  <Link to="/Estados_Cuenta">
+                <i className="bx bx-dollar"></i>
+                <span> Estados Cuenta</span>
+                </Link> 
+                </li>
               </ul>
               )}
             </li>
             <li>
             <Link
               className={"has-arrow waves-effect"} onClick={toggleSubMenu3}>
-              <i className="fas fa-users"></i>
-              <span> Usuarios </span>
+              <i className="fas fa-user-friends"></i>
+              <span> Usuarios</span>
               </Link>
                 {isSubMenuOpen3 && ( 
               <ul className="sub-menu">
-              <li><Link to="/Lista_usuarios">Lista de Usuarios</Link></li>
+              <li>
+                <Link to="/Lista_usuarios">
+                <i className="uil-users-alt"></i>
+                <span> Lista de Usuarios</span></Link></li>
               <li>
               <Link to="/Filials" className="waves-effect">
-                <i className="bx bx-folder-open"></i>
-                <span> Areas </span>
+                <i className="bx bx-spreadsheet"></i>
+                <span> Areas</span>
               </Link>
             </li>
               </ul>

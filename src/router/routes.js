@@ -72,6 +72,14 @@ import CrearNota from "../pages/Nota/CrearNota";
 import DetalleNota from "../pages/Nota/DetalleNota";
 import EditarNota from "../pages/Nota/EditarNota";
 
+import Grafica1 from "../pages/graficos/grafica1";
+import Grafica2 from "../pages/graficos/grafica2";
+import Grafica3 from "../pages/graficos/grafica3";
+
+import Card1 from "../pages/cards/card1";
+import Card2 from "../pages/cards/card2";
+import CardInteraccion from "../pages/cards/CardInteraccion";
+
 const AppRoutes = () => {
     return (
         <Router>
@@ -87,18 +95,25 @@ const AppRoutes = () => {
             <Route path="/Profile" element={<Profile/>}/>
 
             <Route path="/Home" element={<Home />} />
-            <Route path="/Tablero" element={<Tablero />}/>
 
+            {/*GRAFICAS */}
+            <Route path="/grafica1" element={<Grafica1 />}/>
+            <Route path="/grafica2" element={<Grafica2 />}/>
+            <Route path="/grafica3" element={<Grafica3 />}/>
+
+            <Route path="/card1" element={<Card1 />}/>
+            <Route path="/card2" element={<Card2 />}/>
+            <Route path="/cardinteraciones" element={<CardInteraccion />}/>
+
+            <Route path="/Tablero" element={<Tablero />}/>
 
             <Route path="/Cronograma" element={<Cronograma />}/>
 
             {/*Tarea*/}
-            
             <Route path="/Calendario" element={<Calendario />}/>
             <Route path="/EditarTarea" element={<EditarTarea />}/>
             <Route path="/CrearTarea" element={<CrearTarea />}/>
             <Route path="/VerTarea" element={<VerTarea />}/>
-
 
             {/*Reportes*/}
             <Route path="/Reporte" element={<Reporte />}/>
@@ -110,7 +125,7 @@ const AppRoutes = () => {
             <Route path="/filial/editar/:id" element={<EditarFilial/>}/>
 
             {/*Campañas*/}
-            <Route path="/Campañas" element={<Campana />}/>
+            <Route path="/Campanas" element={<Campana />}/>
             <Route path="/Campana/CrearCampana" element={<CrearCampana/>}/>
             <Route path="/Campana/ver/:id" element={<DetalleCampana/>}/>
             <Route path="/Campana/editar/:id" element={<EditarCampana/>}/>

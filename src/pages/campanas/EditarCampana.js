@@ -162,7 +162,7 @@ const EditarCampana = () => {
                   <div className="mb-3">
                     <h5 className="font-size-15">Clientes Inscritos</h5>
                     <div className="row mb-3">
-                      <div className="col-md-8">
+                      <div className="col-md-8 mb-2">
                         <select
                           className="form-select"
                           onChange={handleClienteChange}
