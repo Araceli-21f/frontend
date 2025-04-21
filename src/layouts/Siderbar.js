@@ -102,7 +102,7 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
               </Link>
             </li>
             <li>
-              <Link to="/ListaNota" className="waves-effect">
+              <Link to="/Nota" className="waves-effect">
                 <i className="uil-chart-growth-alt "></i>
                 <span> Nota</span>
               </Link>
