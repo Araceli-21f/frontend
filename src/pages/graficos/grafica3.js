@@ -26,8 +26,8 @@ const Grafica3 = () => {
 
   // Paleta de colores profesional mejorada
   const colorPalette = {
-    tipo: ['#3A7BD5', '#00D2FF', '#48B1BF', '#06BEB6', '#FF7E5F'],
-    estado: ['#4BC0C0', '#FFA07A', '#9966CC', '#DAA520'],
+    tipo: ['#2d44ee', '#6177f2','#602dee', '#8861f2', '#2d5aee'],
+    estado: ['#34c38f', '#f46a6a', '#f1b44c', '#50a5f1'],
     highlight: '#FF7E5F'
   };
 
@@ -336,8 +336,8 @@ const Grafica3 = () => {
                           className="badge-color me-2" 
                           style={{
                             backgroundColor: chartOptions.colors[index],
-                            width: '12px',
-                            height: '12px',
+                            width: '20px',
+                            height: '20px',
                             borderRadius: '50%'
                           }}
                         ></span>

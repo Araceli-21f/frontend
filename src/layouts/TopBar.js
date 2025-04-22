@@ -30,6 +30,19 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar }) => {
     fetchUser();
   }, [userService]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showUserDropdown && !event.target.closest('.dropdown.d-inline-block')) {
+        setShowUserDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserDropdown]);
+
   return (
     <header id="page-topbar">
       <div className="navbar-header">
@@ -116,7 +129,7 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar }) => {
           </div>
 
           {/* Dropdown de apps */}
-          <div className="dropdown d-none d-lg-inline-block ms-1">
+<div className="dropdown d-inline-block ms-1">  {/* Eliminamos d-none d-lg-inline-block */}
   <button
     type="button"
     className="btn header-item noti-icon waves-effect"
@@ -127,27 +140,35 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar }) => {
     <i className="uil-apps"></i>
   </button>
   <div 
-    className={`dropdown-menu dropdown-menu-ms dropdown-menu-start ${showAppsDropdown ? 'show' : ''}`}
+    className={`dropdown-menu dropdown-menu-lg dropdown-menu-end ${showAppsDropdown ? 'show' : ''}`}
+    style={{ minWidth: '200px' }}  /* Añadimos un ancho mínimo */
   >
-              <div className="px-sm-2">
-                <div className="row g-0">
-                  <div className="col">
-                    <Link to="/Calendario" className="dropdown-icon-item">
-                    <i className="far fa-calendar-alt"></i>
-                    <span>Calendario</span>
-                    </Link>
-                  </div>
-                  <div className="col">
-                    <Link to="/Cronograma" className="dropdown-icon-item">
-                    <i className="uil-chart-growth-alt "></i>
-                    <span>Cronograma</span>
-                    </Link>
-                  </div>
-                </div>
-                
-              </div>
-            </div>
-          </div>
+    <div className="px-sm-2">
+      <div className="row g-0">
+        <div className="col-6">  {/* Cambiamos col a col-6 para mejor visualización en móviles */}
+          <Link 
+            to="/Calendario" 
+            className="dropdown-icon-item"
+            onClick={() => setShowAppsDropdown(false)}  /* Cerramos el dropdown al seleccionar */
+          >
+            <i className="far fa-calendar-alt"></i>
+            <span>Calendario</span>
+          </Link>
+        </div>
+        <div className="col-6">  {/* Cambiamos col a col-6 */}
+          <Link 
+            to="/Cronograma" 
+            className="dropdown-icon-item"
+            onClick={() => setShowAppsDropdown(false)}
+          >
+            <i className="uil-chart-growth-alt"></i>
+            <span>Cronograma</span>
+          </Link>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
           {/* Dropdown de usuario */}
           <div className="dropdown d-inline-block">
@@ -174,7 +195,8 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar }) => {
                 <i className="uil uil-user-circle font-size-18 align-middle text-muted me-1"></i>
                 <span className="align-middle">Perfil</span>
               </Link>
-              <Link to="#settings" className="dropdown-item d-block" onClick={(e) => e.preventDefault()}>
+              <Link to="#settings" className="dropdown-item d-block" 
+              onClick={(e) => { e.preventDefault(); toggleRightSidebar();setShowUserDropdown(false); }}>
                 <i className="uil uil-cog font-size-18 align-middle me-1 text-muted"></i>
                 <span className="align-middle">Configuraciones</span>
               </Link>
@@ -190,7 +212,7 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar }) => {
           </div>
 
           {/* Botón de configuración */}
-          <div className="dropdown d-inline-block">
+          <div className="dropdown d-none d-sm-inline-block">
             <button
               type="button"
               className="btn header-item noti-icon right-bar-toggle waves-effect"
