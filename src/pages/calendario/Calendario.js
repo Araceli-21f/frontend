@@ -112,38 +112,38 @@ const Calendario = () => {
 
     // Mapear tareas a eventos del calendario
   // Mapear tareas a eventos del calendario
-  const eventos = tareas.map(tarea => {
-    const nombreFilial = filialesMap[tarea.filial_id] || 'Desconocida';
-    const usuario = usuariosMap[tarea.usuario_id] || {};
-    const borderColor = tarea.estado === 'completada' ? '#28a745' :
-                        tarea.estado === 'en progreso' ? '#ffc107' : '#dc3545';
+      const eventos = tareas.map(tarea => {
+      const nombreFilial = filialesMap[tarea.filial_id] || 'Desconocida';
+      const usuario = usuariosMap[tarea.usuario_id] || {};
+      const borderColor = tarea.estado === 'completada' ? '#28a745' :
+                          tarea.estado === 'en progreso' ? '#ffc107' : '#dc3545';
 
-    const startDate = new Date(tarea.fecha_creacion);
-    const endDate = new Date(tarea.fecha_vencimiento);
+      const startDate = new Date(tarea.fecha_creacion);
+      const endDate = new Date(tarea.fecha_vencimiento);
+      // Remove adding one day to endDate to preserve time
+      // Use full ISO strings for start and end
+      const startStr = startDate.toISOString();
+      const endStr = endDate.toISOString();
 
-    // Format dates as 'YYYY-MM-DD'
-    const startStr = startDate.toISOString().split('T')[0];
-    const endStr = endDate.toISOString().split('T')[0];
-
-    return {
-      id: tarea._id,
-      title: `${tarea.descripcion} (${usuario.name || 'Sin asignar'})`,
-      start: startStr,
-      end: endStr,
-      backgroundColor: getColorForFilial(nombreFilial),
-      borderColor: borderColor,
-      textColor: '#000',
-      allDay: true,
-      display: 'block',
-      extendedProps: {
-        cliente_id: tarea.cliente_id,
-        filial_id: tarea.filial_id,
-        estado: tarea.estado,
-        usuario_id: tarea.usuario_id,
-        usuario_nombre: usuario.name || 'Sin asignar'
-      }
-    };
-  });
+      return {
+        id: tarea._id,
+        title: `${tarea.descripcion} (${usuario.name || 'Sin asignar'})`,
+        start: startStr,
+        end: endStr,
+        backgroundColor: getColorForFilial(nombreFilial),
+        borderColor: borderColor,
+        textColor: '#000',
+        allDay: false,
+        display: 'block',
+        extendedProps: {
+          cliente_id: tarea.cliente_id,
+          filial_id: tarea.filial_id,
+          estado: tarea.estado,
+          usuario_id: tarea.usuario_id,
+          usuario_nombre: usuario.name || 'Sin asignar'
+        }
+      };
+    });
 
         setEvents(eventos);
       } catch (error) {
@@ -168,8 +168,9 @@ const Calendario = () => {
 
   // Manejo de eventos del calendario
   const handleDateClick = (info) => {
+    // Use full datetime string from clicked date
     const clickedDate = new Date(info.date);
-    const localDateString = clickedDate.toISOString().split('T')[0];
+    const localDateString = clickedDate.toISOString().slice(0,16); // YYYY-MM-DDTHH:mm
     setNewEvent({
       id: null,
       cliente_id: "",
@@ -186,21 +187,24 @@ const Calendario = () => {
   };
 
   const handleEventClick = (info) => {
-    const startDate = info.event.start ? new Date(info.event.start).toISOString().split('T')[0] : '';
+    // Use full datetime strings without normalization
+    let startDate = '';
+    if (info.event.start) {
+      startDate = new Date(info.event.start).toISOString().slice(0,16);
+    }
 
-    let endDate;
+    let endDate = '';
     if (info.event.end) {
-      const endDateObj = new Date(info.event.end);
-      endDateObj.setDate(endDateObj.getDate() - 1); // Subtract one day
-      endDate = endDateObj.toISOString().split('T')[0];
+      endDate = new Date(info.event.end).toISOString().slice(0,16);
     } else {
       endDate = startDate;
     }
+
     const eventData = {
       id: info.event.id,
       cliente_id: info.event.extendedProps.cliente_id?._id || info.event.extendedProps.cliente_id,
       descripcion: info.event.title.split(' (')[0],
-       fecha_creacion: startDate,
+      fecha_creacion: startDate,
       fecha_vencimiento: endDate, 
       estado: info.event.extendedProps.estado || "pendiente",
       usuario_id: info.event.extendedProps.usuario_id
@@ -218,9 +222,9 @@ const Calendario = () => {
       const startDate = new Date(info.event.start);
       const endDate = info.event.end ? new Date(info.event.end) : new Date(info.event.start);
 
-       // Format dates consistently as YYYY-MM-DD
-      const formattedStartDate = startDate.toISOString().split('T')[0];
-      const formattedEndDate = endDate.toISOString().split('T')[0];
+       // Format dates consistently as YYYY-MM-DDTHH:mm:ssZ
+      const formattedStartDate = startDate.toISOString();
+      const formattedEndDate = endDate.toISOString();
 
       await tareaService.current.actualizarTarea(info.event.id, {
       fecha_creacion: formattedStartDate,
@@ -236,7 +240,7 @@ const Calendario = () => {
   const handleEventResize = async (info) => {
     try {
       const endDate = new Date(info.event.end);
-      const formattedEndDate = endDate.toISOString().split('T')[0];
+      const formattedEndDate = endDate.toISOString();
     
       await tareaService.current.actualizarTarea(info.event.id, {
         fecha_vencimiento: formattedEndDate
@@ -250,32 +254,32 @@ const Calendario = () => {
   // Manejo de creación y edición de tareas
   const handleEventSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!newEvent.descripcion.trim() || !newEvent.filial_id) {
       alert("Por favor complete todos los campos obligatorios");
       return;
     }
-
+  
     try {
       setLoading(true);
-
-      const formattedStartDate = new Date(newEvent.fecha_creacion).toISOString().split('T')[0];
-      const endDateObj = new Date(newEvent.fecha_vencimiento);
-      endDateObj.setDate(endDateObj.getDate() + 1);
-      const formattedEndDate = endDateObj.toISOString().split('T')[0];
-
+  
+      // Formatear la fecha de inicio como UTC
+      const formattedStartDate = new Date(newEvent.fecha_creacion).toISOString(); // Mantener en UTC
+      // Formatear la fecha de vencimiento como UTC
+      const formattedEndDate = new Date(newEvent.fecha_vencimiento).toISOString(); // Mantener en UTC
+  
       const tareaData = {
         cliente_id: newEvent.cliente_id || null,
         descripcion: newEvent.descripcion,
         fecha_creacion: formattedStartDate,
-        fecha_vencimiento: formattedEndDate,
+        fecha_vencimiento: formattedEndDate, // Usar la fecha de vencimiento tal como se establece
         filial_id: newEvent.filial_id,
         estado: newEvent.estado,
         usuario_id: newEvent.usuario_id
       };
-
+  
       let response;
-
+  
       if (modalMode === "edit" && newEvent.id) {
         response = await tareaService.current.actualizarTarea(newEvent.id, tareaData);
       } else {
@@ -296,7 +300,7 @@ const Calendario = () => {
         end: formattedEndDate,
         backgroundColor: getColorForFilial(nombreFilial),
         borderColor: borderColor,
-        allDay: true,
+        allDay: false,
         display: 'block',
         textColor: '#000000',
         extendedProps: {
@@ -519,10 +523,10 @@ const Calendario = () => {
                     eventResize={handleEventResize}
                     editable={true}
                     eventDisplay="block"
-                    displayEventEnd={false} // No es necesario mostrar la hora de finalización en vista de día completo
+                    displayEventEnd={false} 
                     eventTextColor="#000"
                     slotMinTime="00:00:00"
-                    slotMaxTime="24:00:00" // Asegúrate de que abarque todo el día si es necesario
+                    slotMaxTime="24:00:00" 
                     dayMaxEventRows={3}
                     eventDidMount={({ event, el }) => {
                       const filial = filiales.find(f => f._id === event.extendedProps.filial_id);

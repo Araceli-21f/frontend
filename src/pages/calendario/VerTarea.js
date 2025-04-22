@@ -25,40 +25,47 @@ const VerTarea = ({
   const usuario = usuarios.find(u => u._id === newEvent.usuario_id);
   const usuarioNombre = usuario ? usuario.name : "Sin asignar";
   
-// Calcular duración en días - corregido
+// Calcular duración en días y horas
 const calcularDuracion = () => {
   if (!newEvent.fecha_creacion || !newEvent.fecha_vencimiento) return "Duración no disponible";
   
   const inicio = new Date(newEvent.fecha_creacion);
   const fin = new Date(newEvent.fecha_vencimiento);
   
-  // Asegurarnos que ambas fechas están en UTC y sin componente horario
-  const inicioUTC = new Date(Date.UTC(inicio.getFullYear(), inicio.getMonth(), inicio.getDate()));
-  const finUTC = new Date(Date.UTC(fin.getFullYear(), fin.getMonth(), fin.getDate()));
+  // Calculamos la diferencia en milisegundos
+  const diffTime = Math.abs(fin - inicio);
   
-  // Calculamos la diferencia en días
-  const diffTime = Math.abs(finUTC - inicioUTC);
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  const diffHours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const diffMinutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
   
-  return diffDays === 0 ? "1 día" : `${diffDays} días`;
+  let durationStr = "";
+  if (diffDays > 0) durationStr += `${diffDays} día${diffDays > 1 ? 's' : ''} `;
+  if (diffHours > 0) durationStr += `${diffHours} hora${diffHours > 1 ? 's' : ''} `;
+  if (diffMinutes > 0) durationStr += `${diffMinutes} minuto${diffMinutes > 1 ? 's' : ''}`;
+  
+  return durationStr.trim() || "Menos de un minuto";
 };
   
-  // Formatear la fecha para mostrar (solo fecha, sin hora)
-  const formatDate = (dateString) => {
-    if (!dateString) return "Sin fecha";
-    
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    } catch (error) {
-      console.error("Error al formatear fecha:", error);
-      return dateString;
-    }
-  };
+// Formatear la fecha para mostrar (fecha y hora)
+const formatDate = (dateString) => {
+  if (!dateString) return "Sin fecha";
+  
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  } catch (error) {
+    console.error("Error al formatear fecha:", error);
+    return dateString;
+  }
+};
 
   // Obtener color según estado
   const getColorForEstado = (estado) => {

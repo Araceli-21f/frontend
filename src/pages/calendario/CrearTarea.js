@@ -39,8 +39,8 @@ const CrearTarea = ({
   const handleDateChange = (field, value) => {
     // Asegurarse de que el valor sea una fecha válida
     if (value) {
-      // Formatear como YYYY-MM-DD
-      const formattedDate = new Date(value).toISOString().split('T')[0];
+      // Formatear como YYYY-MM-DDTHH:mm (datetime-local compatible)
+      const formattedDate = new Date(value).toISOString().slice(0,16);
       handleInputChange(field, formattedDate);
     } else {
       handleInputChange(field, '');
@@ -100,9 +100,9 @@ const CrearTarea = ({
        <div className="col-md-6 mb-3">
           <label className="form-label">Fecha de creación*</label>
           <input
-            type="date"
+            type="datetime-local"
             className="form-control"
-            value={newEvent.fecha_creacion || ''}
+            value={newEvent.fecha_creacion ? newEvent.fecha_creacion.slice(0,16) : ''}
             onChange={(e) => handleDateChange('fecha_creacion', e.target.value)}
             required
             disabled={loading}
@@ -113,9 +113,9 @@ const CrearTarea = ({
         <div className="col-md-6 mb-3">
           <label className="form-label">Fecha de vencimiento*</label>
           <input
-            type="date"
+            type="datetime-local"
             className="form-control"
-            value={newEvent.fecha_vencimiento || ''}
+            value={newEvent.fecha_vencimiento ? newEvent.fecha_vencimiento.slice(0,16) : ''}
             onChange={(e) => handleDateChange('fecha_vencimiento', e.target.value)}
             required
             disabled={loading}

@@ -1,4 +1,4 @@
-import React from "react";
+ import React from "react";
 
 const EditarTarea = ({ 
   newEvent = {}, 
@@ -40,8 +40,8 @@ const EditarTarea = ({
     // Asegurarse de que el valor sea una fecha válida
     if (value) {
       // Formatear como YYYY-MM-DD
-      const formattedDate = new Date(value).toISOString().split('T')[0];
-      handleInputChange(field, formattedDate);
+  
+      handleInputChange(field, value);
     } else {
       handleInputChange(field, '');
     }
@@ -85,9 +85,9 @@ const EditarTarea = ({
         <div className="col-md-6 mb-3">
           <label className="form-label">Fecha de inicio*</label>
           <input
-            type="date"
+             type="datetime-local"
             className="form-control"
-            value={safeEvent.fecha_creacion ? safeEvent.fecha_creacion.split('T')[0] : ''}
+            value={safeEvent.fecha_creacion ?safeEvent.fecha_creacion.slice(0, 16) : ''}
             onChange={(e) => handleDateChange('fecha_creacion', e.target.value)}
             required
             disabled={loading}
@@ -98,9 +98,9 @@ const EditarTarea = ({
         <div className="col-md-6 mb-3">
           <label className="form-label">Fecha de vencimiento*</label>
           <input
-            type="date"
+             type="datetime-local"
             className="form-control"
-            value={safeEvent.fecha_vencimiento ? safeEvent.fecha_vencimiento.split('T')[0] : ''}
+            value={safeEvent.fecha_vencimiento ? safeEvent.fecha_vencimiento.slice(0, 16) : ''}
             onChange={(e) => handleDateChange('fecha_vencimiento', e.target.value)}
             required
             disabled={loading}
