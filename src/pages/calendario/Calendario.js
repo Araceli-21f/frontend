@@ -5,6 +5,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import esLocale from '@fullcalendar/core/locales/es'; 
 import Layout from "../../layouts/pages/layout";
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle";
 import TareaService from "../../services/TareaService";
@@ -528,6 +529,7 @@ const Calendario = () => {
                     slotMinTime="00:00:00"
                     slotMaxTime="24:00:00" 
                     dayMaxEventRows={3}
+                    locale={esLocale}
                     eventDidMount={({ event, el }) => {
                       const filial = filiales.find(f => f._id === event.extendedProps.filial_id);
                       new bootstrap.Tooltip(el, {

@@ -3,12 +3,12 @@ import Layout from "../../layouts/pages/layout";
 import "dhtmlx-gantt/codebase/dhtmlxgantt.css";
 import gantt from "dhtmlx-gantt";
 import TareaService from "../../services/TareaService";
-import ClienteService from "../../services/ClienteService"; // Importa los servicios necesarios
+import ClienteService from "../../services/ClienteService"; 
 import FilialService from "../../services/FilialService";
 import UserService from "../../services/UserService";
-import CrearTarea from "../calendario/CrearTarea"; // Asegúrate de la ruta correcta
-import EditarTarea from "../calendario/EditarTarea"; // Asegúrate de la ruta correcta
-import VerTarea from "../calendario/VerTarea"; // Asegúrate de la ruta correcta
+import CrearTarea from "../calendario/CrearTarea"; 
+import EditarTarea from "../calendario/EditarTarea"; 
+import VerTarea from "../calendario/VerTarea"; 
 
 const Cronograma = () => {
   const ganttContainer = useRef(null);
@@ -77,6 +77,8 @@ const Cronograma = () => {
   useEffect(() => {
     if (!ganttContainer.current) return;
 
+     // Configurar el idioma español
+     gantt.i18n.setLocale("es");
     // Configuración inicial obligatoria
     gantt.config.xml_date = "%Y-%m-%d %H:%i";
     gantt.config.autofit = true;
