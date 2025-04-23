@@ -4,7 +4,7 @@ import axios from 'axios';
 const CatalogoService = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const baseURL = 'http://localhost:8000/Catalogos';
+    const baseURL = 'http://localhost:8000/catalogos';
 
     const obtenerCatalogos = useCallback(async () => {
         setLoading(true);
@@ -18,7 +18,7 @@ const CatalogoService = () => {
             setLoading(false);
             throw err;
         }
-    }, []); // <- Se ejecuta solo una vez y mantiene la referencia
+    }, []);
 
     const crearCatalogo = async (catalogo) => {
         setLoading(true);
@@ -76,6 +76,22 @@ const CatalogoService = () => {
         }
     };
 
+    const exportarExcel = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await axios.get(`${baseURL}/exportar-excel`, {
+                responseType: 'blob' // Esto es crucial para manejar archivos binarios
+            });
+            setLoading(false);
+            return response.data;
+        } catch (err) {
+            setError(err);
+            setLoading(false);
+            throw err;
+        }
+    };
+
     return {
         loading,
         error,
@@ -84,6 +100,7 @@ const CatalogoService = () => {
         obtenerCatalogoPorId,
         actualizarCatalogo,
         eliminarCatalogo,
+        exportarExcel
     };
 };
 

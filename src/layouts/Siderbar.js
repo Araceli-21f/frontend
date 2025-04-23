@@ -87,6 +87,12 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
             <li>
               <Link to="/Lista_Eventos" className="waves-effect"><i className="bx bx-calendar-event"></i><span> Eventos</span></Link>
             </li>
+            <li>
+              <Link to="/Nota" className="waves-effect">
+                <i className="uil-chart-growth-alt "></i>
+                <span> Nota</span>
+              </Link>
+            </li>
             
             <li>
               <Link to="/Lista_cotizacion" className="waves-effect">
@@ -102,9 +108,9 @@ const Sidebar = ({isSidebarOpen, toggleSidebar}) => {
               </Link>
             </li>
             <li>
-              <Link to="/Nota" className="waves-effect">
+              <Link to="/Catalogo" className="waves-effect">
                 <i className="uil-chart-growth-alt "></i>
-                <span> Nota</span>
+                <span> Catalogo</span>
               </Link>
             </li>
             <li>
