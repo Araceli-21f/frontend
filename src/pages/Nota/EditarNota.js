@@ -83,7 +83,7 @@ const EditarNota = () => {
       setAlertType("success");
       setAlertMessage("Nota actualizada exitosamente!");
       setShowAlert(true);
-      setTimeout(() => navigate("/ListaNota"), 2000);
+      setTimeout(() => navigate("/nota"), 2000);
     } catch (error) {
       handleError("Error al actualizar la nota", error);
     } finally {
@@ -185,7 +185,7 @@ const EditarNota = () => {
                     <button
                       type="button"
                       className="btn btn-secondary me-2"
-                      onClick={() => navigate("/ListaNota")}
+                      onClick={() => navigate("/Nota")}
                       disabled={isLoading}
                     >
                       Cancelar

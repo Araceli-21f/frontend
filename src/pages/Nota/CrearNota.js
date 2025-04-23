@@ -75,7 +75,7 @@ const CrearNota = () => {
       setAlertMessage("Nota creada exitosamente!");
       setShowAlert(true);
       
-      setTimeout(() => navigate('/ListaNota'), 2000);
+      setTimeout(() => navigate('/Nota'), 2000);
     } catch (error) {
       handleError("Error al crear la nota", error);
     } finally {
@@ -178,7 +178,7 @@ const CrearNota = () => {
                     <button 
                       type="button" 
                       className="btn btn-secondary me-2" 
-                      onClick={() => navigate('/ListaNota')}
+                      onClick={() => navigate('/Nota')}
                       disabled={isLoading}
                     >
                       Cancelar

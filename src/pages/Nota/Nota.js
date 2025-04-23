@@ -7,11 +7,12 @@ import BotonesAccion from "../../components/BotonesAccion";
 import AlertComponent from '../../components/AlertasComponent';
 import LoadingError from "../../components/LoadingError";
 import NotaService from "../../services/NotaService";
-//import UserService from "../../services/UserService";
+import UserService from "../../services/UserService";
 
 const ListaNotas = () => {
     const [alert, setAlert] = useState(null);
     const [notas, setNotas] = useState([]);
+      const [users, setUsuarios] = useState([]);
     const navigate = useNavigate();
 
     const { loading, error, obtenerNotas, eliminarNota } = NotaService();
@@ -22,12 +23,14 @@ const ListaNotas = () => {
         handleSearchChange, handleFilterTypeChange, handleFilterValueChange
     } = useSearchFilter("titulo");
 
-    const filteredNotas = notas.filter((nota) => {
-        const searchContent = `${nota.titulo} ${nota.contenido} ${nota.cliente_id?.nombre}`.toLowerCase();
-        const matchesSearch = searchContent.includes(searchTerm.toLowerCase());
-        const matchesFilter = filterValue === "Todos" || nota[filterType] === filterValue;
-        return matchesSearch && matchesFilter;
-    });
+   // En la función de filtrado
+const filteredNotas = notas.filter((nota) => {
+    const searchContent = `${nota.titulo} ${nota.contenido} ${nota.cliente_id?.nombre} ${nota.usuario_id?.name} ${nota.usuario_id?.apellidos}`.toLowerCase();
+    const matchesSearch = searchContent.includes(searchTerm.toLowerCase());
+    const matchesFilter = filterValue === "Todos" || nota[filterType] === filterValue;
+    return matchesSearch && matchesFilter;
+  });
+  
 
     // Opciones de filtro dinámicas (ajusta según tus necesidades)
     const filterOptions = {
@@ -162,36 +165,39 @@ const ListaNotas = () => {
                     <div className="col-lg-12">
                         <div className="table-responsive shadow-sm">
                             <table className="table table-centered table-striped table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Título</th>
-                                        <th>Contenido</th>
-                                        <th>Cliente</th>
-                                        <th>Fecha de Creación</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {currentNotas.map((nota) => (
-                                        <tr key={nota._id}>
-                                            <td>{nota.titulo}</td>
-                                            <td className="text-truncate" style={{maxWidth: '200px'}} title={nota.contenido}>
-                                                {nota.contenido || "No disponible"}
-                                            </td>
-                                            <td>{nota.cliente_id?.nombre || "Sin cliente"}</td>
-                                            <td>{formatFecha(nota.fecha_creacion)}</td>
-                                            <td>
-                                                <BotonesAccion
-                                                    id={nota._id}
-                                                    entidad="notas"
-                                                    onDelete={handleDelete}
-                                                    setAlert={setAlert}
-                                                    onView={() => handleView(nota._id)}
-                                                />
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
+                            <thead>
+  <tr>
+    <th>Título</th>
+    <th>Contenido</th>
+    <th>Cliente</th>
+    <th>Usuario</th>
+    <th>Fecha de Creación</th>
+    <th>Acciones</th>
+  </tr>
+</thead>
+<tbody>
+  {currentNotas.map((nota) => (
+    <tr key={nota._id}>
+      <td>{nota.titulo}</td>
+      <td className="text-truncate" style={{maxWidth: '200px'}} title={nota.contenido}>
+        {nota.contenido || "No disponible"}
+      </td>
+      <td>{nota.cliente_id?.nombre || "Sin cliente"}</td>
+      <td>{nota.usuario ? `${nota.usuario.name} ${nota.usuario.apellidos}` : "Sin usuario"}</td>
+      <td>{formatFecha(nota.fecha_creacion)}</td>
+      <td>
+        <BotonesAccion
+          id={nota._id}
+          entidad="notas"
+          onDelete={handleDelete}
+          setAlert={setAlert}
+          onView={() => handleView(nota._id)}
+        />
+      </td>
+    </tr>
+  ))}
+</tbody>
+                                
                             </table>
                         </div>
                     </div>

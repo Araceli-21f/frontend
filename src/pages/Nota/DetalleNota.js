@@ -4,13 +4,16 @@ import Layout from "../../layouts/pages/layout";
 import LoadingError from "../../components/LoadingError";
 import NotaService from "../../services/NotaService";
 import ClienteService from "../../services/ClienteService";
+import UserService from "../../services/UserService";
 
 const DetalleNota = () => {
   const { id } = useParams();
   const { error, obtenerNotaPorId } = NotaService();
   const { obtenerClientePorId } = ClienteService();
+  const { obtenerUsuarioPorId } = UserService();
   const [nota, setNota] = useState(null);
   const [cliente, setCliente] = useState(null);
+  const [usuario, setUsuario] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -19,18 +22,30 @@ const DetalleNota = () => {
       setLoading(true);
       try {
         const foundNota = await obtenerNotaPorId(id);
-        if (!foundNota) {
+        
+        // Verificar si se obtuvieron los IDs correctamente
+        if (!foundNota || !foundNota._id) {
           setNotFound(true);
           return;
         }
+  
+        // Obtener IDs de relaciones
+        const clienteId = foundNota.cliente_id?._id || foundNota.cliente_id;
+        const usuarioId = foundNota.usuario_id?._id || foundNota.usuario_id;
+  
+        // Cargar datos relacionados en paralelo
+        const [clienteData, usuarioData] = await Promise.all([
+          clienteId ? obtenerClientePorId(clienteId) : Promise.resolve(null),
+          usuarioId ? obtenerUsuarioPorId(usuarioId) : Promise.resolve(null)
+        ]);
+  
+        setCliente(clienteData);
+        setUsuario(usuarioData);
         setNota(foundNota);
-
-        if (foundNota.cliente_id) {
-          const clienteData = await obtenerClientePorId(foundNota.cliente_id);
-          setCliente(clienteData);
-        }
+  
       } catch (error) {
         console.error("Error al obtener datos:", error);
+        setNotFound(true);
       } finally {
         setLoading(false);
       }
@@ -56,7 +71,7 @@ const DetalleNota = () => {
         <div className="alert alert-danger mt-3">
           Nota no encontrada
         </div>
-        <Link to="/ListaNotas" className="btn btn-secondary mt-3">
+        <Link to="/Nota" className="btn btn-secondary mt-3">
           Volver al Listado
         </Link>
       </Layout>
@@ -121,8 +136,14 @@ const DetalleNota = () => {
                   </div>
                   
                   <div className="detail-item mb-3">
-                    <h6 className="text-muted mb-1">Creada por</h6>
-                    <p className="mb-0">{nota.creado_por || "No especificado"}</p>
+                    <h6 className="text-muted mb-1">Creado por</h6>
+                    <p className="mb-0">
+                      {usuario ? (
+                        `${usuario.name} ${usuario.apellidos}`
+                      ) : (
+                        "Usuario no disponible"
+                      )}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -137,12 +158,11 @@ const DetalleNota = () => {
 
               <div className="d-flex justify-content-end mt-4">
                 <Link
-                  to="/ListaNotas"
+                  to="/Nota"
                   className="btn btn-outline-secondary me-2"
                 >
                   <i className="fas fa-arrow-left me-2"></i>Volver
                 </Link>
-               
               </div>
             </div>
           </div>
