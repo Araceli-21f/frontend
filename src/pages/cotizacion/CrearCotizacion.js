@@ -7,6 +7,7 @@ import ClienteService from "../../services/ClienteService";
 import FilialService from "../../services/FilialService";
 import UserService from "../../services/UserService";
 import CatalogoService from "../../services/CatalagoService"
+import SelectGroup from "../../components/SelectGroup";
 
 const CrearCotizacion = ({ onCotizacionCreada }) => {
   const navigate = useNavigate();
@@ -33,29 +34,21 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
   const [formData, setFormData] = useState({
     // Información básica
     nombre_cotizacion: "", fecha_cotizacion: new Date().toISOString().split('T')[0], valido_hasta: "",
-    
     // Estados
-    estado: "Borrador", estado_servicio: "Pendiente",
-    
+    estado: "Borrador", estado_servicio: "Pendiente", 
     // Configuración
-    calculos_automaticos: true, forma_pago: "", metodo_pago: "Efectivo",
-    
+    calculos_automaticos: true, forma_pago: "", metodo_pago: "Efectivo", 
     // Porcentajes
     porcentajes: {
       iva: configFinanciera.IVA * 100,
       financiamiento: configFinanciera.TASA_FINANCIAMIENTO * 100,
       agregado: 0
     },
-    
     // Relaciones
     cliente_id: "", vendedor_id: "", filial_id: "",
-    
     // Detalles técnicos
     detalles: [{
-      tipo: "Producto", producto_id: "",
-      descripcion: "", cantidad: 1, horas: 0,
-      tarifa_hora: configFinanciera.TARIFA_MANO_OBRA,
-      costo_materiales: 0,  costo_mano_obra: 0,  utilidad_esperada: 0
+      tipo: "Producto", producto_id: "", cantidad: 1, costo_materiales: 0, utilidad_esperada: 0,inversion_total: 0, precio_venta: 0
     }],
     
     // Financiamiento (condicional)
@@ -74,33 +67,95 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
   const [alertMessage, setAlertMessage] = useState("");
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchUsuarios = async () => {
       try {
-        const [fetchedClientes, fetchedFilials, fetchedUsuarios, fetchedProductos] = await Promise.all([
-          obtenerClientes(), obtenerFilials(), obtenerUsuarios(), obtenerProductosServicios()
-        ]);
+        const fetchedUsuarios = await obtenerUsuarios();
         
-        setClientes(fetchedClientes);
-        setFilials(fetchedFilials);
-        setUsuarios(fetchedUsuarios);
-        setProductosServicios(fetchedProductos);
+        // Mapear usuarios para asegurar consistencia
+        const usuariosNormalizados = fetchedUsuarios.map(usuario => ({
+          _id: usuario._id,
+          name: usuario.name || usuario.nombre || '',
+          apellidos: usuario.apellidos || usuario.apellido || ''
+        }));
+  
+        setUsuarios(usuariosNormalizados);
         
-        if (fetchedUsuarios.length > 0) {
+        // Seleccionar primer vendedor por defecto si existe
+        if (usuariosNormalizados.length > 0) {
           setFormData(prev => ({
             ...prev,
-            vendedor_id: fetchedUsuarios[0]._id
+            vendedor_id: usuariosNormalizados[0]._id
           }));
         }
       } catch (err) {
-        console.error("Error al obtener datos:", err);
-        setAlertType("error");
-        setAlertMessage("Error al cargar datos iniciales");
-        setShowAlert(true);
+        console.error("Error al obtener usuarios:", err);
       }
     };
-    fetchData();
-  }, [obtenerClientes, obtenerFilials, obtenerUsuarios, obtenerProductosServicios]);
+    
+    fetchUsuarios();
+  }, [obtenerUsuarios]);
 
+  const vendedorOptions = usuarios.map(usuario => ({
+    value: usuario._id,
+    label: usuario.name,
+    grupo: usuario.filial_id?.nombre_filial
+    
+  }))
+
+
+  useEffect(() => {
+    const fetchProductosServicios = async () => {
+        try {
+            const fetchedProductosServicios = await obtenerProductosServicios();
+            setClientes(fetchedProductosServicios);
+        } catch (err) {
+            console.error("Error al obtener clientes:", err);
+        }
+    };
+    fetchProductosServicios();
+}, [obtenerProductosServicios]);
+  
+//Obtener a los Clientes
+      useEffect(() => {
+          const fetchClientes = async () => {
+              try {
+                  const fetchedClientes = await obtenerClientes();
+                  setClientes(fetchedClientes);
+              } catch (err) {
+                  console.error("Error al obtener clientes:", err);
+              }
+          };
+          fetchClientes();
+      }, [obtenerClientes]);
+
+      const clientesOptions = clientes.map(cliente => ({
+        value: cliente._id,
+        label: cliente.nombre,
+        grupo: cliente.tipo_cliente
+      }))
+
+    //Obtener Filials
+      useEffect(() => {
+              const cargarFiliales = async () => {
+                  try {
+                      const data = await obtenerFilials();
+                      setFilials(data);
+                  } catch (error) {
+                      console.error("Error cargando filiales:", error);
+                      setAlertType("error");
+                      setAlertMessage("Error al cargar las filiales");
+                      setShowAlert(true);
+                  }
+              };
+              cargarFiliales();
+          }, [obtenerFilials]);
+
+          const filialsOptions = filials.map(filial => ({
+            value: filial._id,
+            label: filial.nombre_filial,
+          }))
+
+  
   const calcularTotales = (detalles, porcentajes, formaPago, financiamiento) => {
     const detallesCalculados = detalles.map(item => {
       // Calcular costo de mano de obra si es aplicable
@@ -192,9 +247,6 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
       if (!formData.vendedor_id) {
         throw new Error("Debe seleccionar un vendedor");
       }
-      if (!formData.detalles.some(d => d.descripcion.trim() !== "")) {
-        throw new Error("Debe agregar al menos un detalle con descripción");
-      }
       if (!formData.forma_pago) {
         throw new Error("Debe seleccionar una forma de pago");
       }
@@ -253,12 +305,8 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
         detalles: formData.detalles.map(item => ({
           tipo: item.tipo,
           producto_id: item.tipo === "ManoObra" ? undefined : item.producto_id,
-          descripcion: item.descripcion,
           cantidad: item.cantidad,
-          horas: item.tipo === "ManoObra" ? item.horas : undefined,
-          tarifa_hora: item.tipo === "ManoObra" ? item.tarifa_hora : undefined,
           costo_materiales: item.costo_materiales,
-          costo_mano_obra: item.tipo === "ManoObra" ? item.horas * item.tarifa_hora : item.costo_mano_obra,
           utilidad_esperada: item.utilidad_esperada
         })),
         ...(formData.fecha_inicio_servicio && {
@@ -320,10 +368,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
       };
       
       const nuevosTotales = calcularTotales(
-        formData.detalles,
-        newPorcentajes,
-        formData.forma_pago,
-        formData.financiamiento
+        formData.detalles, newPorcentajes, formData.forma_pago, formData.financiamiento
       );
       
       setFormData(prev => ({
@@ -340,10 +385,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
       };
       
       const nuevosTotales = calcularTotales(
-        formData.detalles,
-        formData.porcentajes,
-        formData.forma_pago,
-        newFinanciamiento
+        formData.detalles, formData.porcentajes, formData.forma_pago, newFinanciamiento
       );
       
       setFormData(prev => ({
@@ -390,9 +432,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
       
       const nuevosTotales = calcularTotales(
         detalles,
-        formData.porcentajes,
-        formData.forma_pago,
-        formData.financiamiento
+        formData.porcentajes, formData.forma_pago, formData.financiamiento
       );
       
       setFormData(prev => ({ 
@@ -439,12 +479,8 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
         [...prev.detalles, { 
           tipo: "Producto",
           producto_id: "",
-          descripcion: "", 
           cantidad: 1,
-          horas: 0,
-          tarifa_hora: configFinanciera.TARIFA_MANO_OBRA,
           costo_materiales: 0, 
-          costo_mano_obra: 0, 
           utilidad_esperada: 0
         }],
         prev.porcentajes,
@@ -468,9 +504,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
     
     const nuevosTotales = calcularTotales(
       detalles,
-      formData.porcentajes,
-      formData.forma_pago,
-      formData.financiamiento
+      formData.porcentajes, formData.forma_pago, formData.financiamiento
     );
     
     setFormData(prev => ({ 
@@ -624,47 +658,26 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                 <div className="row mb-4">
                   <div className="col-md-4">
                     <div className="mb-3">
-                      <label className="form-label">Cliente *</label>
-                      <select className="form-select" name="cliente_id" 
-                        value={formData.cliente_id} onChange={handleChange} required
-                      >
-                        <option value="">Seleccione un cliente</option>
-                        {clientes.map((cliente) => (
-                          <option key={cliente._id} value={cliente._id}>
-                            {cliente.nombre}
-                          </option>
-                        ))}
-                      </select>
+                      <SelectGroup
+                      name="cliente_id" label="Cliente" class=""
+                      value={formData.cliente_id} onChange={(e) => setFormData({...formData, cliente_id: e.target.value})}
+                       options={clientesOptions} groupBy="grupo" required/>
                     </div>
                   </div>
                   <div className="col-md-4">
                     <div className="mb-3">
-                      <label className="form-label">Filial *</label>
-                      <select className="form-select"  name="filial_id" 
-                        value={formData.filial_id}  onChange={handleChange} required
-                      >
-                        <option value="">Seleccione una filial</option>
-                        {filials.map((filial) => (
-                          <option key={filial._id} value={filial._id}>
-                            {filial.nombre_filial}
-                          </option>
-                        ))}
-                      </select>
+                    <SelectGroup
+                      name="filial_id" label="Filial" class=""
+                      value={formData.filial_id} onChange={(e) => setFormData({...formData, filial_id: e.target.value})}
+                       options={filialsOptions} groupBy="grupo" required/>
                     </div>
                   </div>
                   <div className="col-md-4">
                     <div className="mb-3">
-                      <label className="form-label">Vendedor *</label>
-                      <select className="form-select" name="vendedor_id" 
-                        value={formData.vendedor_id}  onChange={handleChange} required
-                      >
-                        <option value="">Seleccione un vendedor</option>
-                        {usuarios.map((usuario) => (
-                          <option key={usuario._id} value={usuario._id}>
-                            {usuario.name} {usuario.apellidos}
-                          </option>
-                        ))}
-                      </select>
+                    <SelectGroup
+                      name="vendedor_id" label="Vendedor" class=""
+                      value={formData.vendedor_id} onChange={(e) => setFormData({...formData, usuario_id: e.target.value})}
+                       options={vendedorOptions} groupBy="grupo" required/>
                     </div>
                   </div>
                 </div>
@@ -725,11 +738,8 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                         <tr>
                           <th>Tipo *</th>
                           <th>Producto/Servicio</th>
-                          <th>Descripción *</th>
                           <th>Cantidad</th>
-                          <th>Horas</th>
                           <th>Costo Materiales</th>
-                          <th>Costo Mano Obra</th>
                           <th>Utilidad (%)</th>
                           <th>Inversión Total</th>
                           <th>Precio Venta</th>
@@ -764,16 +774,8 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                                     ))}
                                 </select>
                               ) : (
-                                <input 
-                                  type="text" className="form-control"  value="Mano de Obra" disabled 
-                                />
+                                <input type="text" className="form-control"  value="Mano de Obra" disabled />
                               )}
-                            </td>
-                            <td>
-                              <input type="text" className="form-control" name="descripcion" 
-                                value={item.descripcion} onChange={(e) => handleChange(e, index)} 
-                                required maxLength="200"
-                              />
                             </td>
                             <td>
                               <input type="number" className="form-control" name="cantidad" 
@@ -781,13 +783,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                                 min="1" required 
                               />
                             </td>
-                            <td>
-                              <input type="number" className="form-control" name="horas" 
-                                value={item.horas} onChange={(e) => handleChange(e, index)} 
-                                min="0" step="0.5"
-                                disabled={item.tipo !== "ManoObra"} required={item.tipo === "ManoObra"}
-                              />
-                            </td>
+                            
                             <td>
                               <input type="number" className="form-control" name="costo_materiales" 
                                 value={item.costo_materiales} onChange={(e) => handleChange(e, index)} 
@@ -795,13 +791,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                                 disabled={item.tipo === "ManoObra"} required={item.tipo !== "ManoObra"}
                               />
                             </td>
-                            <td>
-                              <input type="number" className="form-control" name="costo_mano_obra" 
-                                value={item.costo_mano_obra} onChange={(e) => handleChange(e, index)} 
-                                min="0" step="0.01"
-                                disabled={item.tipo !== "ManoObra"} required={item.tipo === "ManoObra"}
-                              />
-                            </td>
+                            
                             <td>
                               <input 
                                 type="number"  className="form-control"  name="utilidad_esperada" 
@@ -810,19 +800,14 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                               />
                             </td>
                             <td>
-                              <input  type="number" className="form-control" 
-                                value={(item.inversion_total || 0).toFixed(2)} disabled 
-                              />
+                              <input  type="number" className="form-control" value={(item.inversion_total || 0).toFixed(2)} disabled />
                             </td>
                             <td>
-                              <input type="number" className="form-control" 
-                                value={(item.precio_venta || 0).toFixed(2)} disabled 
-                              />
+                              <input type="number" className="form-control" value={(item.precio_venta || 0).toFixed(2)} disabled />
                             </td>
                             <td>
                               <button type="button" className="btn btn-danger btn-sm" 
-                                onClick={() => handleRemoveItem(index)}  disabled={formData.detalles.length <= 1}
-                              >
+                                onClick={() => handleRemoveItem(index)}  disabled={formData.detalles.length <= 1}>
                                 Eliminar
                               </button>
                             </td>
@@ -899,8 +884,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                           <div className="mb-3">
                             <label className="form-label">Plazo (semanas) *</label>
                             <input  type="number" className="form-control"  name="financiamiento.plazo_semanas" 
-                              value={formData.financiamiento.plazo_semanas} onChange={handleChange}
-                              min="1" required
+                              value={formData.financiamiento.plazo_semanas} onChange={handleChange} min="1" required
                             />
                           </div>
                         </div>
@@ -946,8 +930,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
                 <div className="d-print-none mt-4">
                   <div className="float-end">
                     <button  type="submit"  className="btn btn-primary w-md waves-effect waves-light"
-                      disabled={!formData.detalles.some(d => d.descripcion.trim() !== "")}
-                    >
+                    disabled={!formData.detalles.some(d => d.producto_id !== "" || d.tipo === "ManoObra")}                    >
                       Crear Cotización
                     </button>
                   </div>
@@ -964,6 +947,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
           type={alertType} entity="Cotización"
           action={alertType === "success" ? "create" : "error"}
           onCancel={handleAlertClose} message={alertMessage}
+          
         />
       )}
     </Layout>

@@ -565,6 +565,21 @@ body[data-layout=horizontal][data-layout-size=boxed] .navbar-header{max-width:13
   .form-switch-lg{padding-left:2.75rem;min-height:28px;line-height:28px}
   .form-switch-lg .form-check-input{width:48px;height:24px;left:-0.75rem;position:relative}
 
+  .option-item {
+    padding: 0.6rem; cursor: pointer; 
+  }
+  .option-item:hover { background-color: #6f42c1; color: white;
+  }
+  .option-item.selected {
+    background-color: #007bff; color: white;
+  }
+  .option-group {
+    padding: 0.6rem; font-weight: bold; background-color: #f8f9fa;
+  }
+  
+
+
+
   .btn-success {
     background-color: #34c38f; 
     border-color: #34c38f; 

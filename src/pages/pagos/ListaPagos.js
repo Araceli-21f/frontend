@@ -8,8 +8,6 @@ import AlertComponent from '../../components/AlertasComponent';
 import LoadingError from "../../components/LoadingError";
 import PagoService from "../../services/PagoService";
 import useDateRange from "../../hooks/useDateRange";
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 
 const ListaPagos = () => {
     const [alert, setAlert] = useState(null);
@@ -17,54 +15,69 @@ const ListaPagos = () => {
     const [pagos, setPagos] = useState([]);
     const { loading, error, obtenerPagos, eliminarPago } = PagoService();
 
-    // Hook de búsqueda y filtrado
+    // Hook de búsqueda y filtro
     const {
         searchTerm, filterType, filterValue,
         handleSearchChange, handleFilterTypeChange, handleFilterValueChange
-    } = useSearchFilter("metodo_pago");
+    } = useSearchFilter("metodo_pago"); // Filtro inicial por método de pago
 
-    // Filtrado combinado (búsqueda + filtro)
     const filteredPagos = pagos.filter((pago) => {
         const referencia = pago.referencia || '';
-        const clienteNombre = pago.cliente_id?.nombre || ''; // Asumiendo que cliente_id está poblado
+        const clienteNombre = pago.cliente?.nombre || '';
+        const tipoPago = pago.tipo_pago || '';
+        const metodoPago = pago.metodo_pago || '';
+        const id = pago._id || '';
+        
         const matchesSearch =
             referencia.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            clienteNombre.toLowerCase().includes(searchTerm.toLowerCase());
-        
+            clienteNombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            tipoPago.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            metodoPago.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            id.toLowerCase().includes(searchTerm.toLowerCase());
+            
         const matchesFilter = filterValue === "Todos" || pago[filterType] === filterValue;
         return matchesSearch && matchesFilter;
     });
-
-    // Opciones de filtro dinámicas
+    
     const filterOptions = {
-        metodo_pago: ["Todos", ...new Set(pagos.map(pago => pago.metodo_pago))],
-        tipo_pago: ["Todos", ...new Set(pagos.map(pago => pago.tipo_pago))]
+        metodo_pago: ["Todos", ...new Set(pagos.map((pago) => pago.metodo_pago))],
+        tipo_pago: ["Todos", ...new Set(pagos.map((pago) => pago.tipo_pago))],
+        estado: ["Todos", ...new Set(pagos.map((pago) => pago.estado))]
     };
 
-    // Hook para rangos de fechas
+    // Hook para rango de fechas
     const { dateRanges, handleDateChange } = useDateRange({ 
         fecha_inicio: "", 
         fecha_fin: "" 
     });
 
-    // Paginación
-    const { current: currentPagos, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredPagos, 8);
+    // Hook de paginación
+    const { current: currentPagos, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredPagos, 10);
 
-    // Filtrado por fechas
-    const filterByDateRange = (pagos, startDate, endDate) => {
-        if (!startDate || !endDate) return pagos;
+    // Filtrado por fecha
+    const filterByDateRange = (pagos, fechaInicio, fechaFin) => {
+        if (!fechaInicio && !fechaFin) return pagos;
+        
+        const startDate = new Date(fechaInicio);
+        const endDate = new Date(fechaFin || fechaInicio);
+        
         return pagos.filter(pago => {
             const pagoDate = new Date(pago.fecha_pago);
-            return pagoDate >= new Date(startDate) && pagoDate <= new Date(endDate);
+            return (!fechaInicio || pagoDate >= startDate) && 
+                   (!fechaFin || pagoDate <= endDate);
         });
     };
 
     const handleDateFilter = () => {
-        const filteredByDate = filterByDateRange(filteredPagos, dateRanges.fecha_inicio, dateRanges.fecha_fin);
+        const filteredByDate = filterByDateRange(
+            filteredPagos, 
+            dateRanges.fecha_inicio, 
+            dateRanges.fecha_fin
+        );
         setPagos(filteredByDate);
     };
 
-    // Obtener pagos al cargar el componente
+    // Obtener pagos
     useEffect(() => {
         const fetchPagos = async () => {
             try {
@@ -98,9 +111,8 @@ const ListaPagos = () => {
         setAlert(null);
     };
 
-    // Ver detalles del pago
     const handleView = (id) => {
-        const pago = pagos.find(p => p._id === id);
+        const pago = pagos.find((p) => p._id === id);
         if (pago) {
             navigate(`/pagos/ver/${id}`);
         } else {
@@ -108,12 +120,6 @@ const ListaPagos = () => {
         }
     };
 
-    // Formatear fecha legible
-    const formatDate = (date) => {
-        return format(new Date(date), "dd MMM yyyy", { locale: es });
-    };
-
-    // Formatear moneda
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('es-MX', {
             style: 'currency',
@@ -139,7 +145,7 @@ const ListaPagos = () => {
                     />
                 )}
                 <div className="card p-3">
-                    <h2 className="mb-3"><i className="fa fa-fw fa-credit-card"/> Lista de Pagos</h2>
+                    <h2 className="mb-3">Lista de Pagos</h2>
 
                     <div className="col-md">
                         <div className="row">
@@ -149,7 +155,7 @@ const ListaPagos = () => {
                                     <input
                                         type="text" 
                                         className="form-control pe-4" 
-                                        placeholder="Buscar por referencia o cliente..."
+                                        placeholder="Buscar pago..."
                                         value={searchTerm} 
                                         onChange={handleSearchChange}
                                     />
@@ -159,7 +165,7 @@ const ListaPagos = () => {
                                 </div>
                             </div>
                             
-                            {/* Filtro por tipo/metodo */}
+                            {/* Filtro por tipo */}
                             <div className="col-md-3 mb-2 d-flex align-items-center">
                                 <div className="input-group w-100 shadow-sm">
                                     <span className="me-0 p-2 text-white bg-purple rounded-1 d-flex justify-content-center align-items-center">
@@ -170,8 +176,9 @@ const ListaPagos = () => {
                                         value={filterType} 
                                         onChange={handleFilterTypeChange}
                                     >
-                                        <option value="metodo_pago">Método de pago</option>
-                                        <option value="tipo_pago">Tipo de pago</option>
+                                        <option value="metodo_pago">Método de Pago</option>
+                                        <option value="tipo_pago">Tipo de Pago</option>
+                                        <option value="estado">Estado</option>
                                     </select>
                                     <select 
                                         className="form-select" 
@@ -185,42 +192,42 @@ const ListaPagos = () => {
                                 </div>
                             </div>
                             
-                            {/* Filtro por fechas */}
-                           {/* <div className="col-md-3 mb-2">
+                            {/* Filtro por fecha */}
+                            <div className="col-md-4 mb-2">
                                 <div className="input-daterange input-group shadow-sm">
                                     <input
                                         type="date" 
                                         className="form-control" 
-                                        placeholder="Fecha Inicio"
+                                        placeholder="Fecha inicio"
                                         value={dateRanges.fecha_inicio} 
                                         onChange={(e) => handleDateChange("fecha_inicio", e.target.value)}
                                     />
                                     <input
                                         type="date" 
                                         className="form-control" 
-                                        placeholder="Fecha Fin"
+                                        placeholder="Fecha fin"
                                         value={dateRanges.fecha_fin} 
-                                        onChange={(e) => handleDateChange("fecha_fin", e.target.value)}    
+                                        onChange={(e) => handleDateChange("fecha_fin", e.target.value)}
                                     />
                                     <button
                                         type="button" 
-                                        className="btn btn-primary"
+                                        className="btn btn-purple"
                                         style={{ marginLeft: "2px" }} 
                                         onClick={handleDateFilter}
                                     >
                                         <i className="mdi mdi-filter-variant"></i>
                                     </button>
                                 </div>
-                            </div>*/}
+                            </div>
                             
-                            {/* Botón crear nuevo pago */}
-                            <div className="col-md-3 mb-2">
+                            {/* Crear pago Button */}
+                            <div className="col-md-2 mb-2">
                                 <div className="input-group">
                                     <Link 
-                                        to="/Pago/CrearPago" 
+                                        to="/pagos/crear" 
                                         className="input-daterange input-group btn btn-outline-success waves-effect waves-light"
                                     >
-                                        <i className="mdi mdi-plus me-1"></i> Registrar Pago
+                                        <i className="mdi mdi-plus me-1"></i> Nuevo Pago
                                     </Link>
                                 </div>
                             </div>
@@ -233,39 +240,29 @@ const ListaPagos = () => {
                                 <thead>
                                     <tr>
                                         <th>Referencia</th>
-                                        <th>Cliente</th>
                                         <th>Fecha</th>
+                                        <th>Cliente</th>
                                         <th>Monto</th>
-                                        <th>Saldo Pendiente</th>
-                                        <th>Tipo</th>
                                         <th>Método</th>
+                                        <th>Tipo</th>
+                                        <th>Estado</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {currentPagos.map((pago) => (
                                         <tr key={pago._id}>
-                                            <td>{pago.referencia || 'N/A'}</td>
-                                            <td>{pago.cliente_id?.nombre || 'Cliente no especificado'}</td>
-                                            <td>{formatDate(pago.fecha_pago)}</td>
+                                            <td>{pago.referencia}</td>
+                                            <td>{new Date(pago.fecha_pago).toLocaleDateString()}</td>
+                                            <td>{pago.cliente?.nombre || 'N/A'}</td>
                                             <td className="text-end">{formatCurrency(pago.monto_pago)}</td>
-                                            <td className="text-end">{formatCurrency(pago.saldo_pendiente)}</td>
+                                            <td>{pago.metodo_pago}</td>
+                                            <td>{pago.tipo_pago}</td>
                                             <td>
-                                                <span className={`badge ${
-                                                    pago.tipo_pago === 'Anticipo' ? 'bg-info-subtle text-info' :
-                                                    pago.tipo_pago === 'Abono' ? 'bg-purple-subtle text-purple' :
-                                                    'bg-secondary-subtle text-secondary'
-                                                }`}>
-                                                    {pago.tipo_pago}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span className={`badge ${
-                                                    pago.metodo_pago === 'Transferencia' ? 'bg-success-subtle text-success' :
-                                                    pago.metodo_pago === 'Tarjeta' ? 'bg-warning-subtle text-warning' :
-                                                    'bg-light-subtle text-dark'
-                                                }`}>
-                                                    {pago.metodo_pago}
+                                                <span className={`badge bg-${pago.estado === 'Completado' ? 'success' : 
+                                                                pago.estado === 'Pendiente' ? 'warning' : 
+                                                                pago.estado === 'Cancelado' ? 'danger' : 'secondary'}`}>
+                                                    {pago.estado}
                                                 </span>
                                             </td>
                                             <td>

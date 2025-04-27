@@ -5,6 +5,7 @@ import UserService from "../../services/UserService";
 import Layout from "../../layouts/pages/layout";
 import { useNavigate } from "react-router-dom";
 import AlertComponent from '../../components/AlertasComponent';
+import SelectGroup from '../../components/SelectGroup';
 
 const CrearNota = () => {
   const navigate = useNavigate();
@@ -48,6 +49,18 @@ const CrearNota = () => {
     
     fetchData();
   }, [obtenerClientes, obtenerUsuarios]);
+
+  const clientesOptions = clientes.map(cliente => ({
+    value: cliente._id,
+    label: cliente.nombre,
+    grupo: cliente.tipo_cliente
+  }))
+
+  const usuariosOptions = usuarios.map(usuario => ({
+    value: usuario._id,
+    label: usuario.name,
+    grupo: usuario.filial_id?.nombre_filial
+  }))
 
   const handleError = (message, error) => {
     console.error(message, error);
@@ -103,43 +116,17 @@ const CrearNota = () => {
               <form onSubmit={handleSubmit}>
                 <div className="row">
                   <div className="col-md-6 mb-3">
-                    <label htmlFor="cliente_id" className="form-label">Cliente</label>
-                    <select
-                      id="cliente_id"
-                      className="form-select"
-                      name="cliente_id"
-                      value={formData.cliente_id}
-                      onChange={handleChange}
-                      required
-                      disabled={isLoading}
-                    >
-                      <option value="">Seleccione un cliente</option>
-                      {clientes.map(cliente => (
-                        <option key={cliente._id} value={cliente._id}>
-                          {cliente.nombre}
-                        </option>
-                      ))}
-                    </select>
+                    <SelectGroup
+                      name="cliente_id" label="Cliente" class=""
+                      value={formData.cliente_id} onChange={(e) => setFormData({...formData, cliente_id: e.target.value})}
+                      options={clientesOptions} groupBy="grupo" required/>
                   </div>
 
                   <div className="col-md-6 mb-3">
-                    <label htmlFor="usuario_id" className="form-label">Usuario</label>
-                    <select
-                      id="usuario_id"
-                      className="form-select"
-                      name="usuario_id"
-                      value={formData.usuario_id}
-                      onChange={handleChange}
-                      required
-                      disabled={isLoading}
-                    >
-                      <option value="">Seleccione un usuario</option>
-                      {usuarios.map(usuario => (
-                        <option key={usuario._id} value={usuario._id}>
-                          {usuario.name} {usuario.apellidos}
-                        </option>
-                      ))}
-                    </select>
+                  <SelectGroup
+                      name="usuario_id" label="Usuario" class=""
+                      value={formData.usuario_id} onChange={(e) => setFormData({...formData, usuario_id: e.target.value})}
+                      options={usuariosOptions} groupBy="grupo" required/>
                   </div>
                 </div>
 

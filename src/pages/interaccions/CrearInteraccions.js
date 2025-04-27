@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import AlertComponent from "../../components/AlertasComponent";
 import InteraccionService from "../../services/InteraccionService";
 import ClienteService from "../../services/ClienteService";
+import SelectGroup from "../../components/SelectGroup";
 
 // Opciones predefinidas para los selects
 const TIPO_INTERACCION_OPTIONS = [
@@ -60,6 +61,12 @@ const CrearInteraccion = ({ onInteraccionCreada }) => {
     
     fetchClientes();
   }, [obtenerClientes]);
+
+  const clientesOptions = clientes.map(cliente => ({
+    value: cliente._id,
+    label: cliente.nombre,
+    grupo: cliente.tipo_cliente
+  }))
 
   // Manejar cambios en los inputs
   const handleChange = (e) => {
@@ -122,23 +129,10 @@ const CrearInteraccion = ({ onInteraccionCreada }) => {
               <form onSubmit={handleSubmit}>
                 <div className="row">
                   <div className="col-md-6 mb-3">
-                    <label htmlFor="cliente_id" className="form-label">Cliente</label>
-                    <select
-                      id="cliente_id"
-                      className="form-select"
-                      name="cliente_id"
-                      value={formData.cliente_id}
-                      onChange={handleChange}
-                      required
-                      disabled={isLoading}
-                    >
-                      <option value="">Seleccione un cliente</option>
-                      {clientes.map((cliente) => (
-                        <option key={cliente._id} value={cliente._id}>
-                          {cliente.nombre}
-                        </option>
-                      ))}
-                    </select>
+                    <SelectGroup
+                      name="cliente_id" label="Cliente" class=""
+                      value={formData.cliente_id} onChange={(e) => setFormData({...formData, cliente_id: e.target.value})}
+                       options={clientesOptions} groupBy="grupo" required/>
                   </div>
 
                   <div className="col-md-6 mb-3">

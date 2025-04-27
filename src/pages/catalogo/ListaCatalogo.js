@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "../../layouts/pages/layout";
 import { Link, useNavigate } from "react-router-dom";
 import useSearchFilter from "../../hooks/useSearchFilter";
@@ -7,75 +7,87 @@ import BotonesAccion from "../../components/BotonesAccion";
 import AlertComponent from '../../components/AlertasComponent';
 import LoadingError from "../../components/LoadingError";
 import CatalogoService from "../../services/CatalagoService";
-import { Modal, Button } from "react-bootstrap";
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+import Modal from 'react-bootstrap/Modal';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 
 const ListaCatalogo = () => {
     const [alert, setAlert] = useState(null);
     const navigate = useNavigate();
-    const [productos, setProductos] = useState([]);
-    const fileInputRef = useRef(null);
-    const [importMode, setImportMode] = useState('actualizar');
-    const [isImporting, setIsImporting] = useState(false);
+    const [catalogo, setCatalogo] = useState([]);
+    const { 
+        loading, 
+        error, 
+        obtenerCatalogo,
+        eliminarProducto,
+        cargarCatalogo,
+        buscarPorCodigo,
+        obtenerPorCategoria
+    } = CatalogoService();
+    
+    // Estado para el modal de importación
     const [showImportModal, setShowImportModal] = useState(false);
-
-    const {  loading, error, obtenerProductos, eliminarProducto, exportarExcel, importarExcel } = CatalogoService();
+    const [importProgress, setImportProgress] = useState(0);
+    const [importStatus, setImportStatus] = useState('');
+    const [importFileName, setImportFileName] = useState('');
+    const [importResult, setImportResult] = useState(null);
+    const [file, setFile] = useState(null);
 
     // Hook de búsqueda y filtro
-    const { searchTerm, filterType, filterValue, handleSearchChange, handleFilterTypeChange, handleFilterValueChange } = useSearchFilter("categoria");
+    const {
+        searchTerm, filterType, filterValue,
+        handleSearchChange, handleFilterTypeChange, handleFilterValueChange
+    } = useSearchFilter("categoria");
 
-    const filteredProductos = productos.filter((producto) => {
+    const filteredCatalogo = catalogo.filter((producto) => {
         const codigo = producto.codigo || '';
         const nombre = producto.nombre || '';
-        const descripcion = producto.descripcion || '';
         const categoria = producto.categoria || '';
-        const id = producto._id || '';
+        const subcategoria = producto.subcategoria || '';
+        const estatus = producto.estatus || '';
         
         const matchesSearch =
             codigo.toLowerCase().includes(searchTerm.toLowerCase()) ||
             nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            id.toLowerCase().includes(searchTerm.toLowerCase());
+            categoria.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            subcategoria.toLowerCase().includes(searchTerm.toLowerCase());
         
         const matchesFilter = filterValue === "Todos" || producto[filterType] === filterValue;
         return matchesSearch && matchesFilter;
     });
     
-    const filterOptions = ["Todos", ...new Set(productos.map((producto) => producto[filterType]))];
+    const filterOptions = {
+        categoria: ["Todos", ...new Set(catalogo.map((producto) => producto.categoria))],
+        estatus: ["Todos", "Activo", "Inactivo"],
+        seccion: ["Todos", ...new Set(catalogo.map((producto) => producto.seccion))]
+    };
 
     // Hook de paginación
-    const { current: currentProductos, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredProductos, 10);
+    const { current: currentCatalogo, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredCatalogo, 10);
 
-    // Obtener productos
+    // Obtener catálogo
     useEffect(() => {
-        const fetchProductos = async () => {
+        const fetchCatalogo = async () => {
             try {
-                const fetchedProductos = await obtenerProductos();
-                setProductos(fetchedProductos);
+                const fetchedCatalogo = await obtenerCatalogo();
+                setCatalogo(fetchedCatalogo);
             } catch (err) {
-                console.error("Error al obtener productos:", err);
+                console.error("Error al obtener catálogo:", err);
             }
         };
-        fetchProductos();
-    }, [obtenerProductos]);
+        fetchCatalogo();
+    }, [obtenerCatalogo]);
 
     // Eliminar producto
     const handleDelete = async (id) => {
         try {
             await eliminarProducto(id);
-            setProductos(productos.filter(producto => producto._id !== id));
-            setAlert({ 
-                type: "warning", 
-                action: "delete", 
-                entity: "producto",
-                autoClose: true
-            });
+            setCatalogo(catalogo.filter(producto => producto._id !== id));
+            setAlert({ type: "warning", action: "delete", entity: "producto" });
+            setTimeout(() => setAlert(null), 5000);
         } catch (err) {
             console.error("Error al eliminar producto:", err);
-            setAlert({
-                type: "error",
-                message: "Error al eliminar el producto",
-                autoClose: true
-            });
         }
     };
 
@@ -89,287 +101,373 @@ const ListaCatalogo = () => {
     };
 
     const handleView = (id) => {
-        const producto = productos.find((p) => p._id === id);
+        const producto = catalogo.find((p) => p._id === id);
         if (producto) {
             navigate(`/catalogo/ver/${id}`);
         } else {
             console.error('Producto no encontrado');
-            setAlert({
-                type: "error",
-                message: "Producto no encontrado",
-                autoClose: true
-            });
         }
     };
 
-    const handleStatusChange = async (id, nuevoEstado) => {
-        try {
-            await CatalogoService.actualizarProducto(id, { activo: nuevoEstado });
-            setProductos(productos.map(p => 
-                p._id === id ? { ...p, activo: nuevoEstado } : p
-            ));
-            setAlert({
-                type: "success",
-                message: `Producto ${nuevoEstado ? 'activado' : 'desactivado'} correctamente`,
-                autoClose: true
-            });
-        } catch (err) {
-            console.error("Error al cambiar estado del producto:", err);
-            setAlert({
-                type: "error",
-                message: "Error al cambiar estado del producto",
-                autoClose: true
-            });
-        }
-    };
-
-    const handleExportExcel = async () => {
-        try {
-            const blob = await exportarExcel();
-            const url = window.URL.createObjectURL(new Blob([blob]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `catalogo_${new Date().toISOString().split('T')[0]}.xlsx`);
-            document.body.appendChild(link);
-            link.click();
-            link.parentNode.removeChild(link);
-            
-            setAlert({ 
-                type: "success", 
-                message: "Catálogo exportado exitosamente",
-                autoClose: true
-            });
-        } catch (error) {
-            setAlert({ 
-                type: "error", 
-                message: error.response?.data?.error || "Error al exportar el catálogo",
-                autoClose: true
-            });
-        }
-    };
-
-    const handleImportClick = () => {
-        fileInputRef.current.click();
-    };
-
-    const handleFileChange = async (e) => {
+    // Importar desde Excel con modal de progreso
+    const handleImport = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
-        setIsImporting(true);
+      
+        const formData = new FormData();
+        formData.append('file', file); // <<< Nombre debe coincidir con el backend
+      
         try {
-            const result = await importarExcel(file, importMode);
-            // Recargar los productos después de importar
-            const fetchedProductos = await obtenerProductos();
-            setProductos(fetchedProductos);
-            
-            setAlert({
-                type: "success",
-                message: `Importación exitosa: ${result.count} productos procesados (Modo: ${importMode})`,
-                autoClose: true
-            });
+          const response = await cargarCatalogo(formData); // <<< Envía FormData
+          
+          if (response.error) {
+            throw new Error(response.error);
+          }
+      
+          // Actualiza el estado con la respuesta
+          setImportResult({
+            success: true,
+            imported: response.imported,
+            message: response.message
+          });
+      
         } catch (error) {
-            setAlert({
-                type: "error",
-                message: error.response?.data?.error || "Error al importar el archivo",
-                details: error.response?.data?.details,
-                autoClose: true
-            });
-        } finally {
-            setIsImporting(false);
-            // Limpiar el input para permitir volver a subir el mismo archivo
-            e.target.value = '';
+          console.error("Error completo:", {
+            message: error.message,
+            response: error.response?.data
+          });
+      
+          setImportResult({
+            success: false,
+            message: "Error en el servidor",
+            details: error.response?.data?.error || error.message,
+            status: error.response?.status
+          });
         }
+      };
+
+    // Exportar a Excel
+    const handleExport = () => {
+        const dataToExport = filteredCatalogo.map(producto => ({
+            'Código Smart': producto.codigo,
+            'Descripción': producto.nombre,
+            'Código Tienda': producto.codigoTienda,
+            'Categoría': producto.categoria,
+            'Subcategoría': producto.subcategoria,
+            'Precio Compra': producto.precioCompra,
+            'Precio Sin Financiamiento': producto.precioSinFinanciamiento,
+            'Precio Con Financiamiento': producto.precioConFinanciamiento,
+            'Sección': producto.seccion,
+            'Estatus': producto.estatus,
+            'Fecha Creación': producto.fechaCreacion,
+            'Fecha Modificación': producto.fechaModificacion
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Catálogo");
+        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        saveAs(blob, `Catalogo_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    };
+
+    // Cerrar modal de importación
+    const handleCloseImportModal = () => {
+        setShowImportModal(false);
+        setImportProgress(0);
+        setImportStatus('');
+        setImportFileName('');
+        setImportResult(null);
+        setFile(null);
+    };
+
+    // Obtener texto del estado de importación
+    const getImportStatusText = () => {
+        const statusMessages = {
+            'preparing': 'Preparando importación...',
+            'reading': 'Leyendo archivo Excel...',
+            'processing': 'Procesando datos...',
+            'uploading': 'Subiendo datos al servidor...',
+            'done': '¡Importación completada con éxito!',
+            'error': 'Error en el proceso de importación'
+        };
+        
+        return statusMessages[importStatus] || 'Procesando...';
     };
 
     return (
         <LoadingError
-            loading={loading || isImporting}
+            loading={loading}
             error={error}
-            loadingMessage={isImporting ? "Importando productos..." : "Cargando catálogo..."}
+            loadingMessage="Cargando catálogo..."
             errorMessage={error?.message}
         >
-             <Layout>
+            <Layout>
                 {alert && (
                     <AlertComponent
                         type={alert.type}
-                        message={alert.message}
                         action={alert.action}
                         entity={alert.entity}
+                        message={alert.message}
                         onConfirm={() => handleConfirmDelete(alert.id)}
                         onCancel={handleCancelDelete}
-                        autoClose={alert.autoClose}
-                        onClose={() => setAlert(null)}
                     />
                 )}
-
-                {/* Modal para selección de modo de importación */}
-                <Modal show={showImportModal} onHide={() => setShowImportModal(false)}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Opciones de Importación</Modal.Title>
+                
+                {/* Modal de Importación */}
+                <Modal show={showImportModal} onHide={handleCloseImportModal} centered size="lg">
+                    <Modal.Header closeButton className={importStatus === 'error' ? 'bg-danger text-white' : ''}>
+                        <Modal.Title>
+                            {importStatus === 'error' ? (
+                                <><i className="mdi mdi-alert-circle-outline me-2"></i>Error en Importación</>
+                            ) : (
+                                <>Importar Catálogo</>
+                            )}
+                        </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <div className="mb-3">
-                            <label className="form-label">Seleccione el modo de importación:</label>
-                            <select 
-                                className="form-select"
-                                value={importMode}
-                                onChange={(e) => setImportMode(e.target.value)}
-                            >
-                                <option value="actualizar">Actualizar existentes</option>
-                                <option value="anadir">Añadir nuevos</option>
-                                <option value="sobrescribir">Sobrescribir todo</option>
-                            </select>
+                        <div className="text-center mb-3">
+                            <div className="import-status-icon">
+                                {importStatus === 'done' ? (
+                                    <i className="mdi mdi-check-circle-outline display-4 text-success"></i>
+                                ) : importStatus === 'error' ? (
+                                    <i className="mdi mdi-alert-circle-outline display-4 text-danger"></i>
+                                ) : (
+                                    <div className="spinner-border text-primary" role="status">
+                                        <span className="visually-hidden">Cargando...</span>
+                                    </div>
+                                )}
+                            </div>
+                            <h5 className="mt-3">{getImportStatusText()}</h5>
+                            {importFileName && (
+                                <div className="file-info">
+                                    <i className="mdi mdi-file-excel-outline me-1"></i>
+                                    <span className="text-muted">{importFileName}</span>
+                                    {file?.size && (
+                                        <small className="d-block text-muted">
+                                            ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                                        </small>
+                                    )}
+                                </div>
+                            )}
                         </div>
+                        
+                        <ProgressBar 
+                            now={importProgress} 
+                            label={`${importProgress}%`} 
+                            variant={
+                                importStatus === 'done' ? 'success' : 
+                                importStatus === 'error' ? 'danger' : 'primary'
+                            }
+                            animated={importStatus !== 'done' && importStatus !== 'error'}
+                            striped
+                            className="mb-3"
+                        />
+                        
+                        {importResult && (
+                            <div className={`alert alert-${importResult.success ? 'success' : 'danger'} mb-0`}>
+                                <div className="d-flex align-items-start">
+                                    <i className={`mdi mdi-${importResult.success ? 'check-circle' : 'alert-circle'} me-2 mt-1`}></i>
+                                    <div>
+                                        <h6 className="alert-heading">{importResult.message}</h6>
+                                        
+                                        {importResult.success ? (
+                                            <div className="mt-2">
+                                                <div className="import-summary">
+                                                    <div className="summary-item">
+                                                        <span className="summary-label">Total procesados:</span>
+                                                        <span className="summary-value">{importResult.total}</span>
+                                                    </div>
+                                                    <div className="summary-item">
+                                                        <span className="summary-label">Importados:</span>
+                                                        <span className="summary-value text-success">{importResult.imported}</span>
+                                                    </div>
+                                                    {importResult.skipped > 0 && (
+                                                        <div className="summary-item">
+                                                            <span className="summary-label">Omitidos:</span>
+                                                            <span className="summary-value text-warning">{importResult.skipped}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="error-details mt-2">
+                                                <p>{importResult.details}</p>
+                                                
+                                                {importResult.errorType === 'processing' && (
+                                                    <div className="solution-box">
+                                                        <h6>Solución sugerida:</h6>
+                                                        <ul>
+                                                            <li>Asegúrese que el archivo tenga las columnas requeridas</li>
+                                                            <li>Verifique que no haya filas vacías</li>
+                                                            <li>Compruebe que los formatos de datos sean correctos</li>
+                                                        </ul>
+                                                    </div>
+                                                )}
+                                                
+                                                {importResult.technicalDetails && (
+                                                    <details className="technical-details mt-2">
+                                                        <summary>Detalles técnicos</summary>
+                                                        <pre>{importResult.technicalDetails}</pre>
+                                                    </details>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowImportModal(false)}>
-                            Cancelar
-                        </Button>
-                        <Button variant="primary" onClick={() => {
-                            setShowImportModal(false);
-                            fileInputRef.current.click();
-                        }}>
-                            Continuar
-                        </Button>
+                    <Modal.Footer className="d-flex justify-content-between">
+                        {importStatus === 'error' ? (
+                            <>
+                                <button 
+                                    className="btn btn-outline-secondary" 
+                                    onClick={handleCloseImportModal}
+                                >
+                                    <i className="mdi mdi-close me-1"></i> Cerrar
+                                </button>
+                                <div>
+                                    <label className="btn btn-primary me-2">
+                                        <i className="mdi mdi-file-upload me-1"></i> Nuevo Archivo
+                                        <input 
+                                            type="file" 
+                                            style={{ display: 'none' }} 
+                                            accept=".xlsx, .xls, .csv" 
+                                            onChange={handleImport}
+                                        />
+                                    </label>
+                                    <button className="btn btn-outline-primary">
+                                        <i className="mdi mdi-download me-1"></i> Descargar Plantilla
+                                    </button>
+                                </div>
+                            </>
+                        ) : (
+                            <button 
+                                className="btn btn-primary" 
+                                onClick={handleCloseImportModal}
+                                disabled={importStatus !== 'done' && importStatus !== 'error'}
+                            >
+                                {importStatus === 'done' ? (
+                                    <><i className="mdi mdi-check me-1"></i> Aceptar</>
+                                ) : (
+                                    <><i className="mdi mdi-close me-1"></i> Cancelar</>
+                                )}
+                            </button>
+                        )}
                     </Modal.Footer>
                 </Modal>
 
                 <div className="card p-3">
-                    <h2 className="mb-3 "> Lista Catalogo</h2>
+                    <h2 className="mb-3">Lista de Catálogo</h2>
 
-                    {/* Fila compacta con todos los controles */}
-                    <div className="row mb-4 g-2 align-items-center">
-                        {/* Búsqueda (20%) */}
-                        <div className="col-md-2">
-                            <div className="input-group shadow-sm">
-                                <input
-                                    type="text" 
-                                    className="form-control" 
-                                    placeholder="Buscar..."
-                                    value={searchTerm} 
-                                    onChange={handleSearchChange}
-                                />
-                                <button className="btn btn-purple" type="button">
-                                    <i className="uil-search"></i>
-                                </button>
+                    <div className="col-md">
+                        <div className="row">
+                            {/* Barra de búsqueda */}
+                            <div className="col-md-3 mb-2">
+                                <div className="input-group shadow-sm">
+                                    <input
+                                        type="text" className="form-control pe-4" placeholder="Buscar Producto..."
+                                        value={searchTerm} onChange={handleSearchChange}
+                                    />
+                                    <button type="button" className="btn btn-purple" style={{ marginLeft: '2px' }}>
+                                        <i className="uil-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            {/* Filtro */}
+                            <div className="col-md-3 mb-2 d-flex align-items-center">
+                                <div className="input-group w-100 shadow-sm">
+                                    <span className="me-0 p-2 text-white bg-purple rounded-1 d-flex justify-content-center align-items-center">
+                                        <i className="uil-filter fs-6"></i>
+                                    </span>
+                                    <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
+                                        <option value="categoria">Categoría</option>
+                                        <option value="estatus">Estatus</option>
+                                        <option value="seccion">Sección</option>
+                                    </select>
+                                    <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
+                                        {filterOptions[filterType]?.map(option => (
+                                            <option key={option} value={option}>{option}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                            {/* Botones de Importar/Exportar */}
+                            <div className="col-md-3 mb-2">
+                                <div className="btn-group w-100">
+                                    <label className="btn btn-outline-primary">
+                                        <i className="mdi mdi-upload me-1"></i> Importar
+                                        <input 
+                                            type="file" 
+                                            style={{ display: 'none' }} 
+                                            accept=".xlsx, .xls, .csv" 
+                                            onChange={handleImport}
+                                        />
+                                    </label>
+                                    <button 
+                                        className="btn btn-outline-success" 
+                                        onClick={handleExport}
+                                    >
+                                        <i className="mdi mdi-download me-1"></i> Exportar
+                                    </button>
+                                </div>
+                            </div>
+                            {/* Crear producto Button */}
+                            <div className="col-md-3 mb-2">
+                                <div className="input-group">
+                                    <Link to="/Catalogo/CrearCatalogo" className="input-daterange input-group btn btn-outline-success waves-effect waves-light">
+                                        <i className="mdi mdi-plus me-1"></i> Crear Producto
+                                    </Link>
+                                </div>
                             </div>
                         </div>
-
-                        {/* Filtros (25%) */}
-                        <div className="col-md-5">
-                            <div className="input-group shadow-sm">
-                                <span className="input-group-text bg-purple text-white">
-                                    <i className="uil-filter"></i>
-                                </span>
-                                <select 
-                                    className="form-select" 
-                                    value={filterType} 
-                                    onChange={handleFilterTypeChange}
-                                >
-                                    <option value="categoria">Categoría</option>
-                                    <option value="activo">Estado</option>
-                                </select>
-                                <select 
-                                    className="form-select" 
-                                    value={filterValue} 
-                                    onChange={handleFilterValueChange}
-                                >
-                                    {filterOptions.map(option => (
-                                        <option key={option} value={option}>{option}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-
-                        {/* Acciones (55%) */}
-                        <div className="col-md-5">
-                            <div className="d-flex justify-content-end align-items-center gap-2">
-                                {/* Botón Exportar */}
-                                <button
-                                    className="btn btn-outline-success"
-                                    onClick={handleExportExcel}
-                                    disabled={loading || productos.length === 0}
-                                >
-                                    <i className="mdi mdi-file-export me-1"></i> Exportar
-                                </button>
-
-                                {/* Botón Importar */}
-                                <button
-                                    className="btn btn-outline-primary"
-                                    onClick={() => setShowImportModal(true)}
-                                    disabled={loading}
-                                >
-                                    <i className="mdi mdi-file-import me-1"></i> Importar
-                                </button>
-
-                                {/* Botón Nuevo Producto */}
-                                <Link 
-                                    to="/Catalogo/CrearCatalogo"
-                                    className="btn btn-outline-success"
-                                >
-                                    <i className="mdi mdi-plus me-1"></i> Nuevo
-                                </Link>
-                            </div>
-                        </div>
-
-                        {/* Input file oculto */}
-                        <input 
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={handleFileChange}
-                            accept=".xlsx,.xls"
-                            style={{ display: 'none' }}
-                        />
                     </div>
-                    {/* Tabla de productos */}
-                    <div className="table-responsive shadow-sm">
-                        <table className="table table-centered table-striped table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Código</th>
-                                    <th>Nombre</th>
-                                    <th>Precio</th>
-                                    <th>Categoría</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {currentProductos.map((producto) => (
-                                    <tr key={producto._id}>
-                                        <td>{producto.codigo}</td>
-                                        <td>{producto.nombre}</td>
-                                        <td>${producto.precio.toFixed(2)}</td>
-                                        <td>{producto.categoria}</td>
-                                        <td>
-                                            <span className={`badge ${producto.activo ? 'bg-success' : 'bg-danger'}`}>
-                                                {producto.activo ? 'Activo' : 'Inactivo'}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <BotonesAccion
-                                                id={producto._id}
-                                                entidad="producto"
-                                                onDelete={handleDelete}
-                                                setAlert={setAlert}
-                                                onView={() => handleView(producto._id)}
-                                                customButtons={[
-                                                    {
-                                                        icon: producto.activo ? 'mdi-eye-off' : 'mdi-eye',
-                                                        color: producto.activo ? 'warning' : 'success',
-                                                        tooltip: producto.activo ? 'Desactivar' : 'Activar',
-                                                        onClick: () => handleStatusChange(producto._id, !producto.activo)
-                                                    }
-                                                ]}
-                                            />
-                                        </td>
+
+                    <div className="col-lg-12">
+                        <div className="table-responsive shadow-sm">
+                            <table className="table table-centered table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Nombre</th>
+                                        <th>Categoría</th>
+                                        <th>Subcategoría</th>
+                                        <th>Precio Sin Fin.</th>
+                                        <th>Precio Con Fin.</th>
+                                        <th>Estatus</th>
+                                        <th>Acciones</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {currentCatalogo.map((producto) => (
+                                        <tr key={producto._id}>
+                                            <td>{producto.codigo}</td>
+                                            <td>{producto.nombre}</td>
+                                            <td>{producto.categoria}</td>
+                                            <td>{producto.subcategoria}</td>
+                                            <td>${producto.precioSinFinanciamiento?.toFixed(2)}</td>
+                                            <td>${producto.precioConFinanciamiento?.toFixed(2)}</td>
+                                            <td>
+                                                <span className={`badge ${producto.estatus === 'Activo' ? 'bg-success' : 'bg-danger'}`}>
+                                                    {producto.estatus}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <BotonesAccion
+                                                    id={producto._id}
+                                                    entidad="producto"
+                                                    onDelete={handleDelete}
+                                                    setAlert={setAlert}
+                                                    onView={() => handleView(producto._id)}
+                                                />
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-
                     {/* Paginación */}
                     <div className="d-flex justify-content-between align-items-center mt-3">
                         <button
@@ -377,7 +475,7 @@ const ListaCatalogo = () => {
                             onClick={setPreviousPage}
                             disabled={currentPage === 1}
                         >
-                            {/*<i className="uil uil-arrow-left me-1"/> */}Anterior
+                            Anterior
                         </button>
                         <span>Página {currentPage} de {totalPages}</span>
                         <button
@@ -385,10 +483,11 @@ const ListaCatalogo = () => {
                             onClick={setNextPage}
                             disabled={currentPage === totalPages}
                         >
-                            Siguiente {/*<i className="uil uil-arrow-right me-1"*/}
+                            Siguiente
                         </button>
                     </div>
                 </div>
+                <br />
             </Layout>
         </LoadingError>
     );

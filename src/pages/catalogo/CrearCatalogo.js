@@ -7,21 +7,23 @@ import { Form, Row, Col, Card, Button } from "react-bootstrap";
 
 const CrearCatalogo = () => {
     const navigate = useNavigate();
-    const { crearProducto, loading } = useCatalogoService();
+    const { crearProducto } = useCatalogoService();
     const [formData, setFormData] = useState({
-        codigo: "",
-        nombre: "",
-        descripcion: "",
-        precio: 0,
-        categoria: "Producto",
-        unidad_medida: "",
-        activo: true
+      codigo: "",
+      nombre: "",
+      descripcion: "",
+      precio: 0,
+      categoria: "Producto",
+      unidad_medida: "",
+      activo: true
     });
     const [showAlert, setShowAlert] = useState(false);
     const [alertType, setAlertType] = useState("");
     const [alertMessage, setAlertMessage] = useState("");
     const [validated, setValidated] = useState(false);
+    const [loading, setLoading] = useState(false);
 
+    
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -39,43 +41,51 @@ const CrearCatalogo = () => {
         setFormData({ ...formData, [name]: checked });
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const form = e.currentTarget;
-        
-        if (form.checkValidity() === false) {
-            e.stopPropagation();
-            setValidated(true);
-            return;
-        }
-
-        try {
-            await crearProducto(formData);
-            setAlertType("success");
-            setAlertMessage("Producto creado exitosamente.");
-            setShowAlert(true);
-            
-            // Reset form after successful submission
-            setFormData({
-                codigo: "",
-                nombre: "",
-                descripcion: "",
-                precio: 0,
-                categoria: "Producto",
-                unidad_medida: "",
-                activo: true
-            });
-            setValidated(false);
-            
-            // Redirect after 2 seconds
-            setTimeout(() => navigate("/catalogo"), 2000);
-        } catch (error) {
-            console.error("Error al crear el producto:", error);
-            setAlertType("error");
-            setAlertMessage(error.response?.data?.error || "Error al crear el producto. Verifica los datos e intenta nuevamente.");
-            setShowAlert(true);
-        }
-    };
+    // Modifica el handleSubmit para mejor manejo de errores
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    
+    if (form.checkValidity() === false) {
+      e.stopPropagation();
+      setValidated(true);
+      return;
+    }
+  
+    try {
+      // Validación adicional
+      if (formData.precio <= 0) {
+        throw new Error("El precio debe ser mayor a 0");
+      }
+  
+      const response = await crearProducto(formData);
+      
+      if (!response.success) {
+        throw new Error(response.error || "Error al crear el producto");
+      }
+  
+      setAlertType("success");
+      setAlertMessage("Producto creado exitosamente.");
+      setShowAlert(true);
+      
+      // Reset form
+      setFormData({
+        codigo: "",
+        nombre: "",
+        descripcion: "",
+        precio: 0,
+        categoria: "Producto",
+        unidad_medida: "",
+        activo: true
+      });
+      setValidated(false);
+      
+    } catch (error) {
+      setAlertType("error");
+      setAlertMessage(error.message || "Error al crear el producto");
+      setShowAlert(true);
+    }
+  };
 
     const handleAlertClose = () => {
         setShowAlert(false);
