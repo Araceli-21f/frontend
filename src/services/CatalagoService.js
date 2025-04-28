@@ -70,20 +70,56 @@ const CatalogoService = () => {
         setLoading(true);
         setError(null);
         try {
+            // Validación básica en el frontend
+            if (!file) {
+                throw new Error('No se seleccionó ningún archivo');
+            }
+    
+            // Verificar tipo de archivo
+            const validTypes = [
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/vnd.ms-excel',
+                'text/csv'
+            ];
+            
+            if (!validTypes.includes(file.type)) {
+                throw new Error('Tipo de archivo no válido. Solo se aceptan XLSX, XLS o CSV');
+            }
+    
+            // Verificar tamaño (5MB máximo)
+            if (file.size > 5 * 1024 * 1024) {
+                throw new Error('El archivo es demasiado grande. Tamaño máximo: 5MB');
+            }
+    
             const formData = new FormData();
-            formData.append('file', file); 
+            formData.append('file', file);
             
             const response = await axios.post(`${baseURL}/cargar-excel`, formData, {
                 headers: {
-                  'Content-Type': 'multipart/form-data'
-                }
+                    'Content-Type': 'multipart/form-data'
+                },
+                timeout: 30000 // 30 segundos de timeout
             });
+            
             setLoading(false);
             return response.data;
         } catch (err) {
-            setError(err);
+            let errorMessage = 'Error al cargar el catálogo';
+            
+            if (err.response) {
+                // Error del servidor
+                errorMessage = err.response.data.error || err.response.data.message || errorMessage;
+            } else if (err.request) {
+                // Error de conexión
+                errorMessage = 'No se pudo conectar con el servidor';
+            } else {
+                // Error del frontend
+                errorMessage = err.message || errorMessage;
+            }
+            
+            setError(errorMessage);
             setLoading(false);
-            throw err;
+            throw new Error(errorMessage);
         }
     };
 

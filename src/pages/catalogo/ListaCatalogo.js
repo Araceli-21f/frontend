@@ -9,30 +9,16 @@ import LoadingError from "../../components/LoadingError";
 import CatalogoService from "../../services/CatalagoService";
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
-import Modal from 'react-bootstrap/Modal';
-import ProgressBar from 'react-bootstrap/ProgressBar';
+import ImportModal from "./ImportModal";
 
 const ListaCatalogo = () => {
     const [alert, setAlert] = useState(null);
     const navigate = useNavigate();
     const [catalogo, setCatalogo] = useState([]);
-    const { 
-        loading, 
-        error, 
-        obtenerCatalogo,
-        eliminarProducto,
-        cargarCatalogo,
-        buscarPorCodigo,
-        obtenerPorCategoria
-    } = CatalogoService();
+    const {  loading, error, obtenerCatalogo, eliminarProducto, cargarCatalogo, buscarPorCodigo, obtenerPorCategoria } = CatalogoService();
     
     // Estado para el modal de importación
     const [showImportModal, setShowImportModal] = useState(false);
-    const [importProgress, setImportProgress] = useState(0);
-    const [importStatus, setImportStatus] = useState('');
-    const [importFileName, setImportFileName] = useState('');
-    const [importResult, setImportResult] = useState(null);
-    const [file, setFile] = useState(null);
 
     // Hook de búsqueda y filtro
     const {
@@ -110,41 +96,15 @@ const ListaCatalogo = () => {
     };
 
     // Importar desde Excel con modal de progreso
-    const handleImport = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-      
-        const formData = new FormData();
-        formData.append('file', file); // <<< Nombre debe coincidir con el backend
-      
+    const handleImportSuccess = async () => {
         try {
-          const response = await cargarCatalogo(formData); // <<< Envía FormData
-          
-          if (response.error) {
-            throw new Error(response.error);
-          }
-      
-          // Actualiza el estado con la respuesta
-          setImportResult({
-            success: true,
-            imported: response.imported,
-            message: response.message
-          });
-      
-        } catch (error) {
-          console.error("Error completo:", {
-            message: error.message,
-            response: error.response?.data
-          });
-      
-          setImportResult({
-            success: false,
-            message: "Error en el servidor",
-            details: error.response?.data?.error || error.message,
-            status: error.response?.status
-          });
+            const fetchedCatalogo = await obtenerCatalogo();
+            setCatalogo(fetchedCatalogo);
+            // Puedes agregar una notificación de éxito aquí si lo deseas
+        } catch (err) {
+            console.error("Error al actualizar catálogo:", err);
         }
-      };
+    };
 
     // Exportar a Excel
     const handleExport = () => {
@@ -171,30 +131,6 @@ const ListaCatalogo = () => {
         saveAs(blob, `Catalogo_${new Date().toISOString().slice(0, 10)}.xlsx`);
     };
 
-    // Cerrar modal de importación
-    const handleCloseImportModal = () => {
-        setShowImportModal(false);
-        setImportProgress(0);
-        setImportStatus('');
-        setImportFileName('');
-        setImportResult(null);
-        setFile(null);
-    };
-
-    // Obtener texto del estado de importación
-    const getImportStatusText = () => {
-        const statusMessages = {
-            'preparing': 'Preparando importación...',
-            'reading': 'Leyendo archivo Excel...',
-            'processing': 'Procesando datos...',
-            'uploading': 'Subiendo datos al servidor...',
-            'done': '¡Importación completada con éxito!',
-            'error': 'Error en el proceso de importación'
-        };
-        
-        return statusMessages[importStatus] || 'Procesando...';
-    };
-
     return (
         <LoadingError
             loading={loading}
@@ -214,150 +150,17 @@ const ListaCatalogo = () => {
                     />
                 )}
                 
-                {/* Modal de Importación */}
-                <Modal show={showImportModal} onHide={handleCloseImportModal} centered size="lg">
-                    <Modal.Header closeButton className={importStatus === 'error' ? 'bg-danger text-white' : ''}>
-                        <Modal.Title>
-                            {importStatus === 'error' ? (
-                                <><i className="mdi mdi-alert-circle-outline me-2"></i>Error en Importación</>
-                            ) : (
-                                <>Importar Catálogo</>
-                            )}
-                        </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <div className="text-center mb-3">
-                            <div className="import-status-icon">
-                                {importStatus === 'done' ? (
-                                    <i className="mdi mdi-check-circle-outline display-4 text-success"></i>
-                                ) : importStatus === 'error' ? (
-                                    <i className="mdi mdi-alert-circle-outline display-4 text-danger"></i>
-                                ) : (
-                                    <div className="spinner-border text-primary" role="status">
-                                        <span className="visually-hidden">Cargando...</span>
-                                    </div>
-                                )}
-                            </div>
-                            <h5 className="mt-3">{getImportStatusText()}</h5>
-                            {importFileName && (
-                                <div className="file-info">
-                                    <i className="mdi mdi-file-excel-outline me-1"></i>
-                                    <span className="text-muted">{importFileName}</span>
-                                    {file?.size && (
-                                        <small className="d-block text-muted">
-                                            ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                                        </small>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                        
-                        <ProgressBar 
-                            now={importProgress} 
-                            label={`${importProgress}%`} 
-                            variant={
-                                importStatus === 'done' ? 'success' : 
-                                importStatus === 'error' ? 'danger' : 'primary'
-                            }
-                            animated={importStatus !== 'done' && importStatus !== 'error'}
-                            striped
-                            className="mb-3"
-                        />
-                        
-                        {importResult && (
-                            <div className={`alert alert-${importResult.success ? 'success' : 'danger'} mb-0`}>
-                                <div className="d-flex align-items-start">
-                                    <i className={`mdi mdi-${importResult.success ? 'check-circle' : 'alert-circle'} me-2 mt-1`}></i>
-                                    <div>
-                                        <h6 className="alert-heading">{importResult.message}</h6>
-                                        
-                                        {importResult.success ? (
-                                            <div className="mt-2">
-                                                <div className="import-summary">
-                                                    <div className="summary-item">
-                                                        <span className="summary-label">Total procesados:</span>
-                                                        <span className="summary-value">{importResult.total}</span>
-                                                    </div>
-                                                    <div className="summary-item">
-                                                        <span className="summary-label">Importados:</span>
-                                                        <span className="summary-value text-success">{importResult.imported}</span>
-                                                    </div>
-                                                    {importResult.skipped > 0 && (
-                                                        <div className="summary-item">
-                                                            <span className="summary-label">Omitidos:</span>
-                                                            <span className="summary-value text-warning">{importResult.skipped}</span>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <div className="error-details mt-2">
-                                                <p>{importResult.details}</p>
-                                                
-                                                {importResult.errorType === 'processing' && (
-                                                    <div className="solution-box">
-                                                        <h6>Solución sugerida:</h6>
-                                                        <ul>
-                                                            <li>Asegúrese que el archivo tenga las columnas requeridas</li>
-                                                            <li>Verifique que no haya filas vacías</li>
-                                                            <li>Compruebe que los formatos de datos sean correctos</li>
-                                                        </ul>
-                                                    </div>
-                                                )}
-                                                
-                                                {importResult.technicalDetails && (
-                                                    <details className="technical-details mt-2">
-                                                        <summary>Detalles técnicos</summary>
-                                                        <pre>{importResult.technicalDetails}</pre>
-                                                    </details>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </Modal.Body>
-                    <Modal.Footer className="d-flex justify-content-between">
-                        {importStatus === 'error' ? (
-                            <>
-                                <button 
-                                    className="btn btn-outline-secondary" 
-                                    onClick={handleCloseImportModal}
-                                >
-                                    <i className="mdi mdi-close me-1"></i> Cerrar
-                                </button>
-                                <div>
-                                    <label className="btn btn-primary me-2">
-                                        <i className="mdi mdi-file-upload me-1"></i> Nuevo Archivo
-                                        <input 
-                                            type="file" 
-                                            style={{ display: 'none' }} 
-                                            accept=".xlsx, .xls, .csv" 
-                                            onChange={handleImport}
-                                        />
-                                    </label>
-                                    <button className="btn btn-outline-primary">
-                                        <i className="mdi mdi-download me-1"></i> Descargar Plantilla
-                                    </button>
-                                </div>
-                            </>
-                        ) : (
-                            <button 
-                                className="btn btn-primary" 
-                                onClick={handleCloseImportModal}
-                                disabled={importStatus !== 'done' && importStatus !== 'error'}
-                            >
-                                {importStatus === 'done' ? (
-                                    <><i className="mdi mdi-check me-1"></i> Aceptar</>
-                                ) : (
-                                    <><i className="mdi mdi-close me-1"></i> Cancelar</>
-                                )}
-                            </button>
-                        )}
-                    </Modal.Footer>
-                </Modal>
+                 {/* Modal de Importación */}
+                 <ImportModal 
+    show={showImportModal}
+    onHide={() => setShowImportModal(false)}
+    onImportSuccess={handleImportSuccess}
+    maxFileSize={10} // Tamaño máximo en MB
+    allowedTypes={['xlsx', 'xls']} // Tipos de archivo permitidos
+    endpoint="/api/catalogos/cargar-excel" // Endpoint personalizado
+/>
 
+                {/* Resto del código permanece igual */}
                 <div className="card p-3">
                     <h2 className="mb-3">Lista de Catálogo</h2>
 
@@ -396,15 +199,12 @@ const ListaCatalogo = () => {
                             {/* Botones de Importar/Exportar */}
                             <div className="col-md-3 mb-2">
                                 <div className="btn-group w-100">
-                                    <label className="btn btn-outline-primary">
+                                    <button 
+                                        className="btn btn-outline-primary"
+                                        onClick={() => setShowImportModal(true)}
+                                    >
                                         <i className="mdi mdi-upload me-1"></i> Importar
-                                        <input 
-                                            type="file" 
-                                            style={{ display: 'none' }} 
-                                            accept=".xlsx, .xls, .csv" 
-                                            onChange={handleImport}
-                                        />
-                                    </label>
+                                    </button>
                                     <button 
                                         className="btn btn-outline-success" 
                                         onClick={handleExport}
