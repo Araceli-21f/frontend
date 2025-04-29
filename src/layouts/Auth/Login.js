@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import authService from "../../services/authService";
+import { useAuth } from "../../context/AuthContext";
 
 const Login = () => {
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -10,42 +11,57 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
- // Verificar token al cargar el componente
- useEffect(() => {
-  const checkAuth = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        const { valid } = await authService.verifyToken();
-        if (valid) navigate('/home');
+
+  // Verificar token al cargar el componente
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        if (token) {
+          const { valid } = await login('', ''); // Removed third parameter, only email and password
+          if (valid) navigate('/home');
+        }
+      } catch (error) {
+        // logout handled in login function if invalid
       }
-    } catch (error) {
-      authService.logout();
-    }
-  };
-  
-  checkAuth();
-}, [navigate]);
+    };
+
+    checkAuth();
+  }, [navigate, login]);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setError("");
-  setMessage("");
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setMessage("");
 
-  try {
-    const data = await authService.login(email, password);
-    setMessage("Inicio de sesión exitoso.");
-    
-    // Redirigir después de 1 segundo para mostrar el mensaje
-    setTimeout(() => navigate("/home"), 1000);
-  } catch (error) {
-    setError(error.error || "Credenciales inválidas. Por favor, inténtalo de nuevo.");
-  } finally {
-    setLoading(false);
-  }
-};
- 
+    try {
+      await login(email, password); // Removed third parameter
+      if (rememberMe) {
+        // Store token in localStorage
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        if (token) {
+          localStorage.setItem('token', token);
+          sessionStorage.removeItem('token');
+        }
+      } else {
+        // Store token in sessionStorage
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        if (token) {
+          sessionStorage.setItem('token', token);
+          localStorage.removeItem('token');
+        }
+      }
+      setMessage("Inicio de sesión exitoso.");
+
+      // Redirigir después de 1 segundo para mostrar el mensaje
+      setTimeout(() => navigate("/home"), 1000);
+    } catch (error) {
+      setError(error.error || "Credenciales inválidas. Por favor, inténtalo de nuevo.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="d-flex flex-column min-vh-100 authentication-bg">
