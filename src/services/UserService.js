@@ -5,6 +5,7 @@ const UserService = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const baseURL = 'http://localhost:8000/users';
+    const authBaseURL = 'http://localhost:8000/auth';
     const cancelTokenSource = useRef(axios.CancelToken.source()); 
       // Función genérica para manejar errores
       const handleError = (err) => {
@@ -16,12 +17,15 @@ const UserService = () => {
         throw err;
     };
 
-    const subirFotoPerfil = useCallback(async (formData) => {
+    const subirFotoPerfil = useCallback(async (formData, token) => {
         setLoading(true);
         setError(null);
         try {
             const response = await axios.post(`${baseURL}/upload-photo`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
+                headers: { 
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`
+                },
                 cancelToken: cancelTokenSource.current.token
             });
             return response.data;
@@ -31,6 +35,25 @@ const UserService = () => {
             setLoading(false);
         }
     }, [baseURL]);
+
+    const obtenerPerfil = useCallback(async (token) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await axios.get(`${authBaseURL}/perfil`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                cancelToken: cancelTokenSource.current.token
+            });
+            setLoading(false);
+            return response.data;
+        } catch (err) {
+            setError(err);
+            setLoading(false);
+            throw err;
+        }
+    }, []);
 
     const obtenerUsuarios = useCallback(async () => {
         setLoading(true);
@@ -110,7 +133,8 @@ const UserService = () => {
         obtenerUsuarioPorId,
         actualizarUsuario,
         eliminarUsuario,
-        subirFotoPerfil
+        subirFotoPerfil,
+        obtenerPerfil
     };
 };
 
