@@ -1,25 +1,22 @@
- // src/context/AuthContext.js
 import { createContext, useContext, useState, useEffect, useMemo } from 'react';
-import authService from '../services/authService';
-import useUserService from '../services/UserService';
+import authService from '../services/authService'; 
+import UserService from '../services/UserService';
 
 const AuthContext = createContext();
 
-
 export function AuthProvider({ children }) {
-    const userService = useUserService();
-    const [user, setUser] = useState(null);
+    const userService = UserService; 
+    const [user, setUser ] = useState(null);
     const [token, setToken] = useState(localStorage.getItem('token') || sessionStorage.getItem('token') || null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Verificar autenticación al cargar la app
     useEffect(() => {
         const checkAuth = async () => {
             try {
                 setLoading(true);
                 if (!token) {
-                    setUser(null);
+                    setUser (null);
                     setLoading(false);
                     return;
                 }
@@ -27,15 +24,19 @@ export function AuthProvider({ children }) {
                 await authService.verifyToken();
                 // Fetch full user profile
                 const profile = await userService.obtenerPerfil(token);
-                setUser(profile);
-                // Removed setToken(token) to prevent infinite loop
+                if (profile !== user) { // Only update if the profile has changed
+                    setUser (profile);
+                }
             } catch (err) {
                 authService.logout();
-                setUser(null);
+                setUser (null);
+            } finally {
+                setLoading(false);
             }
         };
         checkAuth();
-    }, [token, userService]);
+    }, [token]); 
+
 
     const login = async (email, password, rememberMe = false) => {
         try {
@@ -53,7 +54,7 @@ export function AuthProvider({ children }) {
                 setToken(data.token);
                 // Fetch full user profile
                 const profile = await userService.obtenerPerfil(data.token);
-                setUser(profile);
+                setUser (profile);
             }
             return data;
         } catch (err) {
@@ -64,7 +65,6 @@ export function AuthProvider({ children }) {
         }
     };
 
-
     const register = async (name, apellidos, email, password, area) => {
         try {
             setLoading(true);
@@ -74,11 +74,11 @@ export function AuthProvider({ children }) {
                 localStorage.setItem('token', data.token);
                 setToken(data.token);
                 if (data.usuario) {
-                    setUser(data.usuario);
+                    setUser (data.usuario);
                 } else {
                     // Fetch full user profile
                     const profile = await userService.obtenerPerfil(data.token);
-                    setUser(profile);
+                    setUser (profile);
                 }
                 authService.setAuthToken(data.token);
             }
@@ -93,7 +93,7 @@ export function AuthProvider({ children }) {
 
     const logout = () => {
         authService.logout();
-        setUser(null);
+        setUser (null);
         setToken(null);
     };
 

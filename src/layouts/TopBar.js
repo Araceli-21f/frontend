@@ -10,7 +10,7 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const userService = UserService();
+  const userService = UserService;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -28,7 +28,7 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar }) => {
     };
 
     fetchUser();
-  }, [userService]);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
