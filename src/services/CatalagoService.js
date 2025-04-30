@@ -98,7 +98,6 @@ const CatalogoService = () => {
                     errorDetails = err.response.data.details || 
                                  (Array.isArray(err.response.data.errors) ? 
                                   err.response.data.errors.join('. ') : 
-                                  err.response.data.error || 
                                   'Error en el servidor');
                 }
             } else if (err.request) {

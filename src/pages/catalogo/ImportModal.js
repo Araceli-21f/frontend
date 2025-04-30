@@ -90,62 +90,56 @@ const ImportModal = ({ show, onHide, onImportSuccess }) => {
   };
 
   // Iniciar importación
-
-const startImport = async () => {
-  if (!file) return;
-
-  setIsImporting(true);
-  setImportStatus('uploading');
-  setImportProgress(0);
-  setImportResult(null);
-
-  try {
-    const result = await cargarCatalogo(file, (progressEvent) => {
-      const percentCompleted = Math.round(
-        (progressEvent.loaded * 100) / (progressEvent.total || file.size)
-      );
-      setImportProgress(percentCompleted);
-    });
-
-    let message = result.message || 'Importación completada';
-    let details = `Se importaron ${result.imported} productos`;
-    
-    if (result.duplicates > 0) {
-      details += ` (${result.duplicates} con códigos repetidos)`;
+  const startImport = async () => {
+    if (!file) return;
+  
+    setIsImporting(true);
+    setImportStatus('uploading');
+    setImportProgress(0);
+    setImportResult(null);
+  
+    try {
+      const result = await cargarCatalogo(file, (progressEvent) => {
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / (progressEvent.total || file.size)
+        );
+        setImportProgress(percentCompleted);
+      });
+  
+      setImportResult({
+        success: true,
+        message: result.message || 'Importación completada con éxito',
+        details: `Se importaron ${result.imported || result.count} productos`,
+        imported: result.imported || result.count
+      });
+      setImportStatus('done');
+      
+      if (onImportSuccess) onImportSuccess();
+    } catch (error) {
+      console.error('Error en importación:', error);
+      
+      let errorMessage = 'Error en la importación';
+      let errorDetails = error.message;
+      
+      if (error.response) {
+        errorMessage = error.response.data?.error || errorMessage;
+        errorDetails = error.response.data?.details || 
+                      (Array.isArray(error.response.data?.errors) ? 
+                       error.response.data.errors.join('. ') : 
+                       errorDetails);
+      }
+  
+      setImportResult({
+        success: false,
+        message: errorMessage,
+        details: errorDetails,
+        errorType: 'server'
+      });
+      setImportStatus('error');
+    } finally {
+      setIsImporting(false);
     }
-
-    setImportResult({
-      success: true,
-      message,
-      details,
-      imported: result.imported,
-      duplicates: result.duplicates
-    });
-    setImportStatus('done');
-    
-    if (onImportSuccess) onImportSuccess();
-  } catch (error) {
-    console.error('Error en importación:', error);
-    
-    let errorMessage = 'Error en la importación';
-    let errorDetails = error.message;
-    
-    if (error.response) {
-      errorMessage = error.response.data?.error || errorMessage;
-      errorDetails = error.response.data?.details || errorDetails;
-    }
-
-    setImportResult({
-      success: false,
-      message: errorMessage,
-      details: errorDetails,
-      errorType: 'server'
-    });
-    setImportStatus('error');
-  } finally {
-    setIsImporting(false);
-  }
-};
+  };
 
   // Cancelar importación
   const handleCancelImport = () => {
