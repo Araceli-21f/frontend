@@ -14,7 +14,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
   const { crearCotizacion } = CotizacionService();
   const { obtenerClientes } = ClienteService();
   const { obtenerFilials } = FilialService();
-  const { obtenerUsuarios } = UserService();
+  const { obtenerUsuarios } = UserService;  
   const { obtenerProductosServicios } = CatalogoService();
   
   // Constantes del sistema
