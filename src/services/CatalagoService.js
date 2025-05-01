@@ -38,11 +38,11 @@ const CatalogoService = () => {
         }
     };
 
-    const buscarPorCodigo = async (codigo) => {
+    const buscarPorId = async (id) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get(`${baseURL}/codigo/${codigo}`);
+            const response = await axios.get(`${baseURL}/${id}`);
             setLoading(false);
             return response.data;
         } catch (err) {
@@ -152,7 +152,7 @@ const CatalogoService = () => {
         error,
         obtenerCatalogo,
         crearProducto,
-        buscarPorCodigo,
+        buscarPorId,
         obtenerPorCategoria,
         cargarCatalogo,
         actualizarProducto,

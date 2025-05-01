@@ -50,7 +50,7 @@ const ListaCatalogo = () => {
     };
 
     // Hook de paginación
-    const { current: currentCatalogo, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredCatalogo, 10);
+    const { current: currentCatalogo, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredCatalogo, 25);
 
     // Obtener catálogo
     useEffect(() => {
@@ -89,9 +89,9 @@ const ListaCatalogo = () => {
     const handleView = (id) => {
         const producto = catalogo.find((p) => p._id === id);
         if (producto) {
-            navigate(`/catalogo/ver/${id}`);
+            navigate(`/producto/ver/${id}`);
         } else {
-            console.error('Producto no encontrado');
+            console.error('Producto no encontrado aqui');
         }
     };
 
