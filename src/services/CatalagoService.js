@@ -133,11 +133,11 @@ const CatalogoService = () => {
         }
     };
 
-    const eliminarProducto = async (codigo) => {
+    const eliminarPorId = async (id) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.delete(`${baseURL}/${codigo}`);
+            const response = await axios.delete(`${baseURL}/${id}`);
             setLoading(false);
             return response.data;
         } catch (err) {
@@ -156,7 +156,7 @@ const CatalogoService = () => {
         obtenerPorCategoria,
         cargarCatalogo,
         actualizarProducto,
-        eliminarProducto
+        eliminarPorId
     };
 };
 

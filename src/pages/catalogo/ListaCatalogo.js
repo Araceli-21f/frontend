@@ -15,7 +15,8 @@ const ListaCatalogo = () => {
     const [alert, setAlert] = useState(null);
     const navigate = useNavigate();
     const [catalogo, setCatalogo] = useState([]);
-    const {  loading, error, obtenerCatalogo, eliminarProducto, cargarCatalogo, buscarPorCodigo, obtenerPorCategoria } = CatalogoService();
+    const [productos, setProductos] = useState([]);
+    const {  loading, error, obtenerCatalogo, eliminarPorId, cargarCatalogo, buscarPorCodigo, obtenerPorCategoria } = CatalogoService();
     
     // Estado para el modal de importación
     const [showImportModal, setShowImportModal] = useState(false);
@@ -65,23 +66,23 @@ const ListaCatalogo = () => {
         fetchCatalogo();
     }, [obtenerCatalogo]);
 
-    // Eliminar producto
+    //Elimina los productos
     const handleDelete = async (id) => {
         try {
-            await eliminarProducto(id);
-            setCatalogo(catalogo.filter(producto => producto._id !== id));
+            await eliminarPorId(id);
+            setProductos(productos.filter(producto => producto._id !== id));
             setAlert({ type: "warning", action: "delete", entity: "producto" });
             setTimeout(() => setAlert(null), 5000);
         } catch (err) {
             console.error("Error al eliminar producto:", err);
         }
     };
-
-    const handleConfirmDelete = (id) => {
+     //confirma la eliminacion
+     const handleConfirmDelete = (id) => {
         handleDelete(id);
         setAlert(null);
     };
-
+    //Manda una alerta
     const handleCancelDelete = () => {
         setAlert(null);
     };
