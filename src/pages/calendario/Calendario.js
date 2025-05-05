@@ -45,10 +45,10 @@ const Calendario = () => {
   const modalRef = useRef(null);
   const calendarRef = useRef(null);
 
-  const tareaService = useRef(TareaService());
-  const clienteService = useRef(ClienteService());
-  const filialService = useRef(FilialService());
-  const userService = useRef(UserService());
+const tareaService = useRef(TareaService());
+const clienteService = useRef(ClienteService());
+const filialService = useRef(FilialService());
+const userService = useRef(UserService);
 
   // Función para obtener el color según la filial
   const getColorForFilial = useCallback((nombre_filial) => {
