@@ -97,7 +97,6 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
     
   }))
 
-    // Obtener catálogo
 // Obtener catálogo
 useEffect(() => {
   const fetchCatalogo = async () => {
@@ -129,7 +128,7 @@ useEffect(() => {
 // Opciones del catálogo agrupadas
 const CatalogoOptions = catalogo.map(item => ({
   value: item._id,
-  label: `${item.nombre.substring(0, 50)}${item.nombre.length > 50 ? '...' : ''}`,
+  label: `${item.nombre.substring(0, 40)}${item.nombre.length > 40 ? '...' : ''}`,
   fullLabel: `${item.nombre}`, // Guardamos el texto completo
   grupo: item.categoria?.nombre || item.categoria?.categoria || 'Sin categoría',
   precio: item.precio,
@@ -733,73 +732,128 @@ const CatalogoOptions = catalogo.map(item => ({
 
                 {/* Sección de detalles */}
                 <div className="py-2 mt-3 mb-4">
-                  <h5 className="font-size-15">Detalles de la Cotización</h5>
-                  <div className="table-responsive">
-                    <table className="table table-nowrap table-centered mb-5">
-                      <thead>
-                        <tr>
-                          <th>Producto/Servicio</th>
-                          <th>Tipo Precio</th> {/* Nueva columna */}
-                          <th>Cantidad</th>
-                          <th>Precio Unitario</th>                           
-                          <th>Utilidad (%)</th>
-                          <th>Inversión Total</th>
-                          <th>Precio Venta</th>
-                          <th>Acciones</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {formData.detalles.map((item, index) => (
-                          <tr key={index}>
-
-                            <td>
-                            <SelectGroup
-                            className="md-5"
-                             name="producto_id" label=""
-                             value={formData.detalles[index].producto_id}
-                             onChange={(e) => handleChange(e, index)}
-                             options={CatalogoOptions.map(opt => ({
-                             ...opt,
-                              label: expandedRows[index] ? opt.fullLabel : opt.label
-                           }))}
-                            groupBy="grupo"/>
-                           </td>
-                           <td>
-                           {item.tipo === "ManoObra" ? ( "Mano de obra" ) : (
-                            <span className={`badge bg-${item.tipoPrecio === "financiado" ? "warning" : "success"}`}>
-                             {item.tipoPrecio === "financiado" ? "Financiado" : "Contado"}
-                            </span>
-                           )}
-                           </td>
-                            <td>
-                              <input type="number" className="form-control" name="cantidad" 
-                                value={item.cantidad} onChange={(e) => handleChange(e, index)} min="1" required />
-                            </td>
-                            <td>
-                              <input type="number" className="form-control" name="precioBase" 
-                                value={(item.precioBase || 0).toFixed(2)} onChange={(e) => handleChange(e, index)} disabled/>
-                            </td>
-                            <td>
-                              <input 
-                                type="number"  className="form-control"  name="utilidad_esperada" 
-                                value={item.utilidad_esperada} onChange={(e) => handleChange(e, index)} min="0" max="100" step="1"/>
-                            </td>
-                            <td>
-                              <input  type="number" className="form-control" value={(item.inversion_total || 0).toFixed(2)} disabled />
-                            </td>
-                            <td>
-                              <input type="number" className="form-control" value={(item.precio_venta || 0).toFixed(2)} disabled />
-                            </td>
-                            <td>
-                              <button type="button" className="btn btn-danger btn-sm" onClick={() => handleRemoveItem(index)}  disabled={formData.detalles.length <= 1}> Eliminar </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  <button type="button" className="btn btn-primary mt-2" onClick={handleAddItem}> Agregar Detalle </button>
-                </div>
+  <h5 className="font-size-15 mb-3">Detalles de la Cotización</h5>
+  <div className="table-responsive" style={{ height: '350px',maxHeight: '1500px'}}>
+    <table className="table table-nowrap table-centered">
+     
+      <thead>
+        <tr>
+          <th>Producto/Servicio</th>
+          <th>Tipo Precio</th>
+          <th>Cantidad</th>
+          <th>Precio Unitario</th>                           
+          <th>Utilidad (%)</th>
+          <th>Inversión Total</th>
+          <th>Precio Venta</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody >
+        {formData.detalles.map((item, index) => (
+          <tr key={index}>
+            <td style={{ position: 'relative' }}>
+              <SelectGroup
+                className="md-4"
+                style={{ 
+                  width: '100%',
+                  minWidth: '100px',
+                }}
+                name="producto_id"
+                label=""
+                value={formData.detalles[index].producto_id}
+                onChange={(e) => handleChange(e, index)}
+                options={CatalogoOptions.map(opt => ({
+                  ...opt,
+                  label: expandedRows[index] ? opt.fullLabel : opt.label
+                }))}
+                groupBy="grupo"
+                menuPortalTarget={document.body}
+                menuPosition="fixed"
+                menuPlacement="auto"
+                menuShouldBlockScroll={true}
+              />
+            </td>
+            <td>
+              {item.tipo === "ManoObra" ? "Mano de obra" : (
+                <span className={`badge bg-${item.tipoPrecio === "financiado" ? "warning" : "success"}`}>
+                  {item.tipoPrecio === "financiado" ? "Financiado" : "Contado"}
+                </span>
+              )}
+            </td>
+            <td>
+              <input 
+                type="number" 
+                className="form-control" 
+                name="cantidad" 
+                value={item.cantidad} 
+                onChange={(e) => handleChange(e, index)} 
+                min="1" 
+                required 
+              />
+            </td>
+            <td>
+              <input 
+                type="number" 
+                className="form-control" 
+                name="precioBase" 
+                value={(item.precioBase || 0).toFixed(2)} 
+                onChange={(e) => handleChange(e, index)} 
+                disabled
+              />
+            </td>
+            <td>
+              <input 
+                type="number"  
+                className="form-control"  
+                name="utilidad_esperada" 
+                value={item.utilidad_esperada} 
+                onChange={(e) => handleChange(e, index)} 
+                min="0" 
+                max="100" 
+                step="1"
+              />
+            </td>
+            <td>
+              <input 
+                type="number" 
+                className="form-control" 
+                value={(item.inversion_total || 0).toFixed(2)} 
+                disabled 
+              />
+            </td>
+            <td>
+              <input 
+                type="number" 
+                className="form-control" 
+                value={(item.precio_venta || 0).toFixed(2)} 
+                disabled 
+              />
+            </td>
+            <td>
+              <button 
+                type="button" 
+                className="btn btn-danger btn-sm" 
+                onClick={() => handleRemoveItem(index)}  
+                disabled={formData.detalles.length <= 1}
+              >
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <div className="mt-3">
+    <button 
+      type="button" 
+      className="btn btn-primary" 
+      onClick={handleAddItem}
+    >
+      Agregar Detalle
+    </button>
+  </div>
+</div>
 
                 {/* Sección de totales */}
                 <div className="row mt-3 mb-4 border-top pt-3">
