@@ -18,16 +18,22 @@ const Login = () => {
       try {
         const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         if (token) {
-          const { valid } = await login('', ''); // Removed third parameter, only email and password
-          if (valid) navigate('/home');
+          // Instead of calling login with empty credentials, verify token validity directly
+          // Assuming authService.verifyToken returns { valid: true } or throws error
+          const response = await import("../../services/authService").then(mod => mod.default.verifyToken());
+          if (response && response.valid) {
+            navigate('/home');
+          } else {
+            // Token invalid, do nothing or logout if needed
+          }
         }
       } catch (error) {
-        // logout handled in login function if invalid
+        // logout handled elsewhere if invalid
       }
     };
 
     checkAuth();
-  }, [navigate, login]);
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

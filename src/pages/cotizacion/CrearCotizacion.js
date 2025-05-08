@@ -32,7 +32,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
     // Información básica
     nombre_cotizacion: "", fecha_cotizacion: new Date().toISOString().split('T')[0], valido_hasta: "",
     // Estados
-//    estado: "Aprobada", estado_servicio: "Pendiente", 
+   estado: "Aprobada", estado_servicio: "Pendiente", 
     // Configuración
     calculos_automaticos: true, forma_pago: "", metodo_pago: "Efectivo", 
     // Porcentajes
@@ -323,12 +323,8 @@ const CatalogoOptions = catalogo.map(item => ({
 
       // Validar financiamiento si aplica
       if (formData.forma_pago === "Financiado") {
-        if (!formData.financiamiento || formData.financiamiento.plazo_semanas < 1) {
-          throw new Error("El plazo de financiamiento debe ser de al menos 1 semana");
-        }
-        if (formData.financiamiento.anticipo_solicitado < 0) {
-          throw new Error("El anticipo no puede ser negativo");
-        }
+        if (!formData.financiamiento || formData.financiamiento.plazo_semanas < 1) { throw new Error("El plazo de financiamiento debe ser de al menos 1 semana"); }
+        if (formData.financiamiento.anticipo_solicitado < 0) { throw new Error("El anticipo no puede ser negativo");}
       }
 
       // Validar fechas de servicio según estado
@@ -353,8 +349,8 @@ const CatalogoOptions = catalogo.map(item => ({
         nombre_cotizacion: formData.nombre_cotizacion,
         fecha_cotizacion: new Date(formData.fecha_cotizacion),
         valido_hasta: new Date(formData.valido_hasta),
-//        estado: formData.estado,
-//        estado_servicio: formData.estado_servicio,
+        estado: formData.estado,
+        estado_servicio: formData.estado_servicio,
         forma_pago: formData.forma_pago,
         metodo_pago: formData.metodo_pago,
         porcentajes: formData.porcentajes,
@@ -659,7 +655,7 @@ const CatalogoOptions = catalogo.map(item => ({
                     <div className="mb-3">
                     <SelectGroup
                       name="vendedor_id" label="Vendedor" class=""
-                      value={formData.vendedor_id} onChange={(e) => setFormData({...formData, usuario_id: e.target.value})}
+                      value={formData.vendedor_id} onChange={(e) => setFormData({...formData, vendedor_id: e.target.value})}
                        options={vendedorOptions} groupBy="grupo" required/>
                     </div>
                   </div>
