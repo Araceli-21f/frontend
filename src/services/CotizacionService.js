@@ -48,25 +48,29 @@ const CotizacionService = () => {
         }
     };
 
-    const crearCotizacion = async (cotizacionData) => {
-        setLoading(true);
-        setError(null);
-        try {
-          console.log("Datos a enviar:", cotizacionData); // Agrega esto
-          const response = await axios.post(baseURL, cotizacionData, getConfig());
-          return response.data;
-        } catch (err) {
-          console.error("Error completo:", {
-            message: err.message,
-            response: err.response?.data,
-            status: err.response?.status
-          });
-          setError(err.response?.data || err.message);
-          throw err;
-        } finally {
-          setLoading(false);
+    // En tu CotizacionService.js
+const crearCotizacion = async (cotizacionData) => {
+    try {
+      const token = localStorage.getItem('token'); // O tu método de almacenamiento
+      const config = {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       };
+      
+      console.log("Enviando datos:", cotizacionData);
+      const response = await axios.post(baseURL, cotizacionData, config);
+      return response.data;
+    } catch (err) {
+      console.error("Error detallado:", {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status
+      });
+      throw err;
+    }
+  };
 
     const actualizarCotizacion = async (id, cotizacionData) => {
         setLoading(true);

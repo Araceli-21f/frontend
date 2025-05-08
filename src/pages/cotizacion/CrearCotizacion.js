@@ -284,6 +284,14 @@ const CatalogoOptions = catalogo.map(item => ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Obtener ID del usuario autenticado
+      const userData = JSON.parse(localStorage.getItem('user'));
+      const userId = userData?._id;
+      
+      if (!userId) {
+        throw new Error("Debes iniciar sesión para crear una cotización");
+      }
+  
       // Validación de fechas
       const fechaCotizacion = new Date(formData.fecha_cotizacion);
       const fechaValidoHasta = new Date(formData.valido_hasta);
@@ -291,9 +299,7 @@ const CatalogoOptions = catalogo.map(item => ({
       if (fechaValidoHasta <= fechaCotizacion) {
         throw new Error("La fecha de validez debe ser posterior a la fecha de cotización");
       }
-      // Validación de estados
- //     if (!estadosCotizacion.includes(formData.estado)) { throw new Error(`Estado no válido. Use uno de: ${estadosCotizacion.join(", ")}`); }
-//     if (!estadosServicio.includes(formData.estado_servicio)) { throw new Error(`Estado de servicio no válido. Use uno de: ${estadosServicio.join(", ")}`); }
+  
       // Validaciones básicas
       if (!formData.nombre_cotizacion) {
         throw new Error("El nombre de la cotización es requerido");
@@ -310,23 +316,28 @@ const CatalogoOptions = catalogo.map(item => ({
       if (!formData.forma_pago) {
         throw new Error("Debe seleccionar una forma de pago");
       }
-
+  
       // Validar detalles
       for (const detalle of formData.detalles) {
-        if (detalle.tipo === "ManoObra" && detalle.horas <= 0) {
-          throw new Error("Para ítems de mano de obra, las horas deben ser mayores a 0");
-        }
-        if (detalle.tipo !== "ManoObra" && !detalle.producto_id) {
+        if (detalle.tipo === "ManoObra") {
+          if (!detalle.horas || detalle.horas <= 0) {
+            throw new Error("Para ítems de mano de obra, las horas deben ser mayores a 0");
+          }
+        } else if (!detalle.producto_id) {
           throw new Error("Debe seleccionar un producto/servicio para este ítem");
         }
       }
-
+  
       // Validar financiamiento si aplica
       if (formData.forma_pago === "Financiado") {
-        if (!formData.financiamiento || formData.financiamiento.plazo_semanas < 1) { throw new Error("El plazo de financiamiento debe ser de al menos 1 semana"); }
-        if (formData.financiamiento.anticipo_solicitado < 0) { throw new Error("El anticipo no puede ser negativo");}
+        if (!formData.financiamiento || formData.financiamiento.plazo_semanas < 1) {
+          throw new Error("El plazo de financiamiento debe ser de al menos 1 semana");
+        }
+        if (formData.financiamiento.anticipo_solicitado < 0) {
+          throw new Error("El anticipo no puede ser negativo");
+        }
       }
-
+  
       // Validar fechas de servicio según estado
       if (formData.estado_servicio === "En Proceso" && !formData.fecha_inicio_servicio) {
         throw new Error("Debe especificar fecha de inicio cuando el servicio está en proceso");
@@ -343,12 +354,12 @@ const CatalogoOptions = catalogo.map(item => ({
           throw new Error("La fecha de fin debe ser posterior a la fecha de inicio");
         }
       }
-
-      // Preparar datos para enviar
+  
+      // Preparar datos para enviar (versión corregida)
       const dataToSend = {
         nombre_cotizacion: formData.nombre_cotizacion,
-        fecha_cotizacion: new Date(formData.fecha_cotizacion),
-        valido_hasta: new Date(formData.valido_hasta),
+        fecha_cotizacion: formData.fecha_cotizacion, // Enviar como string (backend lo convertirá)
+        valido_hasta: formData.valido_hasta, // Enviar como string
         estado: formData.estado,
         estado_servicio: formData.estado_servicio,
         forma_pago: formData.forma_pago,
@@ -358,32 +369,39 @@ const CatalogoOptions = catalogo.map(item => ({
         cliente_id: formData.cliente_id,
         vendedor_id: formData.vendedor_id,
         filial_id: formData.filial_id,
+        creado_por: userId, // Usar el ID obtenido del localStorage
         detalles: formData.detalles.map(item => ({
           tipo: item.tipo,
           producto_id: item.tipo === "ManoObra" ? undefined : item.producto_id,
           cantidad: item.cantidad,
-          tipoPrecio: item.tipoPrecio, // Nuevo campo
-          precioBase: item.precioBase,  // Nuevo campo
+          tipoPrecio: item.tipoPrecio,
+          precioBase: item.precioBase,
           costo_materiales: item.costo_materiales,
-          utilidad_esperada: item.utilidad_esperada
+          utilidad_esperada: item.utilidad_esperada,
+          ...(item.tipo === "ManoObra" && {
+            horas: item.horas,
+            tarifa_hora: item.tarifa_hora
+          })
         })),
         ...(formData.fecha_inicio_servicio && {
-          fecha_inicio_servicio: new Date(formData.fecha_inicio_servicio)
+          fecha_inicio_servicio: formData.fecha_inicio_servicio
         }),
         ...(formData.fecha_fin_servicio && {
-          fecha_fin_servicio: new Date(formData.fecha_fin_servicio)
+          fecha_fin_servicio: formData.fecha_fin_servicio
         }),
         ...(formData.forma_pago === "Financiado" && {
           financiamiento: {
             anticipo_solicitado: formData.financiamiento.anticipo_solicitado,
             plazo_semanas: formData.financiamiento.plazo_semanas,
             ...(formData.financiamiento.fecha_inicio && {
-              fecha_inicio: new Date(formData.financiamiento.fecha_inicio)
+              fecha_inicio: formData.financiamiento.fecha_inicio
             })
           }
         })
       };
-
+  
+      console.log("Datos a enviar:", dataToSend); // Para depuración
+  
       // Enviar datos
       const response = await crearCotizacion(dataToSend);
       
@@ -395,7 +413,12 @@ const CatalogoOptions = catalogo.map(item => ({
       setTimeout(() => navigate(`/cotizaciones/ver/${response._id}`), 2000);
       
     } catch (error) {
-      console.error("Error al crear cotización:", error);
+      console.error("Error al crear cotización:", {
+        message: error.message,
+        response: error.response?.data,
+        stack: error.stack
+      });
+      
       setAlertType("error");
       setAlertMessage(
         error.response?.data?.error || 
