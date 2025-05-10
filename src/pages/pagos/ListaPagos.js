@@ -13,6 +13,7 @@ const ListaPagos = () => {
     const [alert, setAlert] = useState(null);
     const navigate = useNavigate();
     const [pagos, setPagos] = useState([]);
+    const [allPagos, setAllPagos] = useState([]);
     const { loading, error, obtenerPagos, eliminarPago } = PagoService();
 
     // Hook de búsqueda y filtro
@@ -40,9 +41,9 @@ const ListaPagos = () => {
     });
     
     const filterOptions = {
-        metodo_pago: ["Todos", ...new Set(pagos.map((pago) => pago.metodo_pago))],
-        tipo_pago: ["Todos", ...new Set(pagos.map((pago) => pago.tipo_pago))],
-        estado: ["Todos", ...new Set(pagos.map((pago) => pago.estado))]
+        metodo_pago: ["Todos", ...new Set(allPagos.map((pago) => pago.metodo_pago))],
+        tipo_pago: ["Todos", ...new Set(allPagos.map((pago) => pago.tipo_pago))],
+        estado: ["Todos", ...new Set(allPagos.map((pago) => pago.estado))]
     };
 
     // Hook para rango de fechas
@@ -55,13 +56,13 @@ const ListaPagos = () => {
     const { current: currentPagos, currentPage, totalPages, setNextPage, setPreviousPage } = usePagination(filteredPagos, 10);
 
     // Filtrado por fecha
-    const filterByDateRange = (pagos, fechaInicio, fechaFin) => {
-        if (!fechaInicio && !fechaFin) return pagos;
+    const filterByDateRange = (pagosArray, fechaInicio, fechaFin) => {
+        if (!fechaInicio && !fechaFin) return pagosArray;
         
         const startDate = new Date(fechaInicio);
         const endDate = new Date(fechaFin || fechaInicio);
         
-        return pagos.filter(pago => {
+        return pagosArray.filter(pago => {
             const pagoDate = new Date(pago.fecha_pago);
             return (!fechaInicio || pagoDate >= startDate) && 
                    (!fechaFin || pagoDate <= endDate);
@@ -70,7 +71,7 @@ const ListaPagos = () => {
 
     const handleDateFilter = () => {
         const filteredByDate = filterByDateRange(
-            filteredPagos, 
+            allPagos, 
             dateRanges.fecha_inicio, 
             dateRanges.fecha_fin
         );
@@ -82,9 +83,18 @@ const ListaPagos = () => {
         const fetchPagos = async () => {
             try {
                 const fetchedPagos = await obtenerPagos();
-                setPagos(fetchedPagos);
+                if (Array.isArray(fetchedPagos)) {
+                    setPagos(fetchedPagos);
+                    setAllPagos(fetchedPagos);
+                } else {
+                    console.error("Los pagos obtenidos no son un arreglo:", fetchedPagos);
+                    setPagos([]);
+                    setAllPagos([]);
+                }
             } catch (err) {
                 console.error("Error al obtener pagos:", err);
+                setPagos([]);
+                setAllPagos([]);
             }
         };
         fetchPagos();
