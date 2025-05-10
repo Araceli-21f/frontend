@@ -160,8 +160,11 @@ const ListaPagos = () => {
                             <div className="col-md-3 mb-2">
                                 <div className="input-group shadow-sm">
                                     <input
-                                        type="text" className="form-control pe-4" placeholder="Buscar pago..."
-                                        value={searchTerm} onChange={handleSearchChange}
+                                        type="text" 
+                                        className="form-control pe-4" 
+                                        placeholder="Buscar pago..."
+                                        value={searchTerm} 
+                                        onChange={handleSearchChange}
                                     />
                                     <button type="button" className="btn btn-purple" style={{ marginLeft: '2px' }}>
                                         <i className="uil-search"></i>
@@ -177,14 +180,18 @@ const ListaPagos = () => {
                                     </span>
                                     <select 
                                         className="form-select" 
-                                        value={filterType} onChange={handleFilterTypeChange}>
+                                        value={filterType} 
+                                        onChange={handleFilterTypeChange}
+                                    >
                                         <option value="metodo_pago">Método de Pago</option>
                                         <option value="tipo_pago">Tipo de Pago</option>
                                         <option value="estado">Estado</option>
                                     </select>
                                     <select 
                                         className="form-select" 
-                                        value={filterValue} onChange={handleFilterValueChange}>
+                                        value={filterValue} 
+                                        onChange={handleFilterValueChange}
+                                    >
                                         {filterOptions[filterType]?.map(option => (
                                             <option key={option} value={option}>{option}</option>
                                         ))}
@@ -193,29 +200,41 @@ const ListaPagos = () => {
                             </div>
                             
                             {/* Filtro por fecha */}
-                            <div className="col-md-3 mb-2">
+                            <div className="col-md-4 mb-2">
                                 <div className="input-daterange input-group shadow-sm">
                                     <input
-                                        type="date" className="form-control" placeholder="Fecha inicio"
-                                        value={dateRanges.fecha_inicio} onChange={(e) => handleDateChange("fecha_inicio", e.target.value)}/>
+                                        type="date" 
+                                        className="form-control" 
+                                        placeholder="Fecha inicio"
+                                        value={dateRanges.fecha_inicio} 
+                                        onChange={(e) => handleDateChange("fecha_inicio", e.target.value)}
+                                    />
                                     <input
-                                        type="date" className="form-control" placeholder="Fecha fin"
-                                        value={dateRanges.fecha_fin} onChange={(e) => handleDateChange("fecha_fin", e.target.value)}/>
+                                        type="date" 
+                                        className="form-control" 
+                                        placeholder="Fecha fin"
+                                        value={dateRanges.fecha_fin} 
+                                        onChange={(e) => handleDateChange("fecha_fin", e.target.value)}
+                                    />
                                     <button
-                                        type="button" className="btn btn-purple"
-                                        style={{ marginLeft: "2px" }} onClick={handleDateFilter}>
+                                        type="button" 
+                                        className="btn btn-purple"
+                                        style={{ marginLeft: "2px" }} 
+                                        onClick={handleDateFilter}
+                                    >
                                         <i className="mdi mdi-filter-variant"></i>
                                     </button>
                                 </div>
                             </div>
                             
                             {/* Crear pago Button */}
-                            <div className="col-md-3 mb-2">
+                            <div className="col-md-2 mb-2">
                                 <div className="input-group">
                                     <Link 
-                                        to="/Pago/CrearPago" 
-                                        className="input-daterange input-group btn btn-outline-success waves-effect waves-light">
-                                        <i className="mdi mdi-plus me-1"></i>Nuevo Pago
+                                        to="/pagos/crear" 
+                                        className="input-daterange input-group btn btn-outline-success waves-effect waves-light"
+                                    >
+                                        <i className="mdi mdi-plus me-1"></i> Nuevo Pago
                                     </Link>
                                 </div>
                             </div>

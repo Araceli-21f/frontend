@@ -157,15 +157,8 @@ const filteredInteracciones = interacciones.filter((interaccion) => {
                                     <span className="me-0 p-2 text-white bg-primary rounded-1 d-flex justify-content-center align-items-center">
                                         <i className="uil-filter fs-6"></i>
                                     </span>
-                                    <select className="form-select" value={filterType} onChange={handleFilterTypeChange}>
-                                        <option value="tipo_interaccion">Tipo</option>
-                                        <option value="llamada">Llamada</option>
-                                        <option value="correo">Correo</option>
-                                        <option value="reunion">Reunión</option>
-                                        <option value="visita">visita</option>
-                                    </select>
                                     <select className="form-select" value={filterValue} onChange={handleFilterValueChange}>
-                                        {filterOptions[filterType].map(option => (
+                                        {(filterOptions[filterType] || []).map(option => (
                                             <option key={option} value={option}>{option}</option>
                                         ))}
                                     </select>
@@ -196,7 +189,7 @@ const filteredInteracciones = interacciones.filter((interaccion) => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {currentInteracciones.map((interaccion) => (
+                                    {(currentInteracciones || []).map((interaccion) => (
                                         <tr key={interaccion._id}>
                                             <td>{interaccion.cliente_id?.nombre}</td>
                                             <td>
