@@ -50,27 +50,51 @@ const CotizacionService = () => {
 
     // En tu CotizacionService.js
 const crearCotizacion = async (cotizacionData) => {
-    try {
-      const token = localStorage.getItem('token'); // O tu método de almacenamiento
-      const config = {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      };
-      
-      console.log("Enviando datos:", cotizacionData);
-      const response = await axios.post(baseURL, cotizacionData, config);
-      return response.data;
-    } catch (err) {
-      console.error("Error detallado:", {
-        message: err.message,
-        response: err.response?.data,
-        status: err.response?.status
-      });
-      throw err;
+  setLoading(true);
+  try {
+    const token = localStorage.getItem('token');
+    const userData = JSON.parse(localStorage.getItem('user'));
+
+    if (!token || !userData?._id) {
+      throw new Error('Usuario no autenticado correctamente');
     }
-  };
+
+    const config = {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'X-User-Id': userData._id // Header adicional para debug
+      },
+      timeout: 10000
+    };
+
+    // Debug: Verificar token antes de enviar
+    console.log('Token que se enviará:', token);
+
+    const response = await axios.post(baseURL, cotizacionData, config);
+    return response.data;
+
+  } catch (error) {
+    // Manejo detallado de errores
+    console.error('Error completo en crearCotizacion:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      tokenInLocalStorage: localStorage.getItem('token'),
+      userInLocalStorage: localStorage.getItem('user')
+    });
+
+    if (error.response?.status === 401) {
+      // Limpiar datos de sesión si el token es inválido
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
+
+    throw error;
+  } finally {
+    setLoading(false);
+  }
+};
 
     const actualizarCotizacion = async (id, cotizacionData) => {
         setLoading(true);

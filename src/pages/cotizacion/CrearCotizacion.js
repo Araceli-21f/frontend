@@ -283,6 +283,7 @@ const CatalogoOptions = catalogo.map(item => ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       // Obtener ID del usuario autenticado
       const userData = JSON.parse(localStorage.getItem('user'));
@@ -369,7 +370,7 @@ const CatalogoOptions = catalogo.map(item => ({
         cliente_id: formData.cliente_id,
         vendedor_id: formData.vendedor_id,
         filial_id: formData.filial_id,
-        creado_por: userId, // Usar el ID obtenido del localStorage
+        creado_por: JSON.parse(localStorage.getItem('user'))?._id, // Asegúrate de incluir esto
         detalles: formData.detalles.map(item => ({
           tipo: item.tipo,
           producto_id: item.tipo === "ManoObra" ? undefined : item.producto_id,

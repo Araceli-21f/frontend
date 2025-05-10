@@ -77,15 +77,15 @@ const Login = () => {
             <div className="col-md-8 col-lg-5 col-xl-5">
               <div>
                 <Link to="index" className="mb-5 d-block auth-logo">
-                  <img src="/assets/images/logo-dark.png" alt="" height="22" className="logo logo-dark" />
-                  <img src="/assets/images/logo-light.png" alt="" height="22" className="logo logo-light" />
+                  <img src="/assets/images/logo-dark.png" alt="" height="25" className="logo logo-dark" />
+                  <img src="/assets/images/logo-light.png" alt="" height="25" className="logo logo-light" />
                 </Link>
               </div>
               <div className="card">
                 <div className="card-body p-4">
                   <div className="text-center mt-2">
                     <h5 className="text-primary">¡Bienvenido de nuevo!</h5>
-                    <p className="text-muted">Inicie sesión para continuar en Minible.</p>
+                    <p className="text-muted">Inicie sesión para continuar en Smart.</p>
                   </div>
                   <div className="p-2 mt-4">
                     {message && (
@@ -162,7 +162,7 @@ const Login = () => {
                           )}
                         </button>
                       </div>
-                      <div className="mt-4 text-center">
+                      {/*<div className="mt-4 text-center">
                         <div className="signin-other-title">
                           <h5 className="font-size-14 mb-3 title">Iniciar sesión con</h5>
                         </div>
@@ -183,7 +183,7 @@ const Login = () => {
                             </a>
                           </li>
                         </ul>
-                      </div>
+                      </div>*/}
                       <div className="mt-4 text-center">
                         <p className="mb-0">
                           ¿No tienes una cuenta?{" "}
@@ -198,8 +198,7 @@ const Login = () => {
               </div>
               <div className="mt-4 text-center">
                 <p>
-                  © {new Date().getFullYear()} Minible. Elaborado con{" "}
-                  <i className="mdi mdi-heart text-danger"></i> por Themesbrand
+                  © {new Date().getFullYear()} Smart Site Company
                 </p>
               </div>
             </div>
