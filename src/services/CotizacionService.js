@@ -17,22 +17,47 @@ const CotizacionService = () => {
         };
     };
 
-    const obtenerCotizaciones = useCallback(async (params = {}) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await axios.get(baseURL, {
-                ...getConfig(),
-                params
-            });
-            return response.data.data; // Ajuste para la estructura de respuesta
-        } catch (err) {
-            setError(err.response?.data || err.message);
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+const obtenerCotizaciones = useCallback(async (params = {}) => {
+  setLoading(true);
+  setError(null);
+  try {
+    // Intenta obtener el token de localStorage o sessionStorage
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    
+    if (!token) {
+      // Redirige al login si no hay token
+      window.location.href = '/login';
+      throw new Error('Redirigiendo a login...');
+    }
+
+    const config = {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    };
+
+    const response = await axios.get(baseURL, {
+      ...config,
+      params
+    });
+    
+    return response.data.data;
+  } catch (err) {
+    if (err.response?.status === 401) {
+      // Token inválido - limpiar y redirigir
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      sessionStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    
+    setError(err.message);
+    throw err;
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
     const obtenerCotizacionPorId = async (id) => {
         setLoading(true);
@@ -48,49 +73,37 @@ const CotizacionService = () => {
         }
     };
 
-    // En tu CotizacionService.js
+// Frontend - CotizacionService.js (versión mejorada)
 const crearCotizacion = async (cotizacionData) => {
   setLoading(true);
   try {
     const token = localStorage.getItem('token');
-    const userData = JSON.parse(localStorage.getItem('user'));
-
-    if (!token || !userData?._id) {
-      throw new Error('Usuario no autenticado correctamente');
+    
+    if (!token) {
+      throw new Error('No hay token de autenticación disponible');
     }
 
     const config = {
       headers: {
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'X-User-Id': userData._id // Header adicional para debug
+        'Content-Type': 'application/json'
       },
       timeout: 10000
     };
-
-    // Debug: Verificar token antes de enviar
-    console.log('Token que se enviará:', token);
 
     const response = await axios.post(baseURL, cotizacionData, config);
     return response.data;
 
   } catch (error) {
-    // Manejo detallado de errores
-    console.error('Error completo en crearCotizacion:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-      tokenInLocalStorage: localStorage.getItem('token'),
-      userInLocalStorage: localStorage.getItem('user')
-    });
-
     if (error.response?.status === 401) {
-      // Limpiar datos de sesión si el token es inválido
+      // Token inválido - limpiar almacenamiento y redirigir
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      window.location.href = '/login';
     }
-
-    throw error;
+    
+    console.error('Error en crearCotizacion:', error);
+    throw error.response?.data || error;
   } finally {
     setLoading(false);
   }

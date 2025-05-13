@@ -19,21 +19,34 @@ const register = async (name, apellidos, email, password, area) => { // Agrega '
 };
 
 
+// En tu authService.js (función login)
 const login = async (email, password) => {
   try {
     const response = await axios.post(`${API_URL}/login`, { email, password });
     
     if (response.data.token) {
+      // Guarda el token en localStorage y sessionStorage como respaldo
       localStorage.setItem('token', response.data.token);
+      sessionStorage.setItem('token', response.data.token);
+      
+      // Guarda datos básicos del usuario
       if (response.data.user) {
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+        const userData = {
+          id: response.data.user.id,
+          name: response.data.user.name,
+          email: response.data.user.email
+        };
+        localStorage.setItem('user', JSON.stringify(userData));
       }
-      // Configurar axios para enviar el token en futuras peticiones
+      
       setAuthToken(response.data.token);
+      return response.data;
     }
-    
-    return response.data;
+    throw new Error('No se recibió token en la respuesta');
   } catch (error) {
+    // Limpia cualquier token previo en caso de error
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     throw error.response?.data || { error: "Error en el login" };
   }
 };
@@ -68,6 +81,8 @@ const setAuthToken = (token) => {
     delete axios.defaults.headers.common['Authorization'];
   }
 };
+
+
 
 const authService = {
   register,

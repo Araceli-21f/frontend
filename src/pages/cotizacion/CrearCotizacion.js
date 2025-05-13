@@ -62,6 +62,15 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
   const [alertMessage, setAlertMessage] = useState("");
 
   useEffect(() => {
+  const token = localStorage.getItem('token');
+  const user = localStorage.getItem('user');
+  
+  if (!token || !user) {
+    navigate('/login');
+  }
+}, [navigate]);
+
+  useEffect(() => {
     const fetchUsuarios = async () => {
       try {
         const fetchedUsuarios = await obtenerUsuarios();
