@@ -42,7 +42,7 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
       agregado: 0
     },
     // Relaciones
-    cliente_id: "", vendedor_id: "", filial_id: "",
+    cliente_id: "", vendedor_id: "", filial_id: "", //creado_por:"",
     // Detalles técnicos
     detalles: [{
       tipo: "Producto", producto_id: "", cantidad: 1, costo_materiales: 0, utilidad_esperada: 0, inversion_total: 0, precio_venta: 0, tipoPrecio: "contado",  precioBase: 0,
@@ -61,14 +61,6 @@ const CrearCotizacion = ({ onCotizacionCreada }) => {
   const [alertType, setAlertType] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
 
-  useEffect(() => {
-  const token = localStorage.getItem('token');
-  const user = localStorage.getItem('user');
-  
-  if (!token || !user) {
-    navigate('/login');
-  }
-}, [navigate]);
 
   useEffect(() => {
     const fetchUsuarios = async () => {
@@ -294,13 +286,7 @@ const CatalogoOptions = catalogo.map(item => ({
     e.preventDefault();
 
     try {
-      // Obtener ID del usuario autenticado
-      const userData = JSON.parse(localStorage.getItem('user'));
-      const userId = userData?._id;
-      
-      if (!userId) {
-        throw new Error("Debes iniciar sesión para crear una cotización");
-      }
+    
   
       // Validación de fechas
       const fechaCotizacion = new Date(formData.fecha_cotizacion);
@@ -379,7 +365,7 @@ const CatalogoOptions = catalogo.map(item => ({
         cliente_id: formData.cliente_id,
         vendedor_id: formData.vendedor_id,
         filial_id: formData.filial_id,
-        creado_por: JSON.parse(localStorage.getItem('user'))?._id, // Asegúrate de incluir esto
+        //creado_por: formData.vendedor_id, // Asegúrate de incluir esto
         detalles: formData.detalles.map(item => ({
           tipo: item.tipo,
           producto_id: item.tipo === "ManoObra" ? undefined : item.producto_id,

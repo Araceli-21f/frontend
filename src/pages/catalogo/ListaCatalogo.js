@@ -217,7 +217,7 @@ const ListaCatalogo = () => {
                             {/* Crear producto Button */}
                             <div className="col-md-3 mb-2">
                                 <div className="input-group">
-                                    <Link to="/Catalogo/CrearCatalogo" className="input-daterange input-group btn btn-outline-success waves-effect waves-light">
+                                    <Link to="/productos/CrearProducto" className="input-daterange input-group btn btn-outline-success waves-effect waves-light">
                                         <i className="mdi mdi-plus me-1"></i> Crear Producto
                                     </Link>
                                 </div>
