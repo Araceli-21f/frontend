@@ -6,7 +6,7 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar }) => {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [showAppsDropdown, setShowAppsDropdown] = useState(false);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
-  const { user } = useAuth();
+  const { user, logout, lockScreen } = useAuth(); // Asegúrate de desestructurar logout
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -20,6 +20,28 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showUserDropdown]);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      // Redirigir después de logout exitoso
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Error durante logout:', error);
+      // Redirigir incluso si hay error
+      window.location.href = '/login';
+    }
+  };
+
+  const handleLockScreen = async () => {
+    try {
+      await lockScreen();
+      // Redirigir a pantalla de bloqueo
+      window.location.href = '/PantallaBloqueo';
+    } catch (error) {
+      console.error('Error al bloquear pantalla:', error);
+    }
+  };
 
   return (
     <header id="page-topbar">
@@ -178,14 +200,19 @@ const TopBar = ({ toggleSidebar, toggleRightSidebar }) => {
                 <i className="uil uil-cog font-size-18 align-middle me-1 text-muted"></i>
                 <span className="align-middle">Configuraciones</span>
               </Link>
-              <Link to="#lock" className="dropdown-item" onClick={(e) => e.preventDefault()}>
+              <Link to="/PantallaBloqueo" className="dropdown-item" 
+              onClick={(e) => {
+                 e.preventDefault();
+                  handleLockScreen();
+                  setShowUserDropdown(false);
+                  }}>
                 <i className="uil uil-lock-alt font-size-18 align-middle me-1 text-muted"></i>
                 <span className="align-middle">Bloqueo Pantalla</span>
               </Link>
-              <Link to="/logout" className="dropdown-item">
-                <i className="uil uil-sign-out-alt font-size-18 align-middle me-1 text-muted"></i>
-                <span className="align-middle">Cerrar Sesión</span>
-              </Link>
+              <Link className="dropdown-item" onClick={handleLogout}>
+              <i className="uil uil-sign-out-alt font-size-18 align-middle me-1 text-muted"></i>
+               <span className="align-middle">Cerrar Sesión</span>
+             </Link>
             </div>
           </div>
 
