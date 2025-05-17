@@ -282,20 +282,19 @@ const CatalogoOptions = catalogo.map(item => ({
     }
   }, [formData.forma_pago]);
 
-  const handleSubmit = async (e) => {
+
+const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-    
-  
       // Validación de fechas
       const fechaCotizacion = new Date(formData.fecha_cotizacion);
       const fechaValidoHasta = new Date(formData.valido_hasta);
-      
+
       if (fechaValidoHasta <= fechaCotizacion) {
         throw new Error("La fecha de validez debe ser posterior a la fecha de cotización");
       }
-  
+
       // Validaciones básicas
       if (!formData.nombre_cotizacion) {
         throw new Error("El nombre de la cotización es requerido");
@@ -312,7 +311,7 @@ const CatalogoOptions = catalogo.map(item => ({
       if (!formData.forma_pago) {
         throw new Error("Debe seleccionar una forma de pago");
       }
-  
+
       // Validar detalles
       for (const detalle of formData.detalles) {
         if (detalle.tipo === "ManoObra") {
@@ -322,8 +321,18 @@ const CatalogoOptions = catalogo.map(item => ({
         } else if (!detalle.producto_id) {
           throw new Error("Debe seleccionar un producto/servicio para este ítem");
         }
+        // New validation for precioBase, costo_materiales, cantidad
+        if (detalle.precioBase <= 0) {
+          throw new Error("El precio base debe ser mayor a cero para todos los ítems");
+        }
+        if (detalle.costo_materiales <= 0) {
+          throw new Error("El costo de materiales debe ser mayor a cero para todos los ítems");
+        }
+        if (detalle.cantidad <= 0) {
+          throw new Error("La cantidad debe ser mayor a cero para todos los ítems");
+        }
       }
-  
+
       // Validar financiamiento si aplica
       if (formData.forma_pago === "Financiado") {
         if (!formData.financiamiento || formData.financiamiento.plazo_semanas < 1) {
@@ -333,12 +342,12 @@ const CatalogoOptions = catalogo.map(item => ({
           throw new Error("El anticipo no puede ser negativo");
         }
       }
-  
+
       // Validar fechas de servicio según estado
       if (formData.estado_servicio === "En Proceso" && !formData.fecha_inicio_servicio) {
         throw new Error("Debe especificar fecha de inicio cuando el servicio está en proceso");
       }
-      
+
       if (formData.estado_servicio === "Completado") {
         if (!formData.fecha_inicio_servicio) {
           throw new Error("Debe especificar fecha de inicio cuando el servicio está completado");
@@ -350,8 +359,25 @@ const CatalogoOptions = catalogo.map(item => ({
           throw new Error("La fecha de fin debe ser posterior a la fecha de inicio");
         }
       }
-  
-      // Preparar datos para enviar (versión corregida)
+
+      // Recalculate totals to ensure precio_venta is updated
+      const nuevosTotales = calcularTotales(
+        formData.detalles,
+        formData.porcentajes,
+        formData.forma_pago,
+        formData.financiamiento
+      );
+
+      // Validate precio_venta > 0 for pagos de contado
+      if (formData.forma_pago === "Contado") {
+        const invalidDetalles = nuevosTotales.detalles.filter(item => !item.precio_venta || item.precio_venta <= 0);
+        if (invalidDetalles.length > 0) {
+          console.error("Detalles con precio_venta inválido para pago contado:", invalidDetalles);
+          throw new Error("Todos los ítems deben tener un precio de venta mayor a cero para pagos de contado");
+        }
+      }
+      
+      // Prepare data to send with recalculated detalles
       const dataToSend = {
         nombre_cotizacion: formData.nombre_cotizacion,
         fecha_cotizacion: formData.fecha_cotizacion, // Enviar como string (backend lo convertirá)
@@ -366,7 +392,7 @@ const CatalogoOptions = catalogo.map(item => ({
         vendedor_id: formData.vendedor_id,
         filial_id: formData.filial_id,
         //creado_por: formData.vendedor_id, // Asegúrate de incluir esto
-        detalles: formData.detalles.map(item => ({
+        detalles: nuevosTotales.detalles.map(item => ({
           tipo: item.tipo,
           producto_id: item.tipo === "ManoObra" ? undefined : item.producto_id,
           cantidad: item.cantidad,
@@ -374,6 +400,7 @@ const CatalogoOptions = catalogo.map(item => ({
           precioBase: item.precioBase,
           costo_materiales: item.costo_materiales,
           utilidad_esperada: item.utilidad_esperada,
+          precio_venta: item.precio_venta,
           ...(item.tipo === "ManoObra" && {
             horas: item.horas,
             tarifa_hora: item.tarifa_hora
@@ -395,31 +422,38 @@ const CatalogoOptions = catalogo.map(item => ({
           }
         })
       };
-  
+      
+      console.log("Detalles calculados antes de enviar:", nuevosTotales.detalles.map(d => ({producto_id: d.producto_id, precio_venta: d.precio_venta})));
+      
+
       console.log("Datos a enviar:", dataToSend); // Para depuración
-  
+
       // Enviar datos
       const response = await crearCotizacion(dataToSend);
-      
+
+      console.log("Respuesta de crearCotizacion:", response); // Added for debugging
+
       // Manejar respuesta exitosa
       setAlertType("success");
       setAlertMessage("Cotización creada exitosamente");
       setShowAlert(true);
-      
-      setTimeout(() => navigate(`/cotizaciones/ver/${response._id}`), 2000);
-      
+
+      // Adjust navigation path casing and id property
+      const id = response._id || response.data?._id || response.data?.id || response.id;
+      setTimeout(() => navigate(`/Cotizacion/ver/${id}`), 2000);
+
     } catch (error) {
       console.error("Error al crear cotización:", {
         message: error.message,
         response: error.response?.data,
         stack: error.stack
       });
-      
+
       setAlertType("error");
       setAlertMessage(
-        error.response?.data?.error || 
-        error.response?.data?.message || 
-        error.message || 
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
         "Error al crear la cotización"
       );
       setShowAlert(true);
@@ -949,13 +983,13 @@ const CatalogoOptions = catalogo.map(item => ({
                           <div className="mb-3">
                             <label className="form-label">Fecha Inicio Financiamiento</label>
                             <input type="date" className="form-control" name="financiamiento.fecha_inicio"
-                              value={formData.financiamiento.fecha_inicio || ""} onChange={handleChange} />
+                              value={formData.financiamiento.fecha_inicio ? new Date(formData.financiamiento.fecha_inicio).toISOString().split('T')[0] : ""} onChange={handleChange} />
                           </div>
                         </div>
                         <div className="col-md-6">
                           <div className="mb-3">
                             <label className="form-label">Fecha Término Financiamiento</label>
-                            <input type="date" className="form-control" value={formData.financiamiento.fecha_termino || ""} disabled />
+                            <input type="date" className="form-control" value={formData.financiamiento.fecha_termino ? new Date(formData.financiamiento.fecha_termino).toISOString().split('T')[0] : ""} disabled />
                           </div>
                         </div>
                       </div>

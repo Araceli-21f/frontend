@@ -6,11 +6,23 @@ const CotizacionService = () => {
     const [error, setError] = useState(null);
     const baseURL = 'http://localhost:8000/cotizaciones';
 
+    // Helper function to get auth headers
+    const getAuthHeaders = () => {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        return {
+            'Authorization': token ? `Bearer ${token}` : '',
+            'Content-Type': 'application/json'
+        };
+    };
+
     const obtenerCotizaciones = useCallback(async (params = {}) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get(baseURL, { params });
+            const response = await axios.get(baseURL, { 
+                params,
+                headers: getAuthHeaders()
+            });
             return response.data.data;
         } catch (err) {
             setError(err.message);
@@ -24,7 +36,9 @@ const CotizacionService = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get(`${baseURL}/${id}`);
+            const response = await axios.get(`${baseURL}/${id}`, {
+                headers: getAuthHeaders()
+            });
             return response.data.data;
         } catch (err) {
             setError(err.response?.data || err.message);
@@ -35,29 +49,40 @@ const CotizacionService = () => {
     };
 
     const crearCotizacion = async (cotizacionData) => {
-    setLoading(true);
-    try {
-        const token = localStorage.getItem('token');
-        const response = await axios.post(`${baseURL}/cotizaciones`, cotizacionData, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
+        setLoading(true);
+        try {
+            // Log token for debugging purposes
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+            console.log("Token en servicio:", token ? "Presente" : "No encontrado");
+            
+            if (!token) {
+                throw new Error("No authentication token found. Please log in again.");
             }
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Error en crearCotizacion:', error);
-        throw error.response?.data || error;
-    } finally {
-        setLoading(false);
-    }
-};
+            
+            const response = await axios.post(baseURL, cotizacionData, {
+                headers: getAuthHeaders()
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error en crearCotizacion:', error);
+            // Enhance error handling
+            if (error.response?.status === 401) {
+                localStorage.removeItem('token'); // Clear invalid token
+                throw new Error("Sesión expirada o inválida. Por favor, inicie sesión nuevamente.");
+            }
+        throw error;
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const actualizarCotizacion = async (id, cotizacionData) => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.put(`${baseURL}/${id}`, cotizacionData);
+            const response = await axios.put(`${baseURL}/${id}`, cotizacionData, {
+                headers: getAuthHeaders()
+            });
             return response.data;
         } catch (err) {
             setError(err.response?.data || err.message);
@@ -71,7 +96,9 @@ const CotizacionService = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.delete(`${baseURL}/${id}`);
+            const response = await axios.delete(`${baseURL}/${id}`, {
+                headers: getAuthHeaders()
+            });
             return response.data;
         } catch (err) {
             setError(err.response?.data || err.message);
@@ -85,7 +112,9 @@ const CotizacionService = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.post(`${baseURL}/${id}/activar`, {});
+            const response = await axios.post(`${baseURL}/${id}/activar`, {}, {
+                headers: getAuthHeaders()
+            });
             return response.data;
         } catch (err) {
             setError(err.response?.data || err.message);
@@ -99,7 +128,9 @@ const CotizacionService = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.post(`${baseURL}/${id}/pagos`, pagoData);
+            const response = await axios.post(`${baseURL}/${id}/pagos`, pagoData, {
+                headers: getAuthHeaders()
+            });
             return response.data;
         } catch (err) {
             setError(err.response?.data || err.message);
